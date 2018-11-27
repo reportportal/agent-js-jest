@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/ringods/agent-js-jest.svg?branch=master)](https://travis-ci.org/ringods/agent-js-jest)
-
 # reportportal-agent-jest
 
 A Jest reporter that uploads the results to a [ReportPortal](http://reportportal.io/) server.
