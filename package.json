@@ -1,0 +1,28 @@
+{
+  "name": "reportportal-agent-jest",
+  "version": "0.0.1",
+  "description": "A Jest reporter that uploads test results to ReportPortal",
+  "main": "index.js",
+  "repository": "https://github.com/reportportal/reportportal-agent-jest",
+  "author": "Ringo De Smet",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "files": [
+    "index.js",
+    "utils",
+    "constants"
+  ],
+  "scripts": {
+    "test": "jest",
+    "pretest:ci": "npm install jest@$JEST_VERSION --no-save",
+    "test:ci": "jest --ci"
+  },
+  "dependencies": {
+    "reportportal-client": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^22.4.3"
+  }
+}
