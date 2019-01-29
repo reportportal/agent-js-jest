@@ -76,7 +76,7 @@ const processor = (report, reporterOptions = {}) => {
   const endTime = rpClient.helpers.now();
 
   const launchObj = rpClient.startLaunch({
-    name: 'Unit Tests',
+    name: options.launchname,
     start_time: report.startTime,
   });
 
