@@ -70,7 +70,7 @@ const processor = (report, reporterOptions = {}) => {
   const rpClient = new RPClient({
     token: process.env.RP_TOKEN,
     endpoint: options.endpoint,
-    launch: 'Unit Tests',
+    launch: options.launchname,
     project: options.project,
   });
   const endTime = rpClient.helpers.now();
