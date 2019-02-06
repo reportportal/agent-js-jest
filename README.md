@@ -17,8 +17,10 @@ In your jest config section of `package.json`, add the following entry:
         "reporters": [
             "reportportal-agent-jest",
             {
-            "endpoint": "https://your.reportportal.server/api/v1",
-            "project": "YourReportPortalProjectName"
+                "endpoint": "https://your.reportportal.server/api/v1",
+                "project": "YourReportPortalProjectName",
+                "launchname": "YourLauncherName",
+                "tags": ["Ninja","MyOtherCoolTag"]
             }
         ],
         ...
@@ -32,6 +34,14 @@ First configure your ReportPortal access token, then start Jest:
 $ export RP_TOKEN=<your_secure_token>
 $ jest
 ```
+
+It's also possible to override parameters `launchname` and `project` defined in `package.json` by using environment variables, it's important to mention that environment variables has precedence over `package.json` definition.
+
+```shell
+$ export RP_LAUNCH_NAME=MY_COOL_LAUNCHER
+$ export RP_PROJECT_NAME=MY_AWESOME_PROJECT
+```
+This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project or launcher name.
 
 # Copyright Notice
 

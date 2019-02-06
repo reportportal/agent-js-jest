@@ -2,7 +2,9 @@ const getOptions = require('./utils/getOptions');
 const RPClient = require('reportportal-client');
 
 const reportTests = (client, launchObj, suiteObj, tests) => {
+
   tests.forEach((test) => {
+
     const {
       ancestorTitles,
       duration,
@@ -16,10 +18,17 @@ const reportTests = (client, launchObj, suiteObj, tests) => {
 
     const testObj = client.startTestItem({
       name: title,
-      type: 'TEST',
+      type: 'TEST'
     }, launchObj.tempId, suiteObj.tempId);
 
+    // Change status from 'pending' to 'skipped' so the launch finish
+    // the ran, instead of stay in running status forever.
+    const testStatus = test.status === 'pending' ? 'skipped' : test.status;
+
     const testFinishObj = client.finishTestItem(testObj.tempId, {
+      status: testStatus,
+      end_time: client.helpers.now(),
+      issue: test.issue
     });
 
   });
@@ -70,13 +79,14 @@ const processor = (report, reporterOptions = {}) => {
   const rpClient = new RPClient({
     token: process.env.RP_TOKEN,
     endpoint: options.endpoint,
-    launch: 'Unit Tests',
-    project: options.project,
+    launch: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
+    project: process.env.RP_PROJECT_NAME || options.project
   });
   const endTime = rpClient.helpers.now();
 
   const launchObj = rpClient.startLaunch({
-    name: 'Unit Tests',
+    name: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
+    tags: options.tags,
     start_time: report.startTime,
   });
 
