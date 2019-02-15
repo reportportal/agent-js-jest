@@ -86,7 +86,7 @@ const processor = (report, reporterOptions = {}) => {
 
   const launchObj = rpClient.startLaunch({
     name: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    tags: options.tags,
+    tags: process.env.RP_TAGS ? process.env.RP_TAGS.split(",") : options.tags,
     start_time: report.startTime,
   });
 
