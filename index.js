@@ -1,18 +1,10 @@
 const getOptions = require('reportportal-agent-jest/utils/getOptions');
 const RPClient = require('reportportal-client');
+const { load_base_reporter } = require('./utils/jest_utils')
+const { getClientInitObject, getSuiteStartObject, getStartLaunchObject, getTestStartObject } = require('./utils/objectsUtils')
 
-const entityType = { SUITE: 'SUITE', TEST: 'STEP' };
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'skipped' };
+const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _load_base_reporter() {
-  return _base_reporter = _interopRequireDefault(require('../jest/node_modules/jest-cli/build/reporters/base_reporter'));
-}
-
-function _load_Status() {
-  return _Status = _interopRequireDefault(require('../jest/node_modules/jest-cli/build/reporters/Status'));
-}
 
 
 const promiseErrorHandler = (promise) => {
@@ -21,110 +13,120 @@ const promiseErrorHandler = (promise) => {
   });
 };
 
-const getClientInitObject = (options = {}) => {
-  return {
-    token: process.env.RP_TOKEN,
-    endpoint: options.endpoint,
-    launch: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    project: process.env.RP_PROJECT_NAME || options.project
-  }
-}
 
-const getStartLaunchObject = (options = {}) => {
-  return {
-    name: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    tags: options.tags,
-    start_time: new Date().valueOf(),
-  }
-}
-
-const getTestStartObject = (testTitle) => {
-  return { 
-    type: entityType.TEST, 
-    name: testTitle  || "Custom Test title"
-  };
-}
-
-const getSuiteStartObject = (suiteTitle) => {
-  return { type: entityType.SUITE, name: suiteTitle || "Title Custom" };
-}
-
-
-class JestReportPortal  extends _load_base_reporter().default {
+class JestReportPortal  extends load_base_reporter().default {
   constructor(globalConfig, options) {
     super();
     
     this.globalConfig = globalConfig;
     this.reportOptions = getClientInitObject(getOptions.options(options));
     this.client = new RPClient(this.reportOptions);
-    this.suiteId = 0;
     this.tempSuiteId = null;
     this.tempTestId = null;
-
-    let startLaunchObj = getStartLaunchObject(this.reportOptions)
-    const { tempId, promise } = this.client.startLaunch(startLaunchObj)
-    console.log(`Launch id: ${tempId}`)
-    this.tempLaunchId = tempId;
-    promiseErrorHandler(promise)
-
   }
 
   onRunStart(aggregatedResults, options) {
-    this.suiteId += 1;
-    let suiteTitle = `Suite title ${this.suiteId}`
+    const startLaunchObj = getStartLaunchObject(this.reportOptions)
+    let { tempId, promise } = this.client.startLaunch(startLaunchObj)
 
-    const { tempId, suitePromise } = this.client.startTestItem({
-      "type" : entityType.SUITE,
-      "name": suiteTitle,
-      "start_time": this.client.helpers.now()
-    }, this.tempLaunchId);
-
-    this.tempSuiteId = tempId;
-    console.log(`Suite id: ${suitePromise}`)
+    this.tempLaunchId = tempId;
+    promiseErrorHandler(promise)
   }
 
-  onTestStart(test) {
-    console.log(test.path)
-
-    const testStartObj = getTestStartObject(test.context.config.name)
+  onTestResult(test, testResult, aggregatedResults) {
+    let suiteName = testResult.testResults[0].ancestorTitles[0]
+    this._startSuite(suiteName)
     
-    const {tempId} = this.client.startTestItem(
+    testResult.testResults.forEach(t => {
+      this._startTest(t.title);
+      this._finishTest(t)
+    });
+
+    this._finishSuite();
+  }
+
+  onRunComplete(contexts, results) {
+    const { tempId, promise } = this.client.finishLaunch(this.tempLaunchId);
+    promiseErrorHandler(promise);
+  };
+
+  _startSuite(suiteName) {
+    const { tempId, promise } = this.client.startTestItem(
+      getSuiteStartObject(suiteName), 
+      this.tempLaunchId
+    );
+    
+    promiseErrorHandler(promise)
+    this.tempSuiteId = tempId;
+  }
+
+  _startTest(testName) {
+    const testStartObj = getTestStartObject(testName)
+    
+    const { tempId, promise } = this.client.startTestItem(
       testStartObj,
       this.tempLaunchId,
       this.tempSuiteId
     );
 
+    promiseErrorHandler(promise)
     this.tempTestId = tempId;
-    console.log(`Test id: ${tempId}`)
   }
 
-  onTestResult(test, testResult, aggregatedResults) {
-    
-    if (testResult.testResults[0].status === 'passed'){
-      let suiteId = this.tempSuiteId;
-      let status = testItemStatuses.PASSED;
-      let finishTestObj = { status , suiteId};
-
-      const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
-      promiseErrorHandler(promise);
-    }
-
-    if (testResult.testResults[0].status === 'failed'){
-      let message = `Stacktrace: ${testResult.failureMessage}\n`;
-      let finishTestObj = { 
-        status: testItemStatuses.FAILED, 
-        description: message 
-      };
-
-      const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
-      promiseErrorHandler(promise);
+  _finishTest(test) {
+    console.log(test.status)
+    switch(test.status) {
+      case testItemStatuses.PASSED:
+        this._finishPassedTest();
+        break;
+      case testItemStatuses.FAILED:
+        this._finishFailedTest(test.failureMessage);
+        break;
+      case testItemStatuses.SKIPPED:
+        this._finishSkippedTest();
+        break;
+      default:
+        console.log('Unsupported test Status!!!')
     }
   }
 
-  onRunComplete(contexts, results) {
-    this.client.finishTestItem(this.tempSuiteId, {});
-    this.client.finishLaunch(this.tempLaunchId);
-  };
+  _finishPassedTest() {
+    let suiteId = this.tempSuiteId;
+
+    let status = testItemStatuses.PASSED;
+    let finishTestObj = { 
+      status: status
+    };
+  
+    const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+    promiseErrorHandler(promise);
+  }
+
+  _finishFailedTest(failureMessage) {
+    let message = `Stacktrace: ${failureMessage}\n`;
+    let finishTestObj = { 
+      status: testItemStatuses.FAILED, 
+      description: message 
+    };
+
+    const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+    promiseErrorHandler(promise);
+  }
+
+  _finishSkippedTest() {
+    let finishTestObj = { 
+      status: 'skipped', 
+      issue:  { issue_type: 'NOT_ISSUE' }
+    };
+
+    const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+    promiseErrorHandler(promise); 
+  }
+
+  _finishSuite() {
+    const { tempId, promise } = this.client.finishTestItem(this.tempSuiteId, {});
+    promiseErrorHandler(promise);
+  }
 }
 
 module.exports = JestReportPortal;
