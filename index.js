@@ -1,7 +1,7 @@
-const getOptions = require('reportportal-agent-jest/utils/getOptions');
+const getOptions = require('./utils/getOptions');
 const RPClient = require('reportportal-client');
-const { load_base_reporter } = require('./utils/jest_utils')
-const { getClientInitObject, getSuiteStartObject, getStartLaunchObject, getTestStartObject } = require('./utils/objectsUtils')
+const { load_base_reporter } = require('./utils/jestUtils')
+const { getClientInitObject, getSuiteStartObject, getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils')
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 
