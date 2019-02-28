@@ -1,120 +1,132 @@
-const getOptions = require('./utils/getOptions');
+const getOptions = require('reportportal-agent-jest/utils/getOptions');
 const RPClient = require('reportportal-client');
+const { load_base_reporter } = require('./utils/jest_utils')
+const { getClientInitObject, getSuiteStartObject, getStartLaunchObject, getTestStartObject } = require('./utils/objectsUtils')
 
-const reportTests = (client, launchObj, suiteObj, tests) => {
+const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 
-  tests.forEach((test) => {
 
-    const {
-      ancestorTitles,
-      duration,
-      failureMessages,
-      fullName,
-      location,
-      numPassingAsserts,
-      status,
-      title,
-    } = test;
 
-    const testObj = client.startTestItem({
-      name: title,
-      type: 'TEST'
-    }, launchObj.tempId, suiteObj.tempId);
+const promiseErrorHandler = (promise) => {
+  promise.catch(err => {
+    console.error(err);
+  });
+};
 
-    // Change status from 'pending' to 'skipped' so the launch finish
-    // the ran, instead of stay in running status forever.
-    const testStatus = test.status === 'pending' ? 'skipped' : test.status;
 
-    const testFinishObj = client.finishTestItem(testObj.tempId, {
-      status: testStatus,
-      end_time: client.helpers.now(),
-      issue: test.issue
+class JestReportPortal  extends load_base_reporter().default {
+  constructor(globalConfig, options) {
+    super();
+    
+    this.globalConfig = globalConfig;
+    this.reportOptions = getClientInitObject(getOptions.options(options));
+    this.client = new RPClient(this.reportOptions);
+    this.tempSuiteId = null;
+    this.tempTestId = null;
+  }
+
+  onRunStart(aggregatedResults, options) {
+    const startLaunchObj = getStartLaunchObject(this.reportOptions)
+    let { tempId, promise } = this.client.startLaunch(startLaunchObj)
+
+    this.tempLaunchId = tempId;
+    promiseErrorHandler(promise)
+  }
+
+  onTestResult(test, testResult, aggregatedResults) {
+    let suiteName = testResult.testResults[0].ancestorTitles[0]
+    this._startSuite(suiteName)
+    
+    testResult.testResults.forEach(t => {
+      this._startTest(t.title);
+      this._finishTest(t)
     });
 
-  });
+    this._finishSuite();
+  }
 
-};
-
-const reportSuites = (client, launchObj, suites) => {
-  const appDirectory = process.cwd();
-  suites.forEach((suite) => {
-    const {
-      console,
-      failureMessage,
-      numFailingTests,
-      numPassingTests,
-      numPendingTests,
-      perfStats,
-      snapshot,
-      testFilePath,
-      testResults,
-      coverage,
-      sourceMaps,
-      skipped,
-      displayName,
-      leaks,
-    } = suite;
-
-    const suiteObj = client.startTestItem({
-      name: testFilePath.replace(appDirectory, ''),
-      start_time: perfStats.start,
-      type: 'SUITE',
-    }, launchObj.tempId);
-
-    reportTests(client, launchObj, suiteObj, testResults);
-
-    const suiteFinishObj = client.finishTestItem(suiteObj.tempId, {
-      end_time: perfStats.end,
-    });
-
-  });
-
-};
-
-const processor = (report, reporterOptions = {}) => {
-  // If jest-junit is used as a reporter allow for reporter options
-  // to be used. Env and package.json will override.
-  const options = getOptions.options(reporterOptions);
-
-  const rpClient = new RPClient({
-    token: process.env.RP_TOKEN,
-    endpoint: options.endpoint,
-    launch: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    project: process.env.RP_PROJECT_NAME || options.project
-  });
-  const endTime = rpClient.helpers.now();
-
-  const launchObj = rpClient.startLaunch({
-    name: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    tags: options.tags,
-    start_time: report.startTime,
-  });
-
-  reportSuites(rpClient, launchObj, report.testResults);
-
-  const launchFinishObj = rpClient.finishLaunch(launchObj.tempId, {
-    end_time: endTime,
-  });
-
-  // Jest 18 compatibility
-  return report;
-};
-
-// This is an old school "class" in order
-// for the constructor to be invoked statically and via "new"
-// so we can support both testResultsProcessor and reporters
-// TODO: refactor to es6 class after testResultsProcessor support is removed
-function JestReportPortal (globalConfig, options) {
-  this.globalConfig = globalConfig;
-  this.options = options;
-
-  this.onRunComplete = (contexts, results) => {
-    if (process.env.RP_TOKEN === undefined) {
-      console.log('No ReportPortal token (RP_TOKEN) set. Skipping upload.');
-    } else {
-      processor(results, this.options);
-    }
+  onRunComplete(contexts, results) {
+    const { tempId, promise } = this.client.finishLaunch(this.tempLaunchId);
+    promiseErrorHandler(promise);
   };
+
+  _startSuite(suiteName) {
+    const { tempId, promise } = this.client.startTestItem(
+      getSuiteStartObject(suiteName), 
+      this.tempLaunchId
+    );
+    
+    promiseErrorHandler(promise)
+    this.tempSuiteId = tempId;
+  }
+
+  _startTest(testName) {
+    const testStartObj = getTestStartObject(testName)
+    
+    const { tempId, promise } = this.client.startTestItem(
+      testStartObj,
+      this.tempLaunchId,
+      this.tempSuiteId
+    );
+
+    promiseErrorHandler(promise)
+    this.tempTestId = tempId;
+  }
+
+  _finishTest(test) {
+    console.log(test.status)
+    switch(test.status) {
+      case testItemStatuses.PASSED:
+        this._finishPassedTest();
+        break;
+      case testItemStatuses.FAILED:
+        this._finishFailedTest(test.failureMessage);
+        break;
+      case testItemStatuses.SKIPPED:
+        this._finishSkippedTest();
+        break;
+      default:
+        console.log('Unsupported test Status!!!')
+    }
+  }
+
+  _finishPassedTest() {
+    let suiteId = this.tempSuiteId;
+
+    let status = testItemStatuses.PASSED;
+    let finishTestObj = { 
+      status: status
+    };
+  
+    const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+    promiseErrorHandler(promise);
+  }
+
+  _finishFailedTest(failureMessage) {
+    let message = `Stacktrace: ${failureMessage}\n`;
+    let finishTestObj = { 
+      status: testItemStatuses.FAILED, 
+      description: message 
+    };
+
+    const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+    promiseErrorHandler(promise);
+  }
+
+  _finishSkippedTest() {
+    let finishTestObj = { 
+      status: 'skipped', 
+      issue:  { issue_type: 'NOT_ISSUE' }
+    };
+
+    const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+    promiseErrorHandler(promise); 
+  }
+
+  _finishSuite() {
+    const { tempId, promise } = this.client.finishTestItem(this.tempSuiteId, {});
+    promiseErrorHandler(promise);
+  }
 }
 
 module.exports = JestReportPortal;
