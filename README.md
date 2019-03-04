@@ -15,12 +15,13 @@ In your jest config section of `package.json`, add the following entry:
     "jest": {
         ...
         "reporters": [
+            "default",
             "@reportportal/reportportal-agent-jest",
             {
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
                 "launchname": "YourLauncherName",
-                "tags": ["Ninja","MyOtherCoolTag"]
+                "tags": ["tag1","tag2"]
             }
         ],
         ...
@@ -28,20 +29,36 @@ In your jest config section of `package.json`, add the following entry:
 }
 ```
 
-First configure your ReportPortal access token, then start Jest:
+In case you use `jest.config.js`, you should add to it the following:
 
-```shell
-$ export RP_TOKEN=<your_secure_token>
-$ jest
+```javascript
+
+module.exports = {
+    ...
+    reporters: [
+        "default",
+        [
+            "@reportportal/reportportal-agent-jest",
+            {
+                "endpoint": "https://your.reportportal.server/api/v1",
+                "project": "YourReportPortalProjectName",
+                "launchname": "YourLauncherName",
+                "tags": ["tag1","tag2"]
+            }
+        ]
+    ]
+    ...
 ```
 
-It's also possible to override parameters `launchname` and `project` defined in `package.json` by using environment variables, it's important to mention that environment variables has precedence over `package.json` definition.
+It's possible by using environment variables, it's important to mention that environment variables has precedence over `package.json` definition.
 
 ```shell
+$ export RP_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+$ export RP_PROJECT=MY_AWESOME_PROJECT
 $ export RP_LAUNCH_NAME=MY_COOL_LAUNCHER
-$ export RP_PROJECT_NAME=MY_AWESOME_PROJECT
+$ export RP_TAGS=tag1,tag2,tag3
 ```
-This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project or launcher name.
+This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
 
 # Copyright Notice
 
