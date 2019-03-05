@@ -16,13 +16,13 @@ In your jest config section of `package.json`, add the following entry:
         ...
         "reporters": [
             "default",
-            "@reportportal/reportportal-agent-jest",
+            ["@reportportal/reportportal-agent-jest",
             {
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
                 "launchname": "YourLauncherName",
                 "tags": ["tag1","tag2"]
-            }
+            }]
         ],
         ...
     }
