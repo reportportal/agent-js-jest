@@ -3,8 +3,11 @@
   "version": "1.0.4",
   "description": "A Jest reporter that uploads test results to ReportPortal",
   "main": "index.js",
-  "repository": "https://github.com/reportportal/reportportal-agent-jest",
-  "author":  "Uladzislau Akulich, Ringo De Smet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reportportal/reportportal-agent-jest.git"
+  },
+  "author": "Uladzislau Akulich, Ringo De Smet",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=6.0.0"
@@ -24,5 +27,15 @@
   },
   "devDependencies": {
     "jest": "^22.4.4"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/reportportal/reportportal-agent-jest/issues"
+  },
+  "homepage": "https://github.com/reportportal/reportportal-agent-jest#readme",
+  "keywords": [
+    "epam",
+    "reportportal",
+    "rp",
+    "jest"
+  ]
 }
