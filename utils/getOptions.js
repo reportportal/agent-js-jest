@@ -15,6 +15,15 @@ function getEnvOptions () {
   return options;
 }
 
+function getReportClientPortalConfig(options){
+  return {
+    token: process.env.RP_TOKEN,
+    endpoint: options.endpoint,
+    launch: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
+    project: process.env.RP_PROJECT_NAME || options.project
+  }
+}
+
 function getAppOptions (pathToResolve) {
   const initialPath = pathToResolve;
 
@@ -45,6 +54,22 @@ function getAppOptions (pathToResolve) {
 module.exports = {
   options: (reporterOptions = {}) => {
     return Object.assign({}, constants.DEFAULT_OPTIONS, reporterOptions, getAppOptions(process.cwd()), getEnvOptions());
+  },
+  getTokenOption: function getTokeOption()
+  {
+    return process.env.RP_TOKEN;
+  },
+  getProjectNameOption: function getProjectNameOption(options)
+  {
+    return process.env.RP_PROJECT_NAME || options.project;
+  },
+  getLaunchNameOption: function getLaunchNameOption(options)
+  {
+    return process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests';
+  },
+  getTagsOption: function getTagsOption(options)
+  {
+    return process.env.RP_TAGS ? process.env.RP_TAGS.split(",") : options.tags;
   },
   getAppOptions: getAppOptions,
   getEnvOptions: getEnvOptions

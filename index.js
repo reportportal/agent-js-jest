@@ -77,16 +77,16 @@ const processor = (report, reporterOptions = {}) => {
   const options = getOptions.options(reporterOptions);
 
   const rpClient = new RPClient({
-    token: process.env.RP_TOKEN,
+    token: getOptions.getTokenOption(),
     endpoint: options.endpoint,
-    launch: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    project: process.env.RP_PROJECT_NAME || options.project
+    launch: getOptions.getLaunchNameOption(options),
+    project: getOptions.getProjectNameOption(options)
   });
   const endTime = rpClient.helpers.now();
 
   const launchObj = rpClient.startLaunch({
-    name: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
-    tags: process.env.RP_TAGS ? process.env.RP_TAGS.split(",") : options.tags,
+    name: getOptions.getLaunchNameOption(options),
+    tags: getOptions.getTagsOption(options),
     start_time: report.startTime,
   });
 
