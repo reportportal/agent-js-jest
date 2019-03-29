@@ -1,5 +1,5 @@
 const getOptions = require('./utils/getOptions'),
-    RPClient = require('reportportal-client'),
+    RPClient = require('reportportal-client-restler'),
     { load_base_reporter } = require('./utils/jestUtils'),
     { getClientInitObject, getSuiteStartObject,
         getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils');

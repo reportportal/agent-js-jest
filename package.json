@@ -1,6 +1,6 @@
 {
   "name": "reportportal-agent-jest",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A Jest reporter that uploads test results to ReportPortal",
   "main": "index.js",
   "repository": {
@@ -23,7 +23,7 @@
     "test:ci": "jest --ci"
   },
   "dependencies": {
-    "reportportal-client": "^5.1.0"
+    "reportportal-client-restler": "^1.0.0"
   },
   "devDependencies": {
     "jest": "^22.4.4"
