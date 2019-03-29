@@ -1,13 +1,5 @@
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
   "name": "@reportportal/reportportal-agent-jest",
-=======
-  "name": "reportportal-agent-jest",
->>>>>>> Changed npm package to interact with RP
-=======
-  "name": "reportportal-agent-jest",
->>>>>>> 770731f5d267ea136ee78719b6cceb0c2b826410
   "version": "1.0.6",
   "description": "A Jest reporter that uploads test results to ReportPortal",
   "main": "index.js",
