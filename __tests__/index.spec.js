@@ -15,4 +15,11 @@ describe('index script', () => {
         expect(result).toBeDefined();
         expect(result).not.toBe(null);
     });
+
+    test('require base_reporter from jest-reporters', () => {
+        const result = base_reporter = require('jest-reporters/lib/BaseReporter');
+
+        expect(result).toBeDefined();
+        expect(result).not.toBe(null);
+    });
 });
