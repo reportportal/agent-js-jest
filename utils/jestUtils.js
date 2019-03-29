@@ -1,13 +1,10 @@
-// eslint-disable-next-line no-confusing-arrow
+/* eslint-disable no-confusing-arrow */
+const base_reporter = require('jest-reporters/lib/BaseReporter');
+
 const _interopRequireDefault = obj => obj && obj.__esModule ? obj : { default: obj },
 
-    load_base_reporter = () => {
-        const base_reporter = require('../../../jest/node_modules/jest-cli/build/reporters/base_reporter');
-        let result = _interopRequireDefault(base_reporter);
-
-        return result;
+    load_base_reporter = function () {
+        return _interopRequireDefault(base_reporter);
     };
 
-module.exports = {
-    load_base_reporter
-};
+module.exports = load_base_reporter;
