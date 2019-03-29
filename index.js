@@ -1,6 +1,6 @@
 const getOptions = require('./utils/getOptions'),
     RPClient = require('reportportal-client-restler'),
-    { load_base_reporter } = require('./utils/jestUtils').default.default,
+    base_reporter = require('jest-reporters/lib/BaseReporter'),
     { getClientInitObject, getSuiteStartObject,
         getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils');
 
@@ -22,7 +22,7 @@ const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending
     };
 
 
-class JestReportPortal extends load_base_reporter().default {
+class JestReportPortal extends base_reporter {
     constructor (globalConfig, options) {
         super();
 
