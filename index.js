@@ -58,7 +58,13 @@ class JestReportPortal extends base_reporter {
 
     // eslint-disable-next-line no-unused-vars
     onRunComplete (contexts, results) {
-        const { promise } = this.client.finishLaunch(this.tempLaunchId);
+        let runStatus = 'PASSED'
+        if (results.numFailedTests > 0) {
+          runStatus = 'FAILED';
+        }
+        const { promise } = this.client.finishLaunch(this.tempLaunchId, {
+            status: runStatus
+        });
 
         promiseErrorHandler(promise);
     }
@@ -77,7 +83,6 @@ class JestReportPortal extends base_reporter {
             { tempId, promise } = this.client.startTestItem(testStartObj,
                 this.tempLaunchId,
                 this.tempSuiteId);
-
         promiseErrorHandler(promise);
         this.tempTestId = tempId;
     }
@@ -97,7 +102,7 @@ class JestReportPortal extends base_reporter {
                 break;
             default:
                 // eslint-disable-next-line no-console
-                console.log('Unsupported test Status!!!');
+                console.log(`Unsupported test status: ${test.status}`);
         }
     }
 

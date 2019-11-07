@@ -4,7 +4,7 @@ const entityType = { SUITE: 'SUITE', TEST: 'STEP' },
     getStartLaunchObject = (options = {}) => ({
         launch: process.env.RP_LAUNCH_NAME || options.launchname || 'Unit Tests',
         tags: options.tags,
-        start_time: new Date().valueOf()
+        startTime: new Date().valueOf()
     }),
 
     getTestStartObject = testTitle => ({
@@ -15,7 +15,7 @@ const entityType = { SUITE: 'SUITE', TEST: 'STEP' },
     getSuiteStartObject = suiteName => ({
         type: entityType.SUITE,
         name: suiteName || 'Title Custom',
-        start_time: new Date().valueOf()
+        startTime: new Date().valueOf()
     }),
 
     getClientInitObject = (options = {}) => {
