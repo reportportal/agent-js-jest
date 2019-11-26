@@ -25,12 +25,15 @@ const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending
 class JestReportPortal extends base_reporter {
     constructor (globalConfig, options) {
         super();
-
         this.globalConfig = globalConfig;
         this.reportOptions = getClientInitObject(getOptions.options(options));
         this.client = new RPClient(this.reportOptions);
-        this.tempSuiteId = null;
+        this.tempSuiteIds = [];
         this.tempTestId = null;
+    }
+
+    getLastTempSuidId () {
+        return this.tempSuiteIds[this.tempSuiteIds.length - 1]
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -44,9 +47,12 @@ class JestReportPortal extends base_reporter {
 
     // eslint-disable-next-line no-unused-vars
     onTestResult (test, testResult, aggregatedResults) {
-        let suiteName = testResult.testResults[0].ancestorTitles[0];
+        let suiteNames = testResult.testResults[0].ancestorTitles;
+        
+       suiteNames.forEach(name => {
+        this._startSuite(name); 
 
-        this._startSuite(suiteName);
+       })
 
         testResult.testResults.forEach(t => {
             this._startTest(t.title);
@@ -63,12 +69,13 @@ class JestReportPortal extends base_reporter {
         promiseErrorHandler(promise);
     }
 
-    _startSuite (suiteName) {
+    _startSuite  (suiteName) {
         const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName),
-            this.tempLaunchId);
+            this.tempLaunchId, this.getLastTempSuidId());
+            
 
         promiseErrorHandler(promise);
-        this.tempSuiteId = tempId;
+        this.tempSuiteIds.push(tempId);
     }
 
     _startTest (testName) {
@@ -76,7 +83,7 @@ class JestReportPortal extends base_reporter {
 
             { tempId, promise } = this.client.startTestItem(testStartObj,
                 this.tempLaunchId,
-                this.tempSuiteId);
+                this.getLastTempSuidId());
 
         promiseErrorHandler(promise);
         this.tempTestId = tempId;
@@ -146,9 +153,11 @@ class JestReportPortal extends base_reporter {
     }
 
     _finishSuite () {
-        const { promise } = this.client.finishTestItem(this.tempSuiteId, {});
+        this.tempSuiteIds.forEach(item => {
+            const { promise } = this.client.finishTestItem(item, {});
 
-        promiseErrorHandler(promise);
+            promiseErrorHandler(promise);
+        })
     }
 }
 
