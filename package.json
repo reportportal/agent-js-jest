@@ -1,6 +1,6 @@
 {
-  "name": "@utex/temp-reportportal-agent-jest",
-  "version": "1.0.1",
+  "name": "@reportportal/reportportal-agent-jest",
+  "version": "1.0.7",
   "description": "A Jest reporter that uploads test results to ReportPortal",
   "main": "index.js",
   "repository": {
@@ -32,9 +32,6 @@
   },
   "bugs": {
     "url": "https://github.com/reportportal/reportportal-agent-jest/issues"
-  },
-  "publishConfig": {
-    "registry": "https://nexus.auroraplatform.com/nexus/content/repositories/npm-private/"
   },
   "homepage": "https://github.com/reportportal/reportportal-agent-jest#readme",
   "keywords": [
