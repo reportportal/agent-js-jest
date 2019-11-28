@@ -158,6 +158,8 @@ class JestReportPortal extends base_reporter {
 
             promiseErrorHandler(promise);
         })
+
+        this.tempSuiteIds = [];
     }
 }
 
