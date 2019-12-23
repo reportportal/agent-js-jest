@@ -18,17 +18,20 @@
     "constants"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "jest ./example/test.js --config ./example/jest.config.js",
     "pretest:ci": "npm install jest@$JEST_VERSION --no-save",
     "test:ci": "jest --ci"
   },
   "dependencies": {
-    "jest-reporters": "0.0.2",
-    "reportportal-client-restler": "^1.0.0"
+    "@jest/reporters": "25.1.0",
+    "jest-cli": "^25.1.0",
+    "reportportal-client": "^5.5.0"
   },
   "devDependencies": {
+    "@types/jest": "^24.9.0",
+    "@types/jest-cli": "^24.3.0",
     "eslint": "^5.15.3",
-    "jest": "^24.5.0"
+    "jest": "^25.1.0"
   },
   "bugs": {
     "url": "https://github.com/reportportal/reportportal-agent-jest/issues"
