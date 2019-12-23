@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "jest-reporters": "0.0.2",
-    "reportportal-client-restler": "^1.0.0"
+    "reportportal-client": "^5.1.0"
   },
   "devDependencies": {
     "eslint": "^5.15.3",

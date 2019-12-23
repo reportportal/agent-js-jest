@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
-const clientRPRestler = require('reportportal-client-restler');
+const clientRP = require('reportportal-client');
 
 
 describe('index script', () => {
     test('require report-portal-restler package', () => {
-        const result = new clientRPRestler({
+        const result = new clientRP({
             debug: false,
             token: "00000000-0000-0000-0000-000000000000",
             endpoint: "http://your-instance.com:8080/api/v1",

@@ -1,10 +1,10 @@
 const getOptions = require('./utils/getOptions'),
-    RPClient = require('reportportal-client-restler'),
+    RPClient = require('reportportal-client'),
     base_reporter = require('jest-reporters/lib/BaseReporter'),
     { getClientInitObject, getSuiteStartObject,
         getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils');
 
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' },
+const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'skipped' },
 
     logLevels = {
         ERROR: 'error',
@@ -137,7 +137,7 @@ class JestReportPortal extends base_reporter {
     _finishSkippedTest () {
         let finishTestObj = {
             status: 'skipped',
-            issue: { issue_type: 'NOT_ISSUE' }
+            issue: { issueType: 'nd001' }
         };
 
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
