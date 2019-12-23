@@ -18,10 +18,19 @@ In your jest config section of `package.json`, add the following entry:
             "default",
             ["@reportportal/reportportal-agent-jest",
             {
+                "token": "00000000-0000-0000-0000-000000000000",
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
-                "launchname": "YourLauncherName",
-                "tags": ["tag1","tag2"]
+                "launch": "YourLauncherName",
+                "attributes": [
+                    {
+                        "key": "YourKey",
+                        "value": "YourValue"
+                    },
+                    {
+                        "value": "YourValue"
+                    },
+                ]
             }]
         ],
         ...
@@ -40,10 +49,19 @@ module.exports = {
         [
             "@reportportal/reportportal-agent-jest",
             {
+                "token": "00000000-0000-0000-0000-000000000000",                
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
-                "launchname": "YourLauncherName",
-                "tags": ["tag1","tag2"]
+                "launch": "YourLauncherName",
+                "attributes": [
+                    {
+                        "key": "YourKey",
+                        "value": "YourValue"
+                    },
+                    {
+                        "value": "YourValue"
+                    },
+                ]
             }
         ]
     ]
@@ -55,10 +73,19 @@ It's possible by using environment variables, it's important to mention that env
 ```shell
 $ export RP_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 $ export RP_PROJECT=MY_AWESOME_PROJECT
-$ export RP_LAUNCH_NAME=MY_COOL_LAUNCHER
-$ export RP_TAGS=tag1,tag2,tag3
+$ export RP_LAUNCH=MY_COOL_LAUNCHER
+$ export RP_ATTRIBUTES=key:value,key:value,value
 ```
 This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
+
+##Run test example:
+Go to the example folder and inside of jest.config.js you need to insert data about your instance of the Report Portal.
+
+To run the tests, type the following command in the console:
+```cmd
+npm run test
+```
+
 
 # Copyright Notice
 

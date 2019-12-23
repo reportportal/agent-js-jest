@@ -1,31 +1,26 @@
-const getOptions = require('./utils/getOptions'),
-    RPClient = require('reportportal-client-restler'),
-    base_reporter = require('jest-reporters/lib/BaseReporter'),
-    { getClientInitObject, getSuiteStartObject,
+const getOptions = require('./utils/getOptions');
+const RPClient = require('reportportal-client');
+const { getClientInitObject, getSuiteStartObject,
         getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils');
 
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' },
+const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
+const logLevels = {
+    ERROR: 'error',
+    TRACE: 'trace',
+    DEBUG: 'debug',
+    INFO: 'info',
+    WARN: 'warn'
+};
 
-    logLevels = {
-        ERROR: 'error',
-        TRACE: 'trace',
-        DEBUG: 'debug',
-        INFO: 'info',
-        WARN: 'warn'
-    },
-
-
-    promiseErrorHandler = promise => {
-        promise.catch(err => {
-            console.error(err);
-        });
-    };
+const promiseErrorHandler = promise => {
+    promise.catch(err => {
+        console.error(err);
+    });
+};
 
 
-class JestReportPortal extends base_reporter {
+class JestReportPortal {
     constructor (globalConfig, options) {
-        super();
-
         this.globalConfig = globalConfig;
         this.reportOptions = getClientInitObject(getOptions.options(options));
         this.client = new RPClient(this.reportOptions);
@@ -72,11 +67,8 @@ class JestReportPortal extends base_reporter {
     }
 
     _startTest (testName) {
-        const testStartObj = getTestStartObject(testName),
-
-            { tempId, promise } = this.client.startTestItem(testStartObj,
-                this.tempLaunchId,
-                this.tempSuiteId);
+        const testStartObj = getTestStartObject(testName);
+        const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
         this.tempTestId = tempId;
@@ -102,22 +94,20 @@ class JestReportPortal extends base_reporter {
     }
 
     _finishPassedTest () {
-        let status = testItemStatuses.PASSED,
-            finishTestObj = { status };
+        let status = testItemStatuses.PASSED;
 
+        const finishTestObj = { status };
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
 
     _finishFailedTest (failureMessage) {
-        let message = `Stacktrace: ${failureMessage}\n`,
-            finishTestObj = {
-                status: testItemStatuses.FAILED,
-                description: message
-            };
+        let finishTestObj = {
+            status: testItemStatuses.FAILED,
+        };
 
-        this._sendLog(message);
+        this._sendLog(failureMessage);
 
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
@@ -137,7 +127,6 @@ class JestReportPortal extends base_reporter {
     _finishSkippedTest () {
         let finishTestObj = {
             status: 'skipped',
-            issue: { issue_type: 'NOT_ISSUE' }
         };
 
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
