@@ -18,7 +18,7 @@
     "constants"
   ],
   "scripts": {
-    "test": "jest ./example/test.js --config ./example/jest.config.js",
+    "test": "jest --no-colors ./example/test.js --config ./example/jest.config.js",
     "pretest:ci": "npm install jest@$JEST_VERSION --no-save",
     "test:ci": "jest --ci"
   },
