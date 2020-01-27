@@ -3,7 +3,7 @@ const clientRP = require('reportportal-client');
 
 
 describe('index script', () => {
-    test('require report-portal-restler package', () => {
+    test('require reportportal-client package', () => {
         const result = new clientRP({
             debug: false,
             token: "00000000-0000-0000-0000-000000000000",

@@ -10,14 +10,12 @@ const getStartLaunchObject = (options = {}) => ({
 
 const getTestStartObject = testTitle => ({
     type: entityType.TEST,
-    name: testTitle || 'Custom Test title',
-    description: testTitle || 'Custom description',
+    name: testTitle,
 });
 
 const getSuiteStartObject = suiteName => ({
     type: entityType.SUITE,
-    name: suiteName || 'Title Custom',
-    description: suiteName || 'Custom description',
+    name: suiteName,
     startTime: new Date().valueOf()
 });
 
