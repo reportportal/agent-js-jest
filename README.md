@@ -78,6 +78,9 @@ $ export RP_ATTRIBUTES=key:value,key:value,value
 ```
 This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
 
+## Disable the colors of test output:
+In the Report Portal, the output of the test results may contain ANSI character set, this may be caused by the color setting in Jest. For version `"jest": "^24.8.0"`, use `jest --no-colors` command to disable the colors of test output.
+
 ## Run test example:
 Go to the example folder and inside of jest.config.js you need to insert data about your instance of the Report Portal.
 
