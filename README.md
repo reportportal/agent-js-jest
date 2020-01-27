@@ -78,7 +78,7 @@ $ export RP_ATTRIBUTES=key:value,key:value,value
 ```
 This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
 
-##Run test example:
+## Run test example:
 Go to the example folder and inside of jest.config.js you need to insert data about your instance of the Report Portal.
 
 To run the tests, type the following command in the console:
