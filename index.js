@@ -11,7 +11,6 @@ const logLevels = {
     INFO: 'info',
     WARN: 'warn'
 };
-const defaultNumberInvocations = 1;
 
 const promiseErrorHandler = promise => {
     promise.catch(err => {
@@ -44,11 +43,11 @@ class JestReportPortal {
 
         this._startSuite(suiteName);
         testResult.testResults.forEach(t => {
-            const numberInvocations = this.reportOptions.retry ? t.invocations : defaultNumberInvocations;
+            for (let i = 0; i < t.invocations; i++) {
+                const isRetried = t.invocations === 1 ? null : { retry: true };
 
-            for (let i = 0; i < numberInvocations; i++) {
-                this._startTest(t.title, this.reportOptions.retry);
-                this._finishTest(t, this.reportOptions.retry);
+                this._startTest(t.title, isRetried);
+                this._finishTest(t, isRetried);
             }
         });
 
@@ -72,7 +71,6 @@ class JestReportPortal {
 
     _startTest (testName, retry) {
         const testStartObj = getTestStartObject(testName, retry);
-        console.log('testStartObj', testStartObj);
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
@@ -99,19 +97,16 @@ class JestReportPortal {
     }
 
     _finishPassedTest (retry) {
-        let status = testItemStatuses.PASSED;
-
-        const finishTestObj = { status, retry };
+        const status = testItemStatuses.PASSED;
+        const finishTestObj = Object.assign({ status }, retry);
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
 
     _finishFailedTest (failureMessage, retry) {
-        let finishTestObj = {
-            status: testItemStatuses.FAILED,
-            retry,
-        };
+        const status = testItemStatuses.FAILED;
+        const finishTestObj = Object.assign({ status }, retry);
 
         this._sendLog(failureMessage);
 
@@ -131,11 +126,8 @@ class JestReportPortal {
     }
 
     _finishSkippedTest (retry) {
-        let finishTestObj = {
-            status: 'skipped',
-            retry,
-        };
-
+        const status = 'skipped';
+        const finishTestObj = Object.assign({ status }, retry);
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);

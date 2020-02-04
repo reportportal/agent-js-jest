@@ -10,7 +10,6 @@ module.exports = {
                 launch: 'LAUNCH_NAME',
                 project: 'PROJECT_NAME',
                 description: 'YOUR_DESCRIPTION',
-                retry: true,
                 attributes: [
                     {
                         'key': 'YourKey',

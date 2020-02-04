@@ -82,7 +82,7 @@ This for your convenience in case you has a continuous job that run your tests a
 In the Report Portal, the output of the test results may contain ANSI character set, this may be caused by the color setting in Jest. For version `"jest": "^24.8.0"`, use `jest --no-colors` command to disable the colors of test output.
 
 ## Used to report retry of test:
-In case if you want to report retry of test you should add to the jest config section `"retry": true`.
+The agent supports of Retries.
 Read more about [retries in jest](https://jestjs.io/docs/ru/jest-object#jestretrytimes).
 
 ## Run test example:
