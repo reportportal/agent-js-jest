@@ -12,7 +12,7 @@ const getTestStartObject = (testTitle, retry) => Object.assign(
 {
     type: entityType.TEST,
     name: testTitle
-}, retry && { retry });
+}, retry);
 
 const getSuiteStartObject = suiteName => ({
     type: entityType.SUITE,
@@ -37,7 +37,6 @@ const getClientInitObject = (options = {}) => {
         project: process.env.RP_PROJECT_NAME || options.project,
         description: options.description,
         attributes: env_attributes || options.attributes,
-        retry: options.retry,
     };
 };
 
