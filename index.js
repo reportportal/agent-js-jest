@@ -11,6 +11,7 @@ const logLevels = {
     INFO: 'info',
     WARN: 'warn'
 };
+const defaultNumberInvocations = 1;
 
 const promiseErrorHandler = promise => {
     promise.catch(err => {
@@ -42,10 +43,13 @@ class JestReportPortal {
         let suiteName = testResult.testResults[0].ancestorTitles[0];
 
         this._startSuite(suiteName);
-
         testResult.testResults.forEach(t => {
-            this._startTest(t.title);
-            this._finishTest(t);
+            const numberInvocations = this.reportOptions.retry ? t.invocations : defaultNumberInvocations;
+
+            for (let i = 0; i < numberInvocations; i++) {
+                this._startTest(t.title, this.reportOptions.retry);
+                this._finishTest(t, this.reportOptions.retry);
+            }
         });
 
         this._finishSuite();
@@ -66,26 +70,27 @@ class JestReportPortal {
         this.tempSuiteId = tempId;
     }
 
-    _startTest (testName) {
-        const testStartObj = getTestStartObject(testName);
+    _startTest (testName, retry) {
+        const testStartObj = getTestStartObject(testName, retry);
+        console.log('testStartObj', testStartObj);
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
         this.tempTestId = tempId;
     }
 
-    _finishTest (test) {
+    _finishTest (test, retry) {
         let errorMsg = test.failureMessages[0];
 
         switch (test.status) {
             case testItemStatuses.PASSED:
-                this._finishPassedTest();
+                this._finishPassedTest(retry);
                 break;
             case testItemStatuses.FAILED:
-                this._finishFailedTest(errorMsg);
+                this._finishFailedTest(errorMsg, retry);
                 break;
             case testItemStatuses.SKIPPED:
-                this._finishSkippedTest();
+                this._finishSkippedTest(retry);
                 break;
             default:
                 // eslint-disable-next-line no-console
@@ -93,18 +98,19 @@ class JestReportPortal {
         }
     }
 
-    _finishPassedTest () {
+    _finishPassedTest (retry) {
         let status = testItemStatuses.PASSED;
 
-        const finishTestObj = { status };
+        const finishTestObj = { status, retry };
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
 
-    _finishFailedTest (failureMessage) {
+    _finishFailedTest (failureMessage, retry) {
         let finishTestObj = {
             status: testItemStatuses.FAILED,
+            retry,
         };
 
         this._sendLog(failureMessage);
@@ -124,9 +130,10 @@ class JestReportPortal {
         promiseErrorHandler(promise);
     }
 
-    _finishSkippedTest () {
+    _finishSkippedTest (retry) {
         let finishTestObj = {
             status: 'skipped',
+            retry,
         };
 
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);

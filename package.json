@@ -17,11 +17,6 @@
     "utils",
     "constants"
   ],
-  "scripts": {
-    "test": "jest --no-colors ./example/test.js --config ./example/jest.config.js",
-    "pretest:ci": "npm install jest@$JEST_VERSION --no-save",
-    "test:ci": "jest --ci"
-  },
   "dependencies": {
     "@jest/reporters": "25.1.0",
     "jest-cli": "^25.1.0",

@@ -15,6 +15,7 @@ describe('testing agent-jest', () => {
         expect(sum_of_vals).toBe(4);
     });
 
+    jest.retryTimes(3);
     test('the positive\'s length should equal negative\'s length, should be failed', () => {
         expect(pos_vals.length).toEqual(neg_vals.length);
     });
