@@ -87,6 +87,18 @@ In the Report Portal, the output of the test results may contain ANSI character 
 The agent supports of Retries.
 Read more about [retries in jest](https://jestjs.io/docs/ru/jest-object#jestretrytimes).
 
+## Rerun:
+To report [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md) to the report portal you need to specify the following options:
+- rerun - to enable rerun
+- rerunOf - UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name
+
+Example:
+
+```json
+"rerun": true,
+"rerunOf": "f68f39f9-279c-4e8d-ac38-1216dffcc59c"
+```
+
 ## Run test example:
 Go to the example folder and inside of jest.config.js you need to insert data about your instance of the Report Portal.
 
