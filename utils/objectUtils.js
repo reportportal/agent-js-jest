@@ -5,6 +5,8 @@ const getStartLaunchObject = (options = {}) => ({
     launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
     description: options.description,
     attributes: options.attributes,
+    rerun: options.rerun,
+    rerunOf: options.rerunOf,
     startTime: new Date().valueOf()
 });
 
@@ -35,6 +37,8 @@ const getClientInitObject = (options = {}) => {
         endpoint: options.endpoint,
         launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
         project: process.env.RP_PROJECT_NAME || options.project,
+        rerun: options.rerun,
+        rerunOf: options.rerunOf,
         description: options.description,
         attributes: env_attributes || options.attributes,
     };
