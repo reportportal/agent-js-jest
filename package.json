@@ -17,6 +17,9 @@
     "utils",
     "constants"
   ],
+  "scripts": {
+    "example:test": "cd example && npm run test"
+  },
   "dependencies": {
     "@jest/reporters": "25.1.0",
     "jest-cli": "^25.1.0",
@@ -26,7 +29,8 @@
     "@types/jest": "^24.9.0",
     "@types/jest-cli": "^24.3.0",
     "eslint": "^5.15.3",
-    "jest": "^25.1.0"
+    "jest": "^25.1.0",
+    "jest-circus": "^25.1.0"
   },
   "bugs": {
     "url": "https://github.com/reportportal/reportportal-agent-jest/issues"
