@@ -22,6 +22,7 @@ In your jest config section of `package.json`, add the following entry:
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
+                "description": "YourDescription",
                 "attributes": [
                     {
                         "key": "YourKey",
@@ -53,6 +54,7 @@ module.exports = {
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
+                "description": "YourDescription",
                 "attributes": [
                     {
                         "key": "YourKey",
