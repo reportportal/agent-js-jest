@@ -44,7 +44,7 @@ class JestReportPortal {
         this._startSuite(suiteName);
         testResult.testResults.forEach(t => {
             for (let i = 0; i < t.invocations; i++) {
-                const isRetried = t.invocations === 1 ? null : { retry: true };
+                const isRetried = t.invocations !== 1;
 
                 this._startTest(t.title, isRetried);
                 this._finishTest(t, isRetried);
@@ -69,26 +69,26 @@ class JestReportPortal {
         this.tempSuiteId = tempId;
     }
 
-    _startTest (testName, retry) {
-        const testStartObj = getTestStartObject(testName, retry);
+    _startTest (testName, isRetried) {
+        const testStartObj = getTestStartObject(testName, isRetried);
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
         this.tempTestId = tempId;
     }
 
-    _finishTest (test, retry) {
+    _finishTest (test, isRetried) {
         let errorMsg = test.failureMessages[0];
 
         switch (test.status) {
             case testItemStatuses.PASSED:
-                this._finishPassedTest(retry);
+                this._finishPassedTest(isRetried);
                 break;
             case testItemStatuses.FAILED:
-                this._finishFailedTest(errorMsg, retry);
+                this._finishFailedTest(errorMsg, isRetried);
                 break;
             case testItemStatuses.SKIPPED:
-                this._finishSkippedTest(retry);
+                this._finishSkippedTest(isRetried);
                 break;
             default:
                 // eslint-disable-next-line no-console
@@ -96,17 +96,17 @@ class JestReportPortal {
         }
     }
 
-    _finishPassedTest (retry) {
+    _finishPassedTest (isRetried) {
         const status = testItemStatuses.PASSED;
-        const finishTestObj = Object.assign({ status }, retry);
+        const finishTestObj = Object.assign({ status }, { retry: isRetried });
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
 
-    _finishFailedTest (failureMessage, retry) {
+    _finishFailedTest (failureMessage, isRetried) {
         const status = testItemStatuses.FAILED;
-        const finishTestObj = Object.assign({ status }, retry);
+        const finishTestObj = Object.assign({ status }, { retry: isRetried });
 
         this._sendLog(failureMessage);
 
@@ -125,9 +125,9 @@ class JestReportPortal {
         promiseErrorHandler(promise);
     }
 
-    _finishSkippedTest (retry) {
+    _finishSkippedTest (isRetried) {
         const status = 'skipped';
-        const finishTestObj = Object.assign({ status }, retry);
+        const finishTestObj = Object.assign({ status }, { retry: isRetried });
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
