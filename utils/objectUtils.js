@@ -8,11 +8,11 @@ const getStartLaunchObject = (options = {}) => ({
     startTime: new Date().valueOf()
 });
 
-const getTestStartObject = (testTitle, retry) => Object.assign(
+const getTestStartObject = (testTitle, isRetried) => Object.assign(
 {
     type: entityType.TEST,
     name: testTitle
-}, retry);
+}, { retry: isRetried });
 
 const getSuiteStartObject = suiteName => ({
     type: entityType.SUITE,
