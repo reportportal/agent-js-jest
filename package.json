@@ -18,6 +18,7 @@
     "constants"
   ],
   "scripts": {
+    "test": "jest --detectOpenHandles --coverage --config ./jest.config.js",
     "example:test": "cd example && npm run test"
   },
   "dependencies": {
