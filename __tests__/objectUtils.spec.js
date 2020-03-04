@@ -18,9 +18,9 @@ describe('Object Utils script', () => {
 
     beforeEach(() => {
         global.Date = jest.fn(
-            (...props) =>
-                props.length
-                    ? new RealDate(...props)
+            (...args) =>
+                args.length
+                    ? new RealDate(...args)
                     : new RealDate(currentDate)
         );
         Object.assign(Date, RealDate);
