@@ -39,6 +39,9 @@ describe('index script', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        reporter.tempLaunchId = '';
+        reporter.tempSuiteId = '';
+        reporter.tempTestId = '';
         global.Date = RealDate;
     });
 
