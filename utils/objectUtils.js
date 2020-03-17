@@ -1,10 +1,19 @@
 /* eslint-disable no-process-env */
+const pjson = require('./../package.json');
+
+const PJSON_VERSION = pjson.version;
+const PJSON_NAME = pjson.name;
 const entityType = { SUITE: 'SUITE', TEST: 'STEP' };
+const systemAttr = {
+    key: 'agent',
+    value: `${PJSON_NAME}|${PJSON_VERSION}`,
+    system: true,
+};
 
 const getStartLaunchObject = (options = {}) => ({
     launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
     description: options.description,
-    attributes: options.attributes,
+    attributes: options.attributes ? [...options.attributes, systemAttr] : [systemAttr],
     rerun: options.rerun,
     rerunOf: options.rerunOf,
     startTime: new Date().valueOf()
