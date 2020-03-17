@@ -3,10 +3,18 @@ const { getClientInitObject,
     getStartLaunchObject,
     getSuiteStartObject,
     getTestStartObject } = require('./../utils/objectUtils');
+const pjson = require('./../package.json');
 const defaultOptions = {
     launch: 'launchName',
     description: 'description',
-    attributes: 'attributes',
+    attributes: [
+        {
+            'key': 'YourKey',
+            'value': 'YourValue'
+        }, {
+            'value': 'YourValue'
+        }
+    ],
     rerun: true,
     rerunOf: '00000000-0000-0000-0000-000000000000',
 };
@@ -40,7 +48,18 @@ describe('Object Utils script', () => {
         const expectedStartLaunchObject = {
             launch: 'launchName',
             description: 'description',
-            attributes: 'attributes',
+            attributes: [
+                {
+                    'key': 'YourKey',
+                    'value': 'YourValue'
+                }, {
+                    'value': 'YourValue'
+                }, {
+                    key: 'agent',
+                    value: `${pjson.name}|${pjson.version}`,
+                    system: true,
+                },
+            ],
             rerun: true,
             rerunOf: '00000000-0000-0000-0000-000000000000',
             startTime: new Date().valueOf(),
@@ -55,6 +74,13 @@ describe('Object Utils script', () => {
     test('should return start launch object with default values if options don\'t set', () => {
         const expectedStartLaunchObject = {
             launch: 'Unit Tests',
+            attributes: [
+                {
+                    key: 'agent',
+                    value: `${pjson.name}|${pjson.version}`,
+                    system: true,
+                }
+            ],
             startTime: new Date().valueOf(),
         };
 

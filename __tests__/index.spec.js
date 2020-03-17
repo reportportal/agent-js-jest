@@ -1,12 +1,18 @@
 /* eslint-disable no-undef */
 const { getOptions, RPClient } = require('./mocks/reportportal-client.mock');
 const JestReportPortal = require('../index');
+const pjson = require('./../package.json');
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 const GLOBAL_CONFIG = {};
 const options = getOptions();
 const currentDate = new Date();
 const RealDate = Date;
+const systemAttr = {
+    key: 'agent',
+    value: `${pjson.name}|${pjson.version}`,
+    system: true,
+};
 const testResult = {
     testResults: [
         {
@@ -66,7 +72,7 @@ describe('index script', () => {
             const launchObj = {
                 launch: options.launch,
                 description: options.description,
-                attributes: options.attributes,
+                attributes: [...options.attributes, systemAttr],
                 rerun: undefined,
                 rerunOf: undefined,
                 startTime: new Date().valueOf()
