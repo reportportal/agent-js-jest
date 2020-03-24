@@ -74,7 +74,7 @@ It's possible by using environment variables, it's important to mention that env
 
 ```shell
 $ export RP_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-$ export RP_PROJECT=MY_AWESOME_PROJECT
+$ export RP_PROJECT_NAME=MY_AWESOME_PROJECT
 $ export RP_LAUNCH=MY_COOL_LAUNCHER
 $ export RP_ATTRIBUTES=key:value,key:value,value
 ```

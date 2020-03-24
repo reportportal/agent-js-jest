@@ -20,10 +20,10 @@ const getStartLaunchObject = (options = {}) => ({
 });
 
 const getTestStartObject = (testTitle, isRetried) => Object.assign(
-{
-    type: entityType.TEST,
-    name: testTitle
-}, { retry: isRetried });
+    {
+        type: entityType.TEST,
+        name: testTitle
+    }, { retry: isRetried });
 
 const getSuiteStartObject = suiteName => ({
     type: entityType.SUITE,
@@ -36,14 +36,14 @@ const getClientInitObject = (options = {}) => {
         const itemArr = item.split(':');
 
         return {
-            'key':  itemArr.length === 1 ? null : itemArr[0],
+            'key': itemArr.length === 1 ? null : itemArr[0],
             'value': itemArr.length === 1 ? itemArr[0] : itemArr[1]
         };
     });
 
     return {
         token: process.env.RP_TOKEN || options.token,
-        endpoint: options.endpoint,
+        endpoint: process.env.RP_ENDPOINT || options.endpoint,
         launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
         project: process.env.RP_PROJECT_NAME || options.project,
         rerun: options.rerun,
