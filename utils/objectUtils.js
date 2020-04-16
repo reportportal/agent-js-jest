@@ -53,9 +53,15 @@ const getClientInitObject = (options = {}) => {
     };
 };
 
+const getAgentInfo = () => ({
+    version: PJSON_VERSION,
+    name: PJSON_NAME,
+});
+
 module.exports = {
     getClientInitObject,
     getStartLaunchObject,
     getSuiteStartObject,
-    getTestStartObject
+    getTestStartObject,
+    getAgentInfo
 };

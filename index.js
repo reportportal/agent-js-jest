@@ -1,7 +1,7 @@
 const getOptions = require('./utils/getOptions');
 const RPClient = require('reportportal-client');
 const { getClientInitObject, getSuiteStartObject,
-        getStartLaunchObject, getTestStartObject } = require('./utils/objectUtils');
+        getStartLaunchObject, getTestStartObject, getAgentInfo } = require('./utils/objectUtils');
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 const logLevels = {
@@ -21,9 +21,10 @@ const promiseErrorHandler = promise => {
 
 class JestReportPortal {
     constructor (globalConfig, options) {
+        const agentInfo = getAgentInfo();
         this.globalConfig = globalConfig;
         this.reportOptions = getClientInitObject(getOptions.options(options));
-        this.client = new RPClient(this.reportOptions);
+        this.client = new RPClient(this.reportOptions, agentInfo);
         this.tempSuiteId = null;
         this.tempTestId = null;
     }
@@ -43,6 +44,12 @@ class JestReportPortal {
 
         this._startSuite(suiteName);
         testResult.testResults.forEach(t => {
+            if (!t.invocations) {
+                this._startTest(t.title, false);
+                this._finishTest(t, false);
+                return;
+            }
+
             for (let i = 0; i < t.invocations; i++) {
                 const isRetried = t.invocations !== 1;
 

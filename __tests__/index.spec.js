@@ -131,6 +131,27 @@ describe('index script', () => {
             expect(spyStartTest).toHaveBeenCalledTimes(2);
             expect(spyFinishTest).toHaveBeenCalledTimes(2);
         });
+
+        test('startTest, finishTest should be called ones with second parameter \'false\' if there is no invocations', () => {
+            const spyStartTest = jest.spyOn(reporter, '_startTest');
+            const spyFinishTest = jest.spyOn(reporter, '_finishTest');
+            const testResult = {
+                testResults: [
+                    {
+                        title: 'Title',
+                        status: 'failed',
+                        ancestorTitles: ['Suite name'],
+                        failureMessages: 'error message',
+                    }
+                ]
+            };
+
+            reporter.onTestResult({}, testResult);
+
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0].title, false);
+            expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
+            expect(spyStartTest).toHaveBeenCalled();
+        });
     });
 
     describe('onRunComplete', () => {
