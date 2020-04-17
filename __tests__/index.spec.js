@@ -150,7 +150,6 @@ describe('index script', () => {
 
             expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0].title, false);
             expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
-            expect(spyStartTest).toHaveBeenCalled();
         });
     });
 
