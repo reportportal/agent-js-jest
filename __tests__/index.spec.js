@@ -24,6 +24,9 @@ const testResult = {
         }
     ]
 };
+const testObj = {
+    path: `C:\\testProject\\example.js`,
+};
 
 describe('index script', () => {
     let reporter;
@@ -89,10 +92,10 @@ describe('index script', () => {
             const spyFinishTest = jest.spyOn(reporter, '_finishTest');
             const spyFinishSuite = jest.spyOn(reporter, '_finishSuite');
 
-            reporter.onTestResult({}, testResult);
+            reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartSuite).toHaveBeenCalledWith(testResult.testResults[0].ancestorTitles[0]);
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0].title, false);
+            expect(spyStartSuite).toHaveBeenCalledWith(testResult.testResults[0].ancestorTitles[0], testObj.path);
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
             expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
             expect(spyFinishSuite).toHaveBeenCalled();
         });
@@ -101,9 +104,9 @@ describe('index script', () => {
             const spyStartTest = jest.spyOn(reporter, '_startTest');
             const spyFinishTest = jest.spyOn(reporter, '_finishTest');
 
-            reporter.onTestResult({}, testResult);
+            reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0].title, false);
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
             expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
             expect(spyStartTest).toHaveBeenCalledTimes(1);
             expect(spyFinishTest).toHaveBeenCalledTimes(1);
@@ -124,9 +127,9 @@ describe('index script', () => {
                 ]
             };
 
-            reporter.onTestResult({}, testResult);
+            reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0].title, true);
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], true, testObj.path);
             expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], true);
             expect(spyStartTest).toHaveBeenCalledTimes(2);
             expect(spyFinishTest).toHaveBeenCalledTimes(2);
@@ -146,9 +149,9 @@ describe('index script', () => {
                 ]
             };
 
-            reporter.onTestResult({}, testResult);
+            reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0].title, false);
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
             expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
         });
     });
@@ -165,14 +168,19 @@ describe('index script', () => {
 
     describe('_startSuite', () => {
         test('startTestItem should be called with parameters, tempSuiteId should be defined', () => {
+            jest.mock('path', () => ({
+                sep: '\\',
+            }));
+            jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
             const expectedStartTestItemParameter = {
                 type: 'SUITE',
                 name: 'suite name',
+                codeRef: 'example.js/suite name',
                 startTime: new Date().valueOf()
             };
             reporter.tempLaunchId = 'tempLaunchId';
 
-            reporter._startSuite('suite name');
+            reporter._startSuite('suite name', testObj.path);
 
             expect(reporter.client.startTestItem).toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId');
             expect(reporter.tempSuiteId).toEqual('startTestItem');
@@ -181,15 +189,20 @@ describe('index script', () => {
 
     describe('_startTest', () => {
         test('startTestItem should be called with parameters, tempTestId should be defined', () => {
+            jest.mock('path', () => ({
+                sep: '\\',
+            }));
+            jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
             const expectedStartTestItemParameter = {
                 type: 'STEP',
                 name: 'test name',
+                codeRef: 'example.js/rootDescribe/test name',
                 retry: true,
             };
             reporter.tempLaunchId = 'tempLaunchId';
             reporter.tempSuiteId = 'tempSuiteId';
 
-            reporter._startTest('test name', true);
+            reporter._startTest({ title: 'test name', ancestorTitles: ['rootDescribe'] }, true, testObj.path);
 
             expect(reporter.client.startTestItem).toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'tempSuiteId');
             expect(reporter.tempTestId).toEqual('startTestItem');

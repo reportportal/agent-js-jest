@@ -1,7 +1,7 @@
 const getOptions = require('./utils/getOptions');
 const RPClient = require('reportportal-client');
 const { getClientInitObject, getSuiteStartObject,
-        getStartLaunchObject, getTestStartObject, getAgentInfo } = require('./utils/objectUtils');
+        getStartLaunchObject, getTestStartObject, getAgentInfo, getCodeRef, getFullTestName } = require('./utils/objectUtils');
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 const logLevels = {
@@ -42,10 +42,10 @@ class JestReportPortal {
     onTestResult (test, testResult, aggregatedResults) {
         let suiteName = testResult.testResults[0].ancestorTitles[0];
 
-        this._startSuite(suiteName);
+        this._startSuite(suiteName, test.path);
         testResult.testResults.forEach(t => {
             if (!t.invocations) {
-                this._startTest(t.title, false);
+                this._startTest(t, false, test.path);
                 this._finishTest(t, false);
                 return;
             }
@@ -53,7 +53,7 @@ class JestReportPortal {
             for (let i = 0; i < t.invocations; i++) {
                 const isRetried = t.invocations !== 1;
 
-                this._startTest(t.title, isRetried);
+                this._startTest(t, isRetried, test.path);
                 this._finishTest(t, isRetried);
             }
         });
@@ -68,16 +68,19 @@ class JestReportPortal {
         promiseErrorHandler(promise);
     }
 
-    _startSuite (suiteName) {
-        const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName),
+    _startSuite (suiteName, path) {
+        const codeRef = getCodeRef(path, suiteName);
+        const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName, codeRef),
             this.tempLaunchId);
 
         promiseErrorHandler(promise);
         this.tempSuiteId = tempId;
     }
 
-    _startTest (testName, isRetried) {
-        const testStartObj = getTestStartObject(testName, isRetried);
+    _startTest (test, isRetried, testPath) {
+        const fullTestName = getFullTestName(test);
+        const codeRef = getCodeRef(testPath, fullTestName);
+        const testStartObj = getTestStartObject(test.title, isRetried, codeRef);
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
