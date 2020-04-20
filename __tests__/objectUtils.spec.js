@@ -3,7 +3,9 @@ const { getClientInitObject,
     getStartLaunchObject,
     getSuiteStartObject,
     getTestStartObject,
-    getAgentInfo } = require('./../utils/objectUtils');
+    getAgentInfo,
+    getCodeRef,
+    getFullTestName } = require('./../utils/objectUtils');
 const pjson = require('./../package.json');
 const defaultOptions = {
     launch: 'launchName',
@@ -173,6 +175,54 @@ describe('Object Utils script', () => {
 
             expect(agentInfo.name).toBe(pjson.name);
             expect(agentInfo.version).toBe(pjson.version);
+        });
+    });
+
+    describe('getCodeRef', function() {
+        test('should return correct code ref with separator', function() {
+            jest.mock('path', () => ({
+                sep: '\\',
+            }));
+            jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
+            const mockedTest = {
+                title: 'testTitle',
+                filePath: `C:\\testProject\\test\\example.js`,
+            };
+            const expectedCodeRef = 'test/example.js/testTitle';
+
+            const codeRef = getCodeRef(mockedTest.filePath, mockedTest.title);
+
+            expect(codeRef).toEqual(expectedCodeRef);
+        });
+
+        test('should return correct code ref without separator', function() {
+            jest.mock('path', () => ({
+                sep: '\\',
+            }));
+            jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
+            const mockedTest = {
+                title: 'testTitle',
+                filePath: `C:\\testProject\\example.js`,
+            };
+            const expectedCodeRef = 'example.js/testTitle';
+
+            const codeRef = getCodeRef(mockedTest.filePath, mockedTest.title);
+
+            expect(codeRef).toEqual(expectedCodeRef);
+        });
+    });
+
+    describe('getFullTestName', function() {
+        test('should return correct full test name', function () {
+            const mockedTest = {
+                title: 'testTitle',
+                ancestorTitles: ['rootDescribe', 'parentDescribe'],
+            };
+            const expectedFullTestName = 'rootDescribe/parentDescribe/testTitle';
+
+            const fullTestName = getFullTestName(mockedTest);
+
+            expect(fullTestName).toEqual(expectedFullTestName);
         });
     });
 });
