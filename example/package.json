@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "test": "jest --no-colors --detectOpenHandles ./test.js --config ./jest.config.js"
+    "test": "jest --no-colors --detectOpenHandles ./test.spec.js --config ./jest.config.js"
   }
 }
