@@ -1,4 +1,5 @@
 /* eslint-disable no-process-env */
+const path = require('path');
 const pjson = require('./../package.json');
 
 const PJSON_VERSION = pjson.version;
@@ -19,15 +20,17 @@ const getStartLaunchObject = (options = {}) => ({
     startTime: new Date().valueOf()
 });
 
-const getTestStartObject = (testTitle, isRetried) => Object.assign(
+const getTestStartObject = (testTitle, isRetried, codeRef) => Object.assign(
 {
     type: entityType.TEST,
-    name: testTitle
+    name: testTitle,
+    codeRef
 }, { retry: isRetried });
 
-const getSuiteStartObject = suiteName => ({
+const getSuiteStartObject = (suiteName, codeRef) => ({
     type: entityType.SUITE,
     name: suiteName,
+    codeRef,
     startTime: new Date().valueOf()
 });
 
@@ -58,10 +61,26 @@ const getAgentInfo = () => ({
     name: PJSON_NAME,
 });
 
+const getCodeRef = (testPath, title) => {
+    const testFileDir = path
+        .parse(path.normalize(path.relative(process.cwd(), testPath)))
+        .dir.replace(new RegExp('\\'.concat(path.sep), 'g'), '/');
+    const separator = testFileDir ? '/' : '';
+    const testFile = path.parse(testPath);
+
+    return `${testFileDir}${separator}${testFile.base}/${title}`;
+};
+
+const getFullTestName = (test) => {
+    return `${test.ancestorTitles.join('/')}/${test.title}`;
+};
+
 module.exports = {
     getClientInitObject,
     getStartLaunchObject,
     getSuiteStartObject,
     getTestStartObject,
-    getAgentInfo
+    getAgentInfo,
+    getCodeRef,
+    getFullTestName
 };
