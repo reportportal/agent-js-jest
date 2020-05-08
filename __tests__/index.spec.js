@@ -325,5 +325,19 @@ describe('index script', () => {
 
             expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', expectedFinishTestItemParameter);
         });
+
+        test('finishTestItem should be called with issue parameter if skippedIssue is false', () => {
+            const expectedFinishTestItemParameter = {
+                status: 'skipped',
+                retry: false,
+                issue: { issueType: 'NOT_ISSUE' },
+            };
+            reporter.tempTestId = 'tempTestId';
+            reporter.reportOptions.skippedIssue = false;
+
+            reporter._finishSkippedTest(false);
+
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', expectedFinishTestItemParameter);
+        });
     });
 });

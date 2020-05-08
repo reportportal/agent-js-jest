@@ -5,7 +5,8 @@ const { getClientInitObject,
     getTestStartObject,
     getAgentInfo,
     getCodeRef,
-    getFullTestName } = require('./../utils/objectUtils');
+    getFullTestName,
+    getSystemAttributes } = require('./../utils/objectUtils');
 const pjson = require('./../package.json');
 const defaultOptions = {
     launch: 'launchName',
@@ -175,6 +176,48 @@ describe('Object Utils script', () => {
 
             expect(agentInfo.name).toBe(pjson.name);
             expect(agentInfo.version).toBe(pjson.version);
+        });
+    });
+
+    describe('getSystemAttributes', function() {
+        test('should return only agent system attribute if parameter is true', function () {
+            const expectedSystemAttribute = [{
+                key: 'agent',
+                value: `${pjson.name}|${pjson.version}`,
+                system: true,
+            }];
+
+            const systemAttributes = getSystemAttributes(true);
+
+            expect(systemAttributes).toEqual(expectedSystemAttribute);
+        });
+
+        test('should return only agent system attribute if there is no parameter', function () {
+            const expectedSystemAttribute = [{
+                key: 'agent',
+                value: `${pjson.name}|${pjson.version}`,
+                system: true,
+            }];
+
+            const systemAttributes = getSystemAttributes();
+
+            expect(systemAttributes).toEqual(expectedSystemAttribute);
+        });
+
+        test('should return agent and skippedIssue system attributes if parameter is false', function () {
+            const expectedSystemAttribute = [{
+                key: 'agent',
+                value: `${pjson.name}|${pjson.version}`,
+                system: true,
+            }, {
+                key: 'skippedIssue',
+                value: 'false',
+                system: true,
+            }];
+
+            const systemAttributes = getSystemAttributes(false);
+
+            expect(systemAttributes).toEqual(expectedSystemAttribute);
         });
     });
 
