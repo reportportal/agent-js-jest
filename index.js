@@ -137,7 +137,8 @@ class JestReportPortal {
 
     _finishSkippedTest (isRetried) {
         const status = 'skipped';
-        const finishTestObj = Object.assign({ status }, { retry: isRetried });
+        const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
+        const finishTestObj = Object.assign({ status }, { retry: isRetried }, issue && { issue });
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
