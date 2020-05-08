@@ -99,6 +99,15 @@ Example:
 "rerunOf": "f68f39f9-279c-4e8d-ac38-1216dffcc59c"
 ```
 
+## Skipped issue:
+*Default: true.* ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal.<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.
+
+Example:
+
+```json
+"skippedIssue": false
+```
+
 ## Run test example:
 Go to the example folder and inside of jest.config.js you need to insert data about your instance of the Report Portal.
 
