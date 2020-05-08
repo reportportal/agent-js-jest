@@ -108,7 +108,7 @@ class JestReportPortal {
 
     _finishPassedTest (isRetried) {
         const status = testItemStatuses.PASSED;
-        const finishTestObj = Object.assign({ status }, { retry: isRetried });
+        const finishTestObj = { status, retry: isRetried };
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
@@ -116,7 +116,7 @@ class JestReportPortal {
 
     _finishFailedTest (failureMessage, isRetried) {
         const status = testItemStatuses.FAILED;
-        const finishTestObj = Object.assign({ status }, { retry: isRetried });
+        const finishTestObj = { status, retry: isRetried };
 
         this._sendLog(failureMessage);
 
@@ -138,7 +138,10 @@ class JestReportPortal {
     _finishSkippedTest (isRetried) {
         const status = 'skipped';
         const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
-        const finishTestObj = Object.assign({ status }, { retry: isRetried }, issue && { issue });
+        const finishTestObj = Object.assign({
+            status,
+            retry: isRetried,
+        }, issue && { issue });
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
