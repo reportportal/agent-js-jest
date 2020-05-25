@@ -108,15 +108,6 @@ Example:
 "skippedIssue": false
 ```
 
-## Run test example:
-Go to the example folder and inside of jest.config.js you need to insert data about your instance of the Report Portal.
-
-To run the tests, type the following command in the console:
-```cmd
-npm run test
-```
-
-
 # Copyright Notice
 
 Licensed under the [Apache License v2.0](LICENSE)
