@@ -112,7 +112,8 @@ Example:
 
 Licensed under the [Apache License v2.0](LICENSE)
 
-This code is based on the [jest-junit](https://github.com/jest-community/jest-junit)
-but adapted by team members of [Ontoforce](https://www.ontoforce.com) for the 
+# Contribution
+This code was based on the [jest-junit](https://github.com/jest-community/jest-junit)
+and adapted by team members of [Ontoforce](https://www.ontoforce.com) for the 
 ReportPortal upload. Ontoforce contributed this effort as Open Source to the
 ReportPortal project team.
