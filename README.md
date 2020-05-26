@@ -5,7 +5,7 @@ A Jest reporter that uploads the results to a [ReportPortal](http://reportportal
 ## Installation
 
 ```shell
-npm install --save-dev @reportportal/reportportal-agent-jest
+npm install --save-dev @reportportal/agent-js-jest
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ In your jest config section of `package.json`, add the following entry:
         ...
         "reporters": [
             "default",
-            ["@reportportal/reportportal-agent-jest",
+            ["@reportportal/agent-js-jest",
             {
                 "token": "00000000-0000-0000-0000-000000000000",
                 "endpoint": "https://your.reportportal.server/api/v1",
@@ -48,7 +48,7 @@ module.exports = {
     reporters: [
         "default",
         [
-            "@reportportal/reportportal-agent-jest",
+            "@reportportal/agent-js-jest",
             {
                 "token": "00000000-0000-0000-0000-000000000000",                
                 "endpoint": "https://your.reportportal.server/api/v1",
