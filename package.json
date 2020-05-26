@@ -5,9 +5,21 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reportportal/reportportal-agent-jest.git"
+    "url": "git+https://github.com/reportportal/agent-js-jest.git"
   },
-  "author": "Uladzislau Akulich, Ringo De Smet",
+  "author": "ReportPortal.io",
+  "contributors": [
+    {
+      "name": "Uladzislau Akulich"
+    },
+    {
+      "name": "Ringo De Smet"
+    },
+    {
+      "name": "Ontoforce",
+      "email": "https://www.ontoforce.com"
+    }
+  ],
   "license": "Apache-2.0",
   "engines": {
     "node": ">=6.0.0"
@@ -18,8 +30,7 @@
     "constants"
   ],
   "scripts": {
-    "test": "jest --detectOpenHandles --coverage --config ./jest.config.js",
-    "example:test": "cd example && npm run test"
+    "test": "jest --detectOpenHandles --coverage --config ./jest.config.js"
   },
   "dependencies": {
     "@jest/reporters": "25.1.0",
@@ -34,9 +45,9 @@
     "jest-circus": "^25.1.0"
   },
   "bugs": {
-    "url": "https://github.com/reportportal/reportportal-agent-jest/issues"
+    "url": "https://github.com/reportportal/agent-js-jest/issues"
   },
-  "homepage": "https://github.com/reportportal/reportportal-agent-jest#readme",
+  "homepage": "https://github.com/reportportal/agent-js-jest#readme",
   "keywords": [
     "epam",
     "reportportal",
