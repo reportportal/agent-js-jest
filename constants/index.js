@@ -24,7 +24,7 @@ module.exports = {
         JEST_JUNIT_SUITE_NAME: 'suiteNameTemplate',
         JEST_JUNIT_TITLE: 'titleTemplate',
         JEST_JUNIT_ANCESTOR_SEPARATOR: 'ancestorSeparator',
-        JEST_USE_PATH_FOR_SUITE_NAME: 'usePathForSuiteName'
+        JEST_USE_PATH_FOR_SUITE_NAME: 'usePathForSuiteName',
     },
     DEFAULT_OPTIONS: {
         suiteName: 'jest tests',
@@ -33,11 +33,11 @@ module.exports = {
         suiteNameTemplate: '{title}',
         titleTemplate: '{classname} {title}',
         ancestorSeparator: ' ',
-        usePathForSuiteName: 'false'
+        usePathForSuiteName: 'false',
     },
     CLASSNAME_VAR: 'classname',
     FILENAME_VAR: 'filename',
     FILEPATH_VAR: 'filepath',
     TITLE_VAR: 'title',
-    DISPLAY_NAME_VAR: 'displayName'
+    DISPLAY_NAME_VAR: 'displayName',
 };

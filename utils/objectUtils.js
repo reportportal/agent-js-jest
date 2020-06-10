@@ -27,38 +27,41 @@ const getStartLaunchObject = (options = {}) => {
 
     return {
         launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
-            description: options.description,
-        attributes: options.attributes ? [...options.attributes, ...systemAttr] : systemAttr,
+        description: options.description,
+        attributes: options.attributes ? options.attributes.concat(systemAttr) : systemAttr,
         rerun: options.rerun,
         rerunOf: options.rerunOf,
         skippedIssue: options.skippedIssue,
-        startTime: new Date().valueOf()
-    }
+        startTime: new Date().valueOf(),
+    };
 };
 
 const getTestStartObject = (testTitle, isRetried, codeRef) => Object.assign(
-{
-    type: entityType.TEST,
-    name: testTitle,
-    codeRef
-}, { retry: isRetried });
+    {
+        type: entityType.TEST,
+        name: testTitle,
+        codeRef,
+    }, { retry: isRetried },
+);
 
 const getSuiteStartObject = (suiteName, codeRef) => ({
     type: entityType.SUITE,
     name: suiteName,
     codeRef,
-    startTime: new Date().valueOf()
+    startTime: new Date().valueOf(),
 });
 
 const getClientInitObject = (options = {}) => {
-    let env_attributes = process.env.RP_ATTRIBUTES === undefined ? undefined : process.env.RP_ATTRIBUTES.split(',').map(item => {
-        const itemArr = item.split(':');
+    const env_attributes = process.env.RP_ATTRIBUTES === undefined
+        ? undefined
+        : process.env.RP_ATTRIBUTES.split(',').map((item) => {
+            const itemArr = item.split(':');
 
-        return {
-            'key':  itemArr.length === 1 ? null : itemArr[0],
-            'value': itemArr.length === 1 ? itemArr[0] : itemArr[1]
-        };
-    });
+            return {
+                key: itemArr.length === 1 ? null : itemArr[0],
+                value: itemArr.length === 1 ? itemArr[0] : itemArr[1],
+            };
+        });
 
     return {
         token: process.env.RP_TOKEN || options.token,
@@ -108,9 +111,7 @@ const getCodeRef = (testPath, title) => {
     return `${testFileDir}${separator}${testFile.base}/${title}`;
 };
 
-const getFullTestName = (test) => {
-    return `${test.ancestorTitles.join('/')}/${test.title}`;
-};
+const getFullTestName = test => `${test.ancestorTitles.join('/')}/${test.title}`;
 
 module.exports = {
     getClientInitObject,
@@ -120,5 +121,5 @@ module.exports = {
     getAgentInfo,
     getCodeRef,
     getFullTestName,
-    getSystemAttributes
+    getSystemAttributes,
 };

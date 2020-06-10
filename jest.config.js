@@ -21,7 +21,7 @@ module.exports = {
     testRegex: '/__tests__/.*\\.spec.(js)$',
     collectCoverageFrom: [
         './utils/**',
-        './index.js'
+        './index.js',
     ],
     coverageThreshold: {
         global: {
