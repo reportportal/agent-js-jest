@@ -37,11 +37,11 @@ const testResult = {
             ancestorTitles: ['Suite name'],
             failureMessages: 'error message',
             invocations: 1,
-        }
-    ]
+        },
+    ],
 };
 const testObj = {
-    path: `C:\\testProject\\example.js`,
+    path: 'C:\\testProject\\example.js',
 };
 
 describe('index script', () => {
@@ -55,9 +55,9 @@ describe('index script', () => {
     beforeEach(() => {
         global.Date = jest.fn(
             (...args) =>
-                args.length
+                (args.length
                     ? new RealDate(...args)
-                    : new RealDate(currentDate)
+                    : new RealDate(currentDate)),
         );
         Object.assign(Date, RealDate);
     });
@@ -94,7 +94,7 @@ describe('index script', () => {
                 attributes: [...options.attributes, systemAttr],
                 rerun: undefined,
                 rerunOf: undefined,
-                startTime: new Date().valueOf()
+                startTime: new Date().valueOf(),
             };
 
             expect(reporter.client.startLaunch).toHaveBeenCalledWith(launchObj);
@@ -116,7 +116,8 @@ describe('index script', () => {
             expect(spyFinishSuite).toHaveBeenCalled();
         });
 
-        test('startTest, finishTest should be called one times with second parameter \'false\' if there are no retries', () => {
+        test('startTest, finishTest should be called one times with second parameter \'false\' if there'
+            + ' are no retries', () => {
             const spyStartTest = jest.spyOn(reporter, '_startTest');
             const spyFinishTest = jest.spyOn(reporter, '_finishTest');
 
@@ -128,7 +129,8 @@ describe('index script', () => {
             expect(spyFinishTest).toHaveBeenCalledTimes(1);
         });
 
-        test('startTest, finishTest should be called two times with second parameter \'true\' if there are retries', () => {
+        test('startTest, finishTest should be called two times with second parameter \'true\' if there'
+            + ' are retries', () => {
             const spyStartTest = jest.spyOn(reporter, '_startTest');
             const spyFinishTest = jest.spyOn(reporter, '_finishTest');
             const testResult = {
@@ -139,8 +141,8 @@ describe('index script', () => {
                         ancestorTitles: ['Suite name'],
                         failureMessages: 'error message',
                         invocations: 2,
-                    }
-                ]
+                    },
+                ],
             };
 
             reporter.onTestResult(testObj, testResult);
@@ -151,7 +153,8 @@ describe('index script', () => {
             expect(spyFinishTest).toHaveBeenCalledTimes(2);
         });
 
-        test('startTest, finishTest should be called ones with second parameter \'false\' if there is no invocations', () => {
+        test('startTest, finishTest should be called ones with second parameter \'false\' if there is'
+            + ' no invocations', () => {
             const spyStartTest = jest.spyOn(reporter, '_startTest');
             const spyFinishTest = jest.spyOn(reporter, '_finishTest');
             const testResult = {
@@ -161,8 +164,8 @@ describe('index script', () => {
                         status: 'failed',
                         ancestorTitles: ['Suite name'],
                         failureMessages: 'error message',
-                    }
-                ]
+                    },
+                ],
             };
 
             reporter.onTestResult(testObj, testResult);
@@ -192,7 +195,7 @@ describe('index script', () => {
                 type: 'SUITE',
                 name: 'suite name',
                 codeRef: 'example.js/suite name',
-                startTime: new Date().valueOf()
+                startTime: new Date().valueOf(),
             };
             reporter.tempLaunchId = 'tempLaunchId';
 
@@ -220,7 +223,8 @@ describe('index script', () => {
 
             reporter._startTest({ title: 'test name', ancestorTitles: ['rootDescribe'] }, true, testObj.path);
 
-            expect(reporter.client.startTestItem).toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'tempSuiteId');
+            expect(reporter.client.startTestItem)
+                .toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'tempSuiteId');
             expect(reporter.tempTestId).toEqual('startTestItem');
         });
     });
@@ -257,7 +261,10 @@ describe('index script', () => {
             const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
             const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');
 
-            reporter._finishTest({ status: testItemStatuses.FAILED, failureMessages: ['error message'] }, false);
+            reporter._finishTest(
+                { status: testItemStatuses.FAILED, failureMessages: ['error message'] },
+                false,
+            );
 
             expect(spyFinishFailedTest).toHaveBeenCalledWith('error message', false);
             expect(spyFinishPassedTest).not.toHaveBeenCalled();
@@ -276,7 +283,8 @@ describe('index script', () => {
             expect(spyFinishFailedTest).not.toHaveBeenCalled();
         });
 
-        test('_finishPassedTest, _finishFailedTest, _finishSkippedTest should not be called if test status doesn\'t exist', () => {
+        test('_finishPassedTest, _finishFailedTest, _finishSkippedTest should not be called if test'
+            + ' status doesn\'t exist', () => {
             const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedTest');
             const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
             const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');

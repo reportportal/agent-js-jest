@@ -15,25 +15,28 @@
  */
 
 /* eslint-disable no-undef */
-const { getClientInitObject,
+const {
+    getClientInitObject,
     getStartLaunchObject,
     getSuiteStartObject,
     getTestStartObject,
     getAgentInfo,
     getCodeRef,
     getFullTestName,
-    getSystemAttributes } = require('./../utils/objectUtils');
+    getSystemAttributes,
+} = require('./../utils/objectUtils');
 const pjson = require('./../package.json');
+
 const defaultOptions = {
     launch: 'launchName',
     description: 'description',
     attributes: [
         {
-            'key': 'YourKey',
-            'value': 'YourValue'
+            key: 'YourKey',
+            value: 'YourValue',
         }, {
-            'value': 'YourValue'
-        }
+            value: 'YourValue',
+        },
     ],
     rerun: true,
     rerunOf: '00000000-0000-0000-0000-000000000000',
@@ -47,9 +50,9 @@ describe('Object Utils script', () => {
     beforeEach(() => {
         global.Date = jest.fn(
             (...args) =>
-                args.length
+                (args.length
                     ? new RealDate(...args)
-                    : new RealDate(currentDate)
+                    : new RealDate(currentDate)),
         );
         Object.assign(Date, RealDate);
 
@@ -64,17 +67,17 @@ describe('Object Utils script', () => {
         process.env = OLD_ENV;
     });
 
-    describe('getStartLaunchObject', function () {
+    describe('getStartLaunchObject', () => {
         test('should return start launch object with correct values', () => {
             const expectedStartLaunchObject = {
                 launch: 'launchName',
                 description: 'description',
                 attributes: [
                     {
-                        'key': 'YourKey',
-                        'value': 'YourValue'
+                        key: 'YourKey',
+                        value: 'YourValue',
                     }, {
-                        'value': 'YourValue'
+                        value: 'YourValue',
                     }, {
                         key: 'agent',
                         value: `${pjson.name}|${pjson.version}`,
@@ -100,7 +103,7 @@ describe('Object Utils script', () => {
                         key: 'agent',
                         value: `${pjson.name}|${pjson.version}`,
                         system: true,
-                    }
+                    },
                 ],
                 startTime: new Date().valueOf(),
             };
@@ -112,12 +115,12 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getTestStartObject', function () {
+    describe('getTestStartObject', () => {
         test('should return test start object with correct values', () => {
             const expectedTestStartObject = {
                 type: 'STEP',
                 name: 'test title',
-                retry: true
+                retry: true,
             };
 
             const testStartObject = getTestStartObject('test title', true);
@@ -127,7 +130,7 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getSuiteStartObject', function () {
+    describe('getSuiteStartObject', () => {
         test('should return suite start object with correct values', () => {
             const expectedSuiteStartObject = {
                 type: 'SUITE',
@@ -142,8 +145,9 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getClientInitObject', function () {
-        test('should return client init object with correct values, some parameters taken from environment variables', () => {
+    describe('getClientInitObject', () => {
+        test('should return client init object with correct values, some parameters taken from'
+            + ' environment variables', () => {
             process.env = {
                 RP_TOKEN: '00000000-0000-0000-0000-000000000000',
                 RP_LAUNCH: 'launch name',
@@ -159,13 +163,16 @@ describe('Object Utils script', () => {
                 rerun: true,
                 rerunOf: '00000000-0000-0000-0000-000000000000',
                 description: 'description',
-                attributes: [{ key: null, value: 'attributesOne' }, { key: 'attributesTwoKey', value: 'attributesTwoValue' }]
+                attributes: [
+                    { key: null, value: 'attributesOne' },
+                    { key: 'attributesTwoKey', value: 'attributesTwoValue' },
+                ],
             };
             const options = {
                 endpoint: 'endpoint',
                 rerun: true,
                 rerunOf: '00000000-0000-0000-0000-000000000000',
-                description: 'description'
+                description: 'description',
             };
 
             const clientInitObject = getClientInitObject(options);
@@ -186,8 +193,8 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getAgentInfo', function() {
-        test('should return the name and version of application from package.json file', function () {
+    describe('getAgentInfo', () => {
+        test('should return the name and version of application from package.json file', () => {
             const agentInfo = getAgentInfo();
 
             expect(agentInfo.name).toBe(pjson.name);
@@ -195,8 +202,8 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getSystemAttributes', function() {
-        test('should return only agent system attribute if parameter is true', function () {
+    describe('getSystemAttributes', () => {
+        test('should return only agent system attribute if parameter is true', () => {
             const expectedSystemAttribute = [{
                 key: 'agent',
                 value: `${pjson.name}|${pjson.version}`,
@@ -208,7 +215,7 @@ describe('Object Utils script', () => {
             expect(systemAttributes).toEqual(expectedSystemAttribute);
         });
 
-        test('should return only agent system attribute if there is no parameter', function () {
+        test('should return only agent system attribute if there is no parameter', () => {
             const expectedSystemAttribute = [{
                 key: 'agent',
                 value: `${pjson.name}|${pjson.version}`,
@@ -220,7 +227,7 @@ describe('Object Utils script', () => {
             expect(systemAttributes).toEqual(expectedSystemAttribute);
         });
 
-        test('should return agent and skippedIssue system attributes if parameter is false', function () {
+        test('should return agent and skippedIssue system attributes if parameter is false', () => {
             const expectedSystemAttribute = [{
                 key: 'agent',
                 value: `${pjson.name}|${pjson.version}`,
@@ -237,15 +244,15 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getCodeRef', function() {
-        test('should return correct code ref with separator', function() {
+    describe('getCodeRef', () => {
+        test('should return correct code ref with separator', () => {
             jest.mock('path', () => ({
                 sep: '\\',
             }));
             jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
             const mockedTest = {
                 title: 'testTitle',
-                filePath: `C:\\testProject\\test\\example.js`,
+                filePath: 'C:\\testProject\\test\\example.js',
             };
             const expectedCodeRef = 'test/example.js/testTitle';
 
@@ -254,14 +261,14 @@ describe('Object Utils script', () => {
             expect(codeRef).toEqual(expectedCodeRef);
         });
 
-        test('should return correct code ref without separator', function() {
+        test('should return correct code ref without separator', () => {
             jest.mock('path', () => ({
                 sep: '\\',
             }));
             jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
             const mockedTest = {
                 title: 'testTitle',
-                filePath: `C:\\testProject\\example.js`,
+                filePath: 'C:\\testProject\\example.js',
             };
             const expectedCodeRef = 'example.js/testTitle';
 
@@ -271,8 +278,8 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getFullTestName', function() {
-        test('should return correct full test name', function () {
+    describe('getFullTestName', () => {
+        test('should return correct full test name', () => {
             const mockedTest = {
                 title: 'testTitle',
                 ancestorTitles: ['rootDescribe', 'parentDescribe'],

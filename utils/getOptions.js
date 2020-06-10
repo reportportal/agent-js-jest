@@ -22,7 +22,7 @@ const constants = require('../constants/index');
 const getEnvOptions = () => {
     const options = {};
 
-    for (let name in constants.ENVIRONMENT_CONFIG_MAP) {
+    for (const name in constants.ENVIRONMENT_CONFIG_MAP) {
         if (process.env[name]) {
             options[constants.ENVIRONMENT_CONFIG_MAP[name]] = process.env[name];
         }
@@ -31,7 +31,7 @@ const getEnvOptions = () => {
     return options;
 };
 
-const getAppOptions = pathToResolve => {
+const getAppOptions = (pathToResolve) => {
     let traversing = true;
 
     // Find nearest package.json by traversing up directories until /
@@ -57,8 +57,12 @@ const getAppOptions = pathToResolve => {
 
 
 module.exports = {
-    options: (reporterOptions = {}) => ({ ...constants.DEFAULT_OPTIONS, ...reporterOptions,
-        ...getAppOptions(process.cwd()), ...getEnvOptions() }),
-    getAppOptions: getAppOptions,
-    getEnvOptions: getEnvOptions
+    options: (reporterOptions = {}) => ({
+        ...constants.DEFAULT_OPTIONS,
+        ...reporterOptions,
+        ...getAppOptions(process.cwd()),
+        ...getEnvOptions(),
+    }),
+    getAppOptions,
+    getEnvOptions,
 };

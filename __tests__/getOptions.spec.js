@@ -15,12 +15,14 @@
  */
 
 /* eslint-disable no-undef */
-const { options,
-    getAppOptions,
-    getEnvOptions } = require('./../utils/getOptions');
-const constants = require('./../constants/index');
 const fs = require('fs');
 const process = require('process');
+const {
+    options,
+    getAppOptions,
+    getEnvOptions,
+} = require('./../utils/getOptions');
+const constants = require('./../constants/index');
 
 describe('Get Options script', () => {
     const OLD_ENV = process.env;
@@ -79,7 +81,8 @@ describe('Get Options script', () => {
             expect(appOptionsObject).toEqual({});
         });
 
-        test('should return empty AppOptions object if fs.existsSync return true and type of options is not [object Object]', () => {
+        test('should return empty AppOptions object if fs.existsSync return true and type of options'
+            + ' is not [object Object]', () => {
             const spyProcessCwd = jest.spyOn(process, 'cwd');
             spyProcessCwd.mockReturnValue(`${processCwdValue}\\__tests__\\fixtures\\mockedPackageJsonString`);
             jest.mock('fs');
@@ -94,7 +97,8 @@ describe('Get Options script', () => {
             spyProcessCwd.mockClear();
         });
 
-        test('should return AppOptions object if fs.existsSync return true and type of options is [object Object]', () => {
+        test('should return AppOptions object if fs.existsSync return true and type of options'
+            + ' is [object Object]', () => {
             const spyProcessCwd = jest.spyOn(process, 'cwd');
             spyProcessCwd.mockReturnValue(`${processCwdValue}\\__tests__\\fixtures\\mockedPackageJsonObject`);
             jest.mock('fs');
@@ -104,7 +108,7 @@ describe('Get Options script', () => {
             const appOptionsObject = getAppOptions(process.cwd());
 
             expect(appOptionsObject).toBeDefined();
-            expect(appOptionsObject).toEqual({'keyOne': 'valueOne'});
+            expect(appOptionsObject).toEqual({ keyOne: 'valueOne' });
         });
     });
 
