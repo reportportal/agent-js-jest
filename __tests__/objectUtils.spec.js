@@ -246,9 +246,6 @@ describe('Object Utils script', () => {
 
     describe('getCodeRef', () => {
         test('should return correct code ref with separator', () => {
-            jest.mock('path', () => ({
-                sep: '\\',
-            }));
             jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
             const mockedTest = {
                 title: 'testTitle',
@@ -262,9 +259,6 @@ describe('Object Utils script', () => {
         });
 
         test('should return correct code ref without separator', () => {
-            jest.mock('path', () => ({
-                sep: '\\',
-            }));
             jest.spyOn(process, 'cwd').mockImplementation(() => 'C:\\testProject');
             const mockedTest = {
                 title: 'testTitle',
