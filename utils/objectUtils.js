@@ -104,7 +104,7 @@ const getSystemAttributes = (skippedIssue) => {
 const getCodeRef = (testPath, title) => {
     const testFileDir = path
         .parse(path.normalize(path.relative(process.cwd(), testPath)))
-        .dir.replace(new RegExp('\\', 'g'), '/');
+        .dir.replace(/\\/g, '/');
     const separator = testFileDir ? '/' : '';
     const testFile = path.parse(testPath);
 
