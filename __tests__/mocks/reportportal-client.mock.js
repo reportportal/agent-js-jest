@@ -22,13 +22,13 @@ const reporterOptions = {
     description: 'description',
     attributes: [
         {
-            'key': 'YourKey',
-            'value': 'YourValue'
+            key: 'YourKey',
+            value: 'YourValue',
         },
         {
-            'value': 'YourValue'
-        }
-    ]
+            value: 'YourValue',
+        },
+    ],
 };
 
 class RPClient {
@@ -48,37 +48,35 @@ class RPClient {
     }
 
     mockFinishLaunch() {
-        return jest.fn().mockReturnValue( {
+        return jest.fn().mockReturnValue({
             promise: Promise.resolve('ok'),
             tempId: 'finishLaunch',
         });
-    };
+    }
 
     mockStartTestItem() {
         return jest.fn().mockReturnValue({
             promise: Promise.resolve('ok'),
             tempId: 'startTestItem',
         });
-    };
+    }
 
     mockFinishTestItem() {
         return jest.fn().mockReturnValue({
             promise: Promise.resolve('ok'),
             tempId: 'finishTestItem',
         });
-    };
+    }
 
     mockSendLog() {
         return jest.fn().mockReturnValue({
             promise: Promise.resolve('ok'),
             tempId: 'sendLog',
         });
-    };
+    }
 }
 
 module.exports = {
-    getOptions: (options) => {
-        return Object.assign(reporterOptions, options);
-    },
-    RPClient
+    getOptions: options => Object.assign(reporterOptions, options),
+    RPClient,
 };
