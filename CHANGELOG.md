@@ -1,3 +1,5 @@
+### Added
+- Debug flag, launch mode
 
 ## [5.0.1] - 2020-06-12
 ### Changed

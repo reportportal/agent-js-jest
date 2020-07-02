@@ -31,6 +31,7 @@ const getStartLaunchObject = (options = {}) => {
         attributes: options.attributes ? options.attributes.concat(systemAttr) : systemAttr,
         rerun: options.rerun,
         rerunOf: options.rerunOf,
+        mode: options.mode,
         skippedIssue: options.skippedIssue,
         startTime: new Date().valueOf(),
     };
@@ -73,6 +74,8 @@ const getClientInitObject = (options = {}) => {
         skippedIssue: options.skippedIssue,
         description: options.description,
         attributes: env_attributes || options.attributes,
+        mode: options.mode,
+        debug: options.debug,
     };
 };
 
