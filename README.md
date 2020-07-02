@@ -1,4 +1,4 @@
-# reportportal-agent-jest
+# @reportportal/agent-js-jest
 
 A Jest reporter that uploads the results to a [ReportPortal](http://reportportal.io/) server.
 
@@ -50,7 +50,7 @@ module.exports = {
         [
             "@reportportal/agent-js-jest",
             {
-                "token": "00000000-0000-0000-0000-000000000000",                
+                "token": "00000000-0000-0000-0000-000000000000",
                 "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
@@ -108,12 +108,30 @@ Example:
 "skippedIssue": false
 ```
 
+## Launch mode:
+Launch mode. Allowable values *DEFAULT* (by default) or *DEBUG*.
+
+Example:
+
+```json
+"mode": "DEBUG"
+```
+
+## Debug flag:
+This flag allows seeing the logs of the client-javascript. Useful for debugging an agent.
+
+Example:
+
+```json
+"debug": true
+```
+
 # Copyright Notice
 
 Licensed under the [Apache License v2.0](LICENSE)
 
 # Contribution
 This code was based on the [jest-junit](https://github.com/jest-community/jest-junit)
-and adapted by team members of [Ontoforce](https://www.ontoforce.com) for the 
+and adapted by team members of [Ontoforce](https://www.ontoforce.com) for the
 ReportPortal upload. Ontoforce contributed this effort as Open Source to the
 ReportPortal project team.
