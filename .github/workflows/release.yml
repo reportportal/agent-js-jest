@@ -17,41 +17,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Read version
-        id: readVersion
+      - name: Get version fragment to bump
+        id: getVersionFragment
         run: |
-          read -r version < ${{ env.versionFileName }}
-          echo "Snapshot version: $version";
-          version=$(echo $version | sed 's/-SNAPSHOT//');
-          echo $version;
-          echo "::set-output name=version::$version"
           read -r versionFragment < ${{ env.versionFragmentFileName }}
-          echo $versionFragment
-          if [[ "$versionFragment" == "minor" ]]; then
-            versionFragment=feature
-            echo "Minor version will be used"
-          elif [[ "$versionFragment" == "major" ]]; then
-            echo "Major version will be used"
-          else
-            versionFragment=patch
-            echo "Patch version will be used"
-          fi
-          echo "::set-output name=versionFragment::$versionFragment"
-      - name: Bump release version if needed according to version fragment
-        if: steps.readVersion.outputs.versionFragment != 'patch'
-        id: bumpVersion
-        uses: christian-draeger/increment-semantic-version@1.0.1
+          echo "'$versionFragment' version will be used"
+          echo "::set-env name=VERSION_FRAGMENT::${versionFragment}"
+
+      - name: Generate versions
+        uses: HardNorth/github-version-generate@v1.0.1
         with:
-          current-version: ${{ steps.readVersion.outputs.version }}
-          version-fragment: ${{ steps.readVersion.outputs.versionFragment }}
+          version-source: file
+          version-file: ${{ env.versionFileName }}
+          next-version-increment-patch: ${{ contains(env.VERSION_FRAGMENT, 'patch') }}
+          next-version-increment-minor: ${{ contains(env.VERSION_FRAGMENT, 'minor')  }}
+          next-version-increment-major: ${{ contains(env.VERSION_FRAGMENT, 'major')  }}
+
       - name: Expose release version
         id: exposeVersion
         run: |
-          versionFragment=${{ steps.readVersion.outputs.versionFragment }}
+          versionFragment=${{ env.VERSION_FRAGMENT }}
           if [[ "$versionFragment" != "patch" ]]; then
-            echo "::set-output name=releaseVersion::${{ steps.bumpVersion.outputs.next-version }}"
+            echo "::set-output name=releaseVersion::${{ env.NEXT_VERSION }}"
           else
-            echo "::set-output name=releaseVersion::${{ steps.readVersion.outputs.version }}"
+            echo "::set-output name=releaseVersion::${{ env.RELEASE_VERSION }}"
           fi
 
   create-tag:
@@ -94,21 +83,23 @@ jobs:
         with:
           version: ${{ needs.calculate-version.outputs.releaseVersion }}
           path: ./${{ env.changelogFileName }}
-      - name: Bump snapshot version
-        id: bumpSnapshotVersion
-        uses: christian-draeger/increment-semantic-version@1.0.1
+
+      - name: Generate versions
+        uses: HardNorth/github-version-generate@v1.0.1
         with:
-          current-version: ${{ needs.calculate-version.outputs.releaseVersion }}
-          version-fragment: 'bug'
+            version: ${{ needs.calculate-version.outputs.releaseVersion }}
+            next-version-increment-patch: true
+
       - name: Update develop with snapshot version
         run: |
           git fetch
           git checkout develop
           git merge master -Xtheirs --allow-unrelated-histories
-          echo "${{ steps.bumpSnapshotVersion.outputs.next-version }}-SNAPSHOT" > ${{ env.versionFileName }}
+          next_version="${{ env.NEXT_VERSION }}-SNAPSHOT"
+          echo "${next_version}" > ${{ env.versionFileName }}
           git status
           git add ${{ env.versionFileName }}
-          git commit -m "${{ needs.calculate-version.outputs.releaseVersion }} -> ${{ steps.bumpSnapshotVersion.outputs.next-version }}-SNAPSHOT"
+          git commit -m "${{ needs.calculate-version.outputs.releaseVersion }} -> ${next_version}"
           git push origin develop
 
   create-release:
