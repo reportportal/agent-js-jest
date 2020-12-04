@@ -87,6 +87,8 @@ class JestReportPortal {
     }
 
     _startSuite(suiteName, path) {
+        if (!suiteName) return;
+
         const codeRef = getCodeRef(path, suiteName);
         const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName, codeRef),
             this.tempLaunchId);
@@ -166,6 +168,8 @@ class JestReportPortal {
     }
 
     _finishSuite() {
+        if (!this.tempSuiteId) return;
+
         const { promise } = this.client.finishTestItem(this.tempSuiteId, {});
 
         promiseErrorHandler(promise);
