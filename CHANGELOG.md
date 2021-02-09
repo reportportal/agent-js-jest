@@ -1,5 +1,9 @@
 ### Added
-- Debug flag, launch mode
+- Debug flag, launch mode configuration properties
+
+### Fixed
+- Doesn't start a suite if test has no describe
+- Vulnerable dependencies (lodash)
 
 ## [5.0.1] - 2020-06-12
 ### Changed
