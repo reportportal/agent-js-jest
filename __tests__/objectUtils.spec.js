@@ -168,12 +168,16 @@ describe('Object Utils script', () => {
                     { key: null, value: 'attributesOne' },
                     { key: 'attributesTwoKey', value: 'attributesTwoValue' },
                 ],
+                mode: 'DEBUG',
+                debug: true,
             };
             const options = {
                 endpoint: 'endpoint',
                 rerun: true,
                 rerunOf: '00000000-0000-0000-0000-000000000000',
                 description: 'description',
+                mode: 'DEBUG',
+                debug: true,
             };
 
             const clientInitObject = getClientInitObject(options);
