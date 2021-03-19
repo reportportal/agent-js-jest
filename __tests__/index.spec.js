@@ -277,19 +277,6 @@ describe('index script', () => {
             expect(spyFinishPassedTest).not.toHaveBeenCalled();
             expect(spyFinishFailedTest).not.toHaveBeenCalled();
         });
-
-        test('_finishPassedTest, _finishFailedTest, _finishSkippedTest should not be called if test'
-            + ' status doesn\'t exist', () => {
-            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedTest');
-            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
-            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');
-
-            reporter._finishTest({ status: 'random', failureMessages: [] });
-
-            expect(spyFinishSkippedTest).not.toHaveBeenCalled();
-            expect(spyFinishPassedTest).not.toHaveBeenCalled();
-            expect(spyFinishFailedTest).not.toHaveBeenCalled();
-        });
     });
 
     describe('_finishSuite', () => {
