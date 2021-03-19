@@ -266,7 +266,7 @@ describe('index script', () => {
             expect(spyFinishSkippedTest).not.toHaveBeenCalled();
         });
 
-        test('_finishSkippedTest should be called if test status is skipped', () => {
+        test('_finishSkippedTest should be called if test status is skipped or any other', () => {
             const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedTest');
             const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
             const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');
