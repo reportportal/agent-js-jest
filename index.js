@@ -117,12 +117,8 @@ class JestReportPortal {
         case testItemStatuses.FAILED:
             this._finishFailedTest(errorMsg, isRetried);
             break;
-        case testItemStatuses.SKIPPED:
-            this._finishSkippedTest(isRetried);
-            break;
         default:
-            // eslint-disable-next-line no-console
-            console.log('Unsupported test Status!!!');
+            this._finishSkippedTest(isRetried);
         }
     }
 
