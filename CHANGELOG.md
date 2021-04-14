@@ -1,3 +1,5 @@
+### Fixed
+- Nested describe blocks are not visible in report
 
 ## [5.0.2] - 2021-02-09
 ### Added

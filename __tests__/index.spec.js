@@ -35,7 +35,7 @@ const testResult = {
         {
             title: 'Title',
             status: 'failed',
-            ancestorTitles: ['Suite name'],
+            ancestorTitles: ['Suite name', 'Test name'],
             failureMessages: 'error message',
             invocations: 1,
         },
@@ -66,8 +66,9 @@ describe('index script', () => {
     afterEach(() => {
         jest.clearAllMocks();
         reporter.tempLaunchId = '';
-        reporter.tempSuiteId = '';
-        reporter.tempTestId = '';
+        reporter.tempSuiteIds = new Map();
+        reporter.tempTestIds = new Map();
+        reporter.tempStepId = null;
         global.Date = RealDate;
     });
 
@@ -103,43 +104,50 @@ describe('index script', () => {
     });
 
     describe('onTestResult', () => {
-        test('startSuite, startTest, finishTest, finishSuite should be called with parameters', () => {
+        test('startSuite, startTest, spyStartStep, finishTest, finishSuite, spyFinishStep'
+            + 'should be called with parameters', () => {
             const spyStartSuite = jest.spyOn(reporter, '_startSuite');
             const spyStartTest = jest.spyOn(reporter, '_startTest');
+            const spyStartStep = jest.spyOn(reporter, '_startStep');
             const spyFinishTest = jest.spyOn(reporter, '_finishTest');
             const spyFinishSuite = jest.spyOn(reporter, '_finishSuite');
+            const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+            reporter.tempTestIds = new Map([['tempTestId', '1234']]);
+            reporter.tempSuiteIds = new Map([['tempSuiteId', '4321']]);
 
             reporter.onTestResult(testObj, testResult);
 
             expect(spyStartSuite).toHaveBeenCalledWith(testResult.testResults[0].ancestorTitles[0], testObj.path);
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-            expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
-            expect(spyFinishSuite).toHaveBeenCalled();
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], testObj.path);
+            expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
+            expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
+            expect(spyFinishTest).toHaveBeenCalledWith('1234', 'tempTestId');
+            expect(spyFinishSuite).toHaveBeenCalledWith('4321', 'tempSuiteId');
         });
 
-        test('startTest, finishTest should be called one times with second parameter \'false\' if there'
+        test('startStep, finishStep should be called one times with second parameter \'false\' if there'
             + ' are no retries', () => {
-            const spyStartTest = jest.spyOn(reporter, '_startTest');
-            const spyFinishTest = jest.spyOn(reporter, '_finishTest');
+            const spyStartStep = jest.spyOn(reporter, '_startStep');
+            const spyFinishStep = jest.spyOn(reporter, '_finishStep');
 
             reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-            expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
-            expect(spyStartTest).toHaveBeenCalledTimes(1);
-            expect(spyFinishTest).toHaveBeenCalledTimes(1);
+            expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
+            expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
+            expect(spyStartStep).toHaveBeenCalledTimes(1);
+            expect(spyFinishStep).toHaveBeenCalledTimes(1);
         });
 
-        test('startTest, finishTest should be called two times with second parameter \'true\' if there'
+        test('startStep, finishStep should be called two times with second parameter \'true\' if there'
             + ' are retries', () => {
-            const spyStartTest = jest.spyOn(reporter, '_startTest');
-            const spyFinishTest = jest.spyOn(reporter, '_finishTest');
+            const spyStartStep = jest.spyOn(reporter, '_startStep');
+            const spyFinishStep = jest.spyOn(reporter, '_finishStep');
             const testResult = {
                 testResults: [
                     {
                         title: 'Title',
                         status: 'failed',
-                        ancestorTitles: ['Suite name'],
+                        ancestorTitles: ['Suite name', 'Test name'],
                         failureMessages: 'error message',
                         invocations: 2,
                     },
@@ -148,16 +156,35 @@ describe('index script', () => {
 
             reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], true, testObj.path);
-            expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], true);
-            expect(spyStartTest).toHaveBeenCalledTimes(2);
-            expect(spyFinishTest).toHaveBeenCalledTimes(2);
+            expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], true, testObj.path);
+            expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], true);
+            expect(spyStartStep).toHaveBeenCalledTimes(2);
+            expect(spyFinishStep).toHaveBeenCalledTimes(2);
         });
 
-        test('startTest, finishTest should be called ones with second parameter \'false\' if there is'
+        test('startStep, finishStep should be called ones with second parameter \'false\' if there is'
             + ' no invocations', () => {
+            const spyStartStep = jest.spyOn(reporter, '_startStep');
+            const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+            const testResult = {
+                testResults: [
+                    {
+                        title: 'Title',
+                        status: 'failed',
+                        ancestorTitles: ['Suite name', 'Test name'],
+                        failureMessages: 'error message',
+                    },
+                ],
+            };
+
+            reporter.onTestResult(testObj, testResult);
+
+            expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
+            expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
+        });
+
+        test('startTest should not be called if there are no tests', () => {
             const spyStartTest = jest.spyOn(reporter, '_startTest');
-            const spyFinishTest = jest.spyOn(reporter, '_finishTest');
             const testResult = {
                 testResults: [
                     {
@@ -171,8 +198,7 @@ describe('index script', () => {
 
             reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-            expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
+            expect(spyStartTest).not.toHaveBeenCalled();
         });
     });
 
@@ -187,7 +213,8 @@ describe('index script', () => {
     });
 
     describe('_startSuite', () => {
-        test('startTestItem should be called with parameters, tempSuiteId should be defined', () => {
+        test('startTestItem should be called with parameters if tempSuiteIds doesn\'t contain this suite,'
+            + 'tempSuiteId should be defined', () => {
             jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
             const expectedStartTestItemParameter = {
                 type: 'SUITE',
@@ -195,32 +222,91 @@ describe('index script', () => {
                 codeRef: 'example.js/suite name',
                 startTime: new Date().valueOf(),
             };
+            const expectedTempSuiteIds = new Map([['suite name', 'startTestItem']]);
             reporter.tempLaunchId = 'tempLaunchId';
 
             reporter._startSuite('suite name', testObj.path);
 
             expect(reporter.client.startTestItem).toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId');
-            expect(reporter.tempSuiteId).toEqual('startTestItem');
+            expect(reporter.tempSuiteIds).toEqual(expectedTempSuiteIds);
+        });
+
+        test('startTestItem should not be called with parameters if tempSuiteIds contains this suite', () => {
+            reporter.tempSuiteIds = new Map([['suite name', 'startTestItem']]);
+
+            reporter._startSuite('suite name', testObj.path);
+
+            expect(reporter.client.startTestItem).not.toHaveBeenCalled();
         });
     });
 
     describe('_startTest', () => {
-        test('startTestItem should be called with parameters, tempTestId should be defined', () => {
+        test('startTestItem should be called with parameters if tempTestIds doesn\'t contain this suite,'
+            + 'tempSuiteId should be defined', () => {
             jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
             const expectedStartTestItemParameter = {
-                type: 'STEP',
-                name: 'test name',
-                codeRef: 'example.js/rootDescribe/test name',
-                retry: true,
+                type: 'TEST',
+                name: 'Test name',
+                codeRef: 'example.js/Suite name/Test name',
+                startTime: new Date().valueOf(),
             };
+            const expectedTempTestIds = new Map([['Suite name/Test name', 'startTestItem']]);
             reporter.tempLaunchId = 'tempLaunchId';
-            reporter.tempSuiteId = 'tempSuiteId';
+            reporter.tempSuiteIds = new Map([['Suite name', 'suiteId']]);
 
-            reporter._startTest({ title: 'test name', ancestorTitles: ['rootDescribe'] }, true, testObj.path);
+            reporter._startTest({ ancestorTitles: ['Suite name', 'Test name'] }, testObj.path);
 
             expect(reporter.client.startTestItem)
-                .toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'tempSuiteId');
-            expect(reporter.tempTestId).toEqual('startTestItem');
+                .toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'suiteId');
+            expect(reporter.tempTestIds).toEqual(expectedTempTestIds);
+        });
+
+        test('startTestItem should not be called with parameters if tempTestIds contains this test', () => {
+            reporter.tempTestIds = new Map([['Suite name/Test name', 'startTestItem']]);
+
+            reporter._startTest({ ancestorTitles: ['Suite name', 'Test name'] }, testObj.path);
+
+            expect(reporter.client.startTestItem).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('_startStep', () => {
+        test('startTestItem should be called with parameters with tempTestId, tempStepId should be defined', () => {
+            jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
+            const expectedStartStepItemParameter = {
+                type: 'STEP',
+                name: 'Step',
+                codeRef: 'example.js/Suite/Test/Step',
+                retry: true,
+                startTime: new Date().valueOf(),
+            };
+            reporter.tempLaunchId = 'tempLaunchId';
+            reporter.tempTestIds = new Map([['Suite/Test', 'tempTestId']]);
+
+            reporter._startStep({ title: 'Step', ancestorTitles: ['Suite', 'Test'] }, true, testObj.path);
+
+            expect(reporter.client.startTestItem)
+                .toHaveBeenCalledWith(expectedStartStepItemParameter, 'tempLaunchId', 'tempTestId');
+            expect(reporter.tempStepId).toEqual('startTestItem');
+        });
+
+        test('startTestItem should be called with parameters with tempSuiteId, tempStepId should be defined', () => {
+            jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
+            const expectedStartStepItemParameter = {
+                type: 'STEP',
+                name: 'Step',
+                codeRef: 'example.js/Suite/Step',
+                retry: true,
+                startTime: new Date().valueOf(),
+            };
+            reporter.tempLaunchId = 'tempLaunchId';
+            reporter.tempSuiteIds = new Map([['Suite', 'tempSuiteId']]);
+
+            reporter._startStep({ title: 'Step', ancestorTitles: ['Suite'] }, true, testObj.path);
+
+            expect(reporter.client.startTestItem)
+                .toHaveBeenCalledWith(expectedStartStepItemParameter, 'tempLaunchId', 'tempSuiteId');
+            expect(reporter.tempStepId).toEqual('startTestItem');
         });
     });
 
@@ -230,33 +316,33 @@ describe('index script', () => {
                 message: 'message',
                 level: 'error',
             };
-            reporter.tempTestId = 'tempTestId';
+            reporter.tempStepId = 'tempStepId';
 
             reporter._sendLog('message');
 
-            expect(reporter.client.sendLog).toHaveBeenCalledWith('tempTestId', expectedLogObjectParameter);
+            expect(reporter.client.sendLog).toHaveBeenCalledWith('tempStepId', expectedLogObjectParameter);
         });
     });
 
-    describe('_finishTest', () => {
-        test('_finishPassedTest should be called if test status is passed', () => {
-            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedTest');
-            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
-            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');
+    describe('_finishStep', () => {
+        test('_finishPassedTest should be called if step status is passed', () => {
+            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedStep');
+            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
+            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-            reporter._finishTest({ status: testItemStatuses.PASSED, failureMessages: [] });
+            reporter._finishStep({ status: testItemStatuses.PASSED, failureMessages: [] });
 
             expect(spyFinishPassedTest).toHaveBeenCalled();
             expect(spyFinishFailedTest).not.toHaveBeenCalled();
             expect(spyFinishSkippedTest).not.toHaveBeenCalled();
         });
 
-        test('_finishFailedTest should be called with error message if test status is failed', () => {
-            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedTest');
-            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
-            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');
+        test('_finishFailedStep should be called with error message if step status is failed', () => {
+            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedStep');
+            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
+            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-            reporter._finishTest(
+            reporter._finishStep(
                 { status: testItemStatuses.FAILED, failureMessages: ['error message'] },
                 false,
             );
@@ -266,12 +352,12 @@ describe('index script', () => {
             expect(spyFinishSkippedTest).not.toHaveBeenCalled();
         });
 
-        test('_finishSkippedTest should be called if test status is skipped or any other', () => {
-            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedTest');
-            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedTest');
-            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedTest');
+        test('_finishPassedStep should be called if step status is skipped or any other', () => {
+            const spyFinishPassedTest = jest.spyOn(reporter, '_finishPassedStep');
+            const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
+            const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-            reporter._finishTest({ status: testItemStatuses.SKIPPED, failureMessages: [] });
+            reporter._finishStep({ status: testItemStatuses.SKIPPED, failureMessages: [] });
 
             expect(spyFinishSkippedTest).toHaveBeenCalled();
             expect(spyFinishPassedTest).not.toHaveBeenCalled();
@@ -279,57 +365,81 @@ describe('index script', () => {
         });
     });
 
-    describe('_finishSuite', () => {
-        test('finishTestItem should be called with parameters', () => {
-            reporter.tempSuiteId = 'tempSuiteId';
+    describe('_finishTest', () => {
+        test('finishTestItem should be called with parameters, tempTestId should be deleted', () => {
+            reporter.tempTestIds = new Map([['Test', 'tempTestId']]);
 
-            reporter._finishSuite();
+            reporter._finishTest('tempTestId', 'Test');
 
-            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempSuiteId', {});
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', {});
+            expect(reporter.tempTestIds.get('Test')).toEqual(undefined);
+        });
+
+        test('finishTestItem should not be called with parameters if there is no tempTestId', () => {
+            reporter._finishTest(undefined);
+
+            expect(reporter.client.finishTestItem).not.toHaveBeenCalled();
         });
     });
 
-    describe('_finishPassedTest', () => {
+    describe('_finishSuite', () => {
+        test('finishTestItem should be called with parameters, tempSuiteId should be deleted', () => {
+            reporter.tempSuiteIds = new Map([['Suite', 'tempSuiteId']]);
+
+            reporter._finishSuite('tempSuiteId', 'Suite');
+
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempSuiteId', {});
+            expect(reporter.tempSuiteIds.get('Suite')).toEqual(undefined);
+        });
+
+        test('finishTestItem should not be called with parameters if there is no tempSuiteId', () => {
+            reporter._finishSuite(undefined);
+
+            expect(reporter.client.finishTestItem).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('_finishPassedStep', () => {
         test('finishTestItem should be called with parameters', () => {
             const expectedFinishTestItemParameter = {
                 status: 'passed',
                 retry: false,
             };
-            reporter.tempTestId = 'tempTestId';
+            reporter.tempStepId = 'tempStepId';
 
-            reporter._finishPassedTest(false);
+            reporter._finishPassedStep(false);
 
-            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', expectedFinishTestItemParameter);
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempStepId', expectedFinishTestItemParameter);
         });
     });
 
-    describe('_finishFailedTest', () => {
+    describe('_finishFailedStep', () => {
         test('_sendLog should be called with failure message, finishTestItem should be called with parameters', () => {
             const spySendLog = jest.spyOn(reporter, '_sendLog');
             const expectedFinishTestItemParameter = {
                 status: 'failed',
                 retry: false,
             };
-            reporter.tempTestId = 'tempTestId';
+            reporter.tempStepId = 'tempStepId';
 
-            reporter._finishFailedTest('error message', false);
+            reporter._finishFailedStep('error message', false);
 
             expect(spySendLog).toHaveBeenCalledWith('error message');
-            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', expectedFinishTestItemParameter);
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempStepId', expectedFinishTestItemParameter);
         });
     });
 
-    describe('_finishSkippedTest', () => {
+    describe('_finishSkippedStep', () => {
         test('finishTestItem should be called with parameters', () => {
             const expectedFinishTestItemParameter = {
                 status: 'skipped',
                 retry: false,
             };
-            reporter.tempTestId = 'tempTestId';
+            reporter.tempStepId = 'tempStepId';
 
-            reporter._finishSkippedTest(false);
+            reporter._finishSkippedStep(false);
 
-            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', expectedFinishTestItemParameter);
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempStepId', expectedFinishTestItemParameter);
         });
 
         test('finishTestItem should be called with issue parameter if skippedIssue is false', () => {
@@ -338,12 +448,12 @@ describe('index script', () => {
                 retry: false,
                 issue: { issueType: 'NOT_ISSUE' },
             };
-            reporter.tempTestId = 'tempTestId';
+            reporter.tempStepId = 'tempStepId';
             reporter.reportOptions.skippedIssue = false;
 
-            reporter._finishSkippedTest(false);
+            reporter._finishSkippedStep(false);
 
-            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempTestId', expectedFinishTestItemParameter);
+            expect(reporter.client.finishTestItem).toHaveBeenCalledWith('tempStepId', expectedFinishTestItemParameter);
         });
     });
 });
