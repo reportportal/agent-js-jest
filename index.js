@@ -18,7 +18,8 @@ const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
 const {
     getClientInitObject, getSuiteStartObject,
-    getStartLaunchObject, getTestStartObject, getAgentInfo, getCodeRef, getFullTestName,
+    getStartLaunchObject, getTestStartObject, getStepStartObject,
+    getAgentInfo, getCodeRef, getFullTestName, getFullStepName,
 } = require('./utils/objectUtils');
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
@@ -40,15 +41,15 @@ const promiseErrorHandler = (promise) => {
 class JestReportPortal {
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
-        this.globalConfig = globalConfig;
         this.reportOptions = getClientInitObject(getOptions.options(options));
         this.client = new RPClient(this.reportOptions, agentInfo);
-        this.tempSuiteId = null;
-        this.tempTestId = null;
+        this.tempSuiteIds = new Map();
+        this.tempTestIds = new Map();
+        this.tempStepId = null;
     }
 
     // eslint-disable-next-line no-unused-vars
-    onRunStart(aggregatedResults, options) {
+    onRunStart() {
         const startLaunchObj = getStartLaunchObject(this.reportOptions);
         const { tempId, promise } = this.client.startLaunch(startLaunchObj);
 
@@ -57,86 +58,112 @@ class JestReportPortal {
     }
 
     // eslint-disable-next-line no-unused-vars
-    onTestResult(test, testResult, aggregatedResults) {
-        const suiteName = testResult.testResults[0].ancestorTitles[0];
-
-        this._startSuite(suiteName, test.path);
+    onTestResult(test, testResult) {
         testResult.testResults.forEach((t) => {
+            this._startSuite(t.ancestorTitles[0], test.path);
+            if (t.ancestorTitles.length !== 1) {
+                this._startTest(t, test.path);
+            }
+
             if (!t.invocations) {
-                this._startTest(t, false, test.path);
-                this._finishTest(t, false);
+                this._startStep(t, false, test.path);
+                this._finishStep(t, false);
                 return;
             }
 
             for (let i = 0; i < t.invocations; i++) {
                 const isRetried = t.invocations !== 1;
 
-                this._startTest(t, isRetried, test.path);
-                this._finishTest(t, isRetried);
+                this._startStep(t, isRetried, test.path);
+                this._finishStep(t, isRetried);
             }
         });
 
-        this._finishSuite();
+        this.tempTestIds.forEach((tempTestId, key) => {
+            this._finishTest(tempTestId, key);
+        });
+        this.tempSuiteIds.forEach((tempSuiteId, key) => {
+            this._finishSuite(tempSuiteId, key);
+        });
     }
 
     // eslint-disable-next-line no-unused-vars
-    onRunComplete(contexts, results) {
+    onRunComplete() {
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
         promiseErrorHandler(promise);
     }
 
     _startSuite(suiteName, path) {
-        if (!suiteName) return;
-
+        if (this.tempSuiteIds.get(suiteName)) {
+            return;
+        }
         const codeRef = getCodeRef(path, suiteName);
         const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName, codeRef),
             this.tempLaunchId);
 
+        this.tempSuiteIds.set(suiteName, tempId);
         promiseErrorHandler(promise);
-        this.tempSuiteId = tempId;
     }
 
-    _startTest(test, isRetried, testPath) {
+    _startTest(test, testPath) {
+        if (this.tempTestIds.get(test.ancestorTitles.join('/'))) {
+            return;
+        }
+
+        const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
         const fullTestName = getFullTestName(test);
         const codeRef = getCodeRef(testPath, fullTestName);
-        const testStartObj = getTestStartObject(test.title, isRetried, codeRef);
-        const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
+        const testStartObj = getTestStartObject(test.ancestorTitles[test.ancestorTitles.length - 1], codeRef);
+        const parentId = this.tempTestIds.get(test.ancestorTitles.slice(0, -1).join('/')) || tempSuiteId;
+        const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, parentId);
 
+        this.tempTestIds.set(fullTestName, tempId);
         promiseErrorHandler(promise);
-        this.tempTestId = tempId;
     }
 
-    _finishTest(test, isRetried) {
+    _startStep(test, isRetried, testPath) {
+        const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
+        const fullStepName = getFullStepName(test);
+        const codeRef = getCodeRef(testPath, fullStepName);
+        const stepStartObj = getStepStartObject(test.title, isRetried, codeRef);
+        const parentId = this.tempTestIds.get(test.ancestorTitles.join('/')) || tempSuiteId;
+        const { tempId, promise } = this.client.startTestItem(stepStartObj, this.tempLaunchId, parentId);
+
+        this.tempStepId = tempId;
+        promiseErrorHandler(promise);
+    }
+
+    _finishStep(test, isRetried) {
         const errorMsg = test.failureMessages[0];
 
         switch (test.status) {
         case testItemStatuses.PASSED:
-            this._finishPassedTest(isRetried);
+            this._finishPassedStep(isRetried);
             break;
         case testItemStatuses.FAILED:
-            this._finishFailedTest(errorMsg, isRetried);
+            this._finishFailedStep(errorMsg, isRetried);
             break;
         default:
-            this._finishSkippedTest(isRetried);
+            this._finishSkippedStep(isRetried);
         }
     }
 
-    _finishPassedTest(isRetried) {
+    _finishPassedStep(isRetried) {
         const status = testItemStatuses.PASSED;
         const finishTestObj = { status, retry: isRetried };
-        const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+        const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
 
-    _finishFailedTest(failureMessage, isRetried) {
+    _finishFailedStep(failureMessage, isRetried) {
         const status = testItemStatuses.FAILED;
         const finishTestObj = { status, retry: isRetried };
 
         this._sendLog(failureMessage);
 
-        const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+        const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
@@ -146,28 +173,38 @@ class JestReportPortal {
             message,
             level: logLevels.ERROR,
         };
-        const { promise } = this.client.sendLog(this.tempTestId, logObject);
+        const { promise } = this.client.sendLog(this.tempStepId, logObject);
 
         promiseErrorHandler(promise);
     }
 
-    _finishSkippedTest(isRetried) {
+    _finishSkippedStep(isRetried) {
         const status = 'skipped';
         const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
         const finishTestObj = Object.assign({
             status,
             retry: isRetried,
         }, issue && { issue });
-        const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
+        const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);
     }
 
-    _finishSuite() {
-        if (!this.tempSuiteId) return;
+    _finishTest(tempTestId, key) {
+        if (!tempTestId) return;
 
-        const { promise } = this.client.finishTestItem(this.tempSuiteId, {});
+        const { promise } = this.client.finishTestItem(tempTestId, {});
 
+        this.tempTestIds.delete(key);
+        promiseErrorHandler(promise);
+    }
+
+    _finishSuite(tempSuiteId, key) {
+        if (!tempSuiteId) return;
+
+        const { promise } = this.client.finishTestItem(tempSuiteId, {});
+
+        this.tempSuiteIds.delete(key);
         promiseErrorHandler(promise);
     }
 }
