@@ -38,6 +38,7 @@ const promiseErrorHandler = (promise) => {
 
 
 class JestReportPortal {
+    promises = [];
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
         this.globalConfig = globalConfig;
@@ -54,6 +55,7 @@ class JestReportPortal {
 
         this.tempLaunchId = tempId;
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -80,10 +82,13 @@ class JestReportPortal {
     }
 
     // eslint-disable-next-line no-unused-vars
-    onRunComplete(contexts, results) {
+    async onRunComplete(contexts, results) {
+        await Promise.all(this.promises);
+
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
         promiseErrorHandler(promise);
+        await promise;
     }
 
     _startSuite(suiteName, path) {
@@ -94,6 +99,7 @@ class JestReportPortal {
             this.tempLaunchId);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
         this.tempSuiteId = tempId;
     }
 
@@ -104,6 +110,7 @@ class JestReportPortal {
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
         this.tempTestId = tempId;
     }
 
@@ -132,6 +139,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishFailedTest(failureMessage, isRetried) {
@@ -143,6 +151,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _sendLog(message) {
@@ -153,6 +162,7 @@ class JestReportPortal {
         const { promise } = this.client.sendLog(this.tempTestId, logObject);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishSkippedTest(isRetried) {
@@ -165,6 +175,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishSuite() {
@@ -173,6 +184,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempSuiteId, {});
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 }
 
