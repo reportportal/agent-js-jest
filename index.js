@@ -60,7 +60,12 @@ class JestReportPortal {
     onTestResult(test, testResult, aggregatedResults) {
         const suiteName = testResult.testResults[0].ancestorTitles[0];
 
-        this._startSuite(suiteName, test.path);
+        var duration = 0;
+        for (var result in testResult.testResults) {
+            duration += testResult.testResults[result].duration;
+        }
+
+        this._startSuite(suiteName, duration, test.path);
         testResult.testResults.forEach((t) => {
             if (!t.invocations) {
                 this._startTest(t, false, test.path);
@@ -86,12 +91,13 @@ class JestReportPortal {
         promiseErrorHandler(promise);
     }
 
-    _startSuite(suiteName, path) {
+    _startSuite(suiteName, duration, path) {
         if (!suiteName) return;
 
         const codeRef = getCodeRef(path, suiteName);
-        const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName, codeRef),
-            this.tempLaunchId);
+        var suiteStartObj = getSuiteStartObject(suiteName, codeRef);
+        suiteStartObj.startTime = new Date().valueOf() - duration;
+        const { tempId, promise } = this.client.startTestItem(suiteStartObj, this.tempLaunchId);
 
         promiseErrorHandler(promise);
         this.tempSuiteId = tempId;
@@ -100,7 +106,8 @@ class JestReportPortal {
     _startTest(test, isRetried, testPath) {
         const fullTestName = getFullTestName(test);
         const codeRef = getCodeRef(testPath, fullTestName);
-        const testStartObj = getTestStartObject(test.title, isRetried, codeRef);
+        var testStartObj = getTestStartObject(test.title, isRetried, codeRef);
+        testStartObj.startTime = new Date().valueOf() - test.duration;
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, this.tempSuiteId);
 
         promiseErrorHandler(promise);
