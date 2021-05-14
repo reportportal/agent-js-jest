@@ -61,7 +61,7 @@ class JestReportPortal {
         const suiteName = testResult.testResults[0].ancestorTitles[0];
 
         var duration = 0;
-        for (var result in testResult.testResults) {
+        for (let result = 0; i < testResult.testResults.length; i++) {
             duration += testResult.testResults[result].duration;
         }
 
