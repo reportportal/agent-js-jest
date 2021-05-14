@@ -42,6 +42,7 @@ class JestReportPortal {
         const agentInfo = getAgentInfo();
         this.globalConfig = globalConfig;
         this.reportOptions = getClientInitObject(getOptions.options(options));
+        if (this.reportOptions.token === "DISABLED") return;
         this.client = new RPClient(this.reportOptions, agentInfo);
         this.tempSuiteId = null;
         this.tempTestId = null;
@@ -49,6 +50,8 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onRunStart(aggregatedResults, options) {
+        if (this.reportOptions.token === "DISABLED") return;
+
         const startLaunchObj = getStartLaunchObject(this.reportOptions);
         const { tempId, promise } = this.client.startLaunch(startLaunchObj);
 
@@ -58,6 +61,8 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onTestResult(test, testResult, aggregatedResults) {
+        if (this.reportOptions.token === "DISABLED") return;
+
         const suiteName = testResult.testResults[0].ancestorTitles[0];
 
         this._startSuite(suiteName, test.path);
@@ -81,6 +86,8 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onRunComplete(contexts, results) {
+        if (this.reportOptions.token === "DISABLED") return;
+
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
         promiseErrorHandler(promise);
