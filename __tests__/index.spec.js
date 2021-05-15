@@ -38,6 +38,7 @@ const testResult = {
             ancestorTitles: ['Suite name'],
             failureMessages: 'error message',
             invocations: 1,
+            duration: 5,
         },
     ],
 };
@@ -111,7 +112,7 @@ describe('index script', () => {
 
             reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartSuite).toHaveBeenCalledWith(testResult.testResults[0].ancestorTitles[0], testObj.path);
+            expect(spyStartSuite).toHaveBeenCalledWith(testResult.testResults[0].ancestorTitles[0], 5, testObj.path);
             expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
             expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
             expect(spyFinishSuite).toHaveBeenCalled();
@@ -193,11 +194,11 @@ describe('index script', () => {
                 type: 'SUITE',
                 name: 'suite name',
                 codeRef: 'example.js/suite name',
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - 5,
             };
             reporter.tempLaunchId = 'tempLaunchId';
 
-            reporter._startSuite('suite name', testObj.path);
+            reporter._startSuite('suite name', 5, testObj.path);
 
             expect(reporter.client.startTestItem).toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId');
             expect(reporter.tempSuiteId).toEqual('startTestItem');
@@ -212,11 +213,16 @@ describe('index script', () => {
                 name: 'test name',
                 codeRef: 'example.js/rootDescribe/test name',
                 retry: true,
+                startTime: new Date().valueOf() - 5,
             };
             reporter.tempLaunchId = 'tempLaunchId';
             reporter.tempSuiteId = 'tempSuiteId';
 
-            reporter._startTest({ title: 'test name', ancestorTitles: ['rootDescribe'] }, true, testObj.path);
+            reporter._startTest({
+                title: 'test name',
+                duration: 5,
+                ancestorTitles: ['rootDescribe'],
+            }, true, testObj.path);
 
             expect(reporter.client.startTestItem)
                 .toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'tempSuiteId');
