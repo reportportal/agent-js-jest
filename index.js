@@ -38,7 +38,6 @@ const promiseErrorHandler = (promise) => {
 
 
 class JestReportPortal {
-    promises = [];
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
         this.globalConfig = globalConfig;
@@ -46,6 +45,7 @@ class JestReportPortal {
         this.client = new RPClient(this.reportOptions, agentInfo);
         this.tempSuiteId = null;
         this.tempTestId = null;
+        this.promises = [];
     }
 
     // eslint-disable-next-line no-unused-vars
