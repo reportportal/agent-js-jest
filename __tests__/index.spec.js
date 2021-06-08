@@ -177,10 +177,10 @@ describe('index script', () => {
     });
 
     describe('onRunComplete', () => {
-        test('finishLaunch should be called with tempLaunchId', () => {
+        test('finishLaunch should be called with tempLaunchId', async () => {
             reporter.tempLaunchId = 'tempLaunchId';
 
-            reporter.onRunComplete();
+            await reporter.onRunComplete();
 
             expect(reporter.client.finishLaunch).toHaveBeenCalledWith('tempLaunchId');
         });
