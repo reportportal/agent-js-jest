@@ -1,3 +1,11 @@
+### Fixed
+- Nested describe blocks are not visible in report
+
+### Updated
+- `@reportportal/client-javascript` version to the latest
+
+### Added
+- `restClientConfig` configuration property support (more details in [client-javascript](https://github.com/reportportal/client-javascript))
 
 ## [5.0.2] - 2021-02-09
 ### Added
