@@ -84,6 +84,7 @@ const getClientInitObject = (options = {}) => {
         attributes: env_attributes || options.attributes,
         mode: options.mode,
         debug: options.debug,
+        restClientConfig: options.restClientConfig,
     };
 };
 
