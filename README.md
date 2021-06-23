@@ -33,7 +33,10 @@ In your jest config section of `package.json`, add the following entry:
                     {
                         "value": "YourValue"
                     },
-                ]
+                ],
+                "restClientConfig": {
+                  "timeout": 0
+                }
             }]
         ],
         ...
@@ -135,6 +138,12 @@ Example:
 ```json
 "debug": true
 ```
+
+## REST Client config:
+
+Optional property.<br/>
+The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/>
+Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details.
 
 # Copyright Notice
 
