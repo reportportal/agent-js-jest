@@ -16,7 +16,7 @@
 
 /* eslint-disable no-process-env */
 const path = require('path');
-const pjson = require('./../package.json');
+const pjson = require('../package.json');
 
 const PJSON_VERSION = pjson.version;
 const PJSON_NAME = pjson.name;
@@ -38,14 +38,13 @@ const getStartLaunchObject = (options = {}) => {
     };
 };
 
-const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration) => Object.assign(
-    {
-        type: entityType.STEP,
-        name: stepTitle,
-        codeRef,
-        startTime: new Date().valueOf() - stepDuration,
-    }, { retry: isRetried },
-);
+const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration) => ({
+    type: entityType.STEP,
+    name: stepTitle,
+    codeRef,
+    startTime: new Date().valueOf() - stepDuration,
+    retry: isRetried,
+});
 
 const getTestStartObject = (testTitle, codeRef, testDuration) => ({
     type: entityType.TEST,
@@ -126,9 +125,9 @@ const getCodeRef = (testPath, title) => {
     return `${testFileDir}${separator}${testFile.base}/${title}`;
 };
 
-const getFullTestName = test => `${test.ancestorTitles.join('/')}`;
+const getFullTestName = (test) => `${test.ancestorTitles.join('/')}`;
 
-const getFullStepName = test => `${test.ancestorTitles.join('/')}/${test.title}`;
+const getFullStepName = (test) => `${test.ancestorTitles.join('/')}/${test.title}`;
 
 module.exports = {
     getClientInitObject,

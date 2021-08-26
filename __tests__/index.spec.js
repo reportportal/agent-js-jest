@@ -18,7 +18,7 @@
 const path = require('path');
 const { getOptions, RPClient } = require('./mocks/reportportal-client.mock');
 const JestReportPortal = require('../index');
-const pjson = require('./../package.json');
+const pjson = require('../package.json');
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 const GLOBAL_CONFIG = {};

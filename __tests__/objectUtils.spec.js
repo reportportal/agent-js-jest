@@ -27,8 +27,8 @@ const {
     getFullTestName,
     getFullStepName,
     getSystemAttributes,
-} = require('./../utils/objectUtils');
-const pjson = require('./../package.json');
+} = require('../utils/objectUtils');
+const pjson = require('../package.json');
 
 const defaultOptions = {
     launch: 'launchName',
