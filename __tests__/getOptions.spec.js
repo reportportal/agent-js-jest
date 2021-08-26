@@ -22,8 +22,8 @@ const {
     options,
     getAppOptions,
     getEnvOptions,
-} = require('./../utils/getOptions');
-const constants = require('./../constants/index');
+} = require('../utils/getOptions');
+const constants = require('../constants/index');
 
 describe('Get Options script', () => {
     const OLD_ENV = process.env;
