@@ -89,6 +89,7 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onRunComplete() {
+        if (this.reportOptions.launchId) return;
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
         promiseErrorHandler(promise);
