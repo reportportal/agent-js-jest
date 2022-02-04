@@ -34,6 +34,7 @@ const getStartLaunchObject = (options = {}) => {
         mode: options.mode,
         skippedIssue: options.skippedIssue,
         startTime: new Date().valueOf(),
+        id: process.env.RP_LAUNCH_ID || options.launchId,
     };
 };
 
@@ -85,6 +86,7 @@ const getClientInitObject = (options = {}) => {
         mode: options.mode,
         debug: options.debug,
         restClientConfig: options.restClientConfig,
+        launchId: process.env.RP_LAUNCH_ID || options.launchId,
     };
 };
 
