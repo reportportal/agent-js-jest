@@ -25,6 +25,7 @@ In your jest config section of `package.json`, add the following entry:
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
                 "description": "YourDescription",
+                "logLaunchLink": true,
                 "attributes": [
                     {
                         "key": "YourKey",
@@ -60,6 +61,7 @@ module.exports = {
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
                 "description": "YourDescription",
+                "logLaunchLink": true,
                 "attributes": [
                     {
                         "key": "YourKey",

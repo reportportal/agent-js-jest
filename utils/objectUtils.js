@@ -85,6 +85,7 @@ const getClientInitObject = (options = {}) => {
         mode: options.mode,
         debug: options.debug,
         restClientConfig: options.restClientConfig,
+        logLaunchLink: options.logLaunchLink,
     };
 };
 
