@@ -87,6 +87,7 @@ const getClientInitObject = (options = {}) => {
         debug: options.debug,
         restClientConfig: options.restClientConfig,
         launchId: process.env.RP_LAUNCH_ID || options.launchId,
+        logLaunchLink: options.logLaunchLink,
     };
 };
 
