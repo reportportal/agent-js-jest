@@ -1,3 +1,8 @@
+### Added
+- Added possibility to attach tests with existing launch
+
+### Changed
+- Package size reduced
 
 ## [5.0.3] - 2021-06-23
 ### Fixed
