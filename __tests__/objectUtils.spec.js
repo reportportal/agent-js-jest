@@ -46,6 +46,7 @@ const defaultOptions = {
 };
 const currentDate = new Date();
 const RealDate = Date;
+const duration = 5;
 
 describe('Object Utils script', () => {
     const OLD_ENV = process.env;
@@ -124,10 +125,10 @@ describe('Object Utils script', () => {
                 type: 'STEP',
                 name: 'step title',
                 retry: true,
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
 
-            const stepStartObject = getStepStartObject('step title', true);
+            const stepStartObject = getStepStartObject('step title', true, undefined, duration);
 
             expect(stepStartObject).toBeDefined();
             expect(stepStartObject).toEqual(expectedStepStartObject);
@@ -139,10 +140,10 @@ describe('Object Utils script', () => {
             const expectedTestStartObject = {
                 type: 'TEST',
                 name: 'test title',
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
 
-            const testStartObject = getTestStartObject('test title');
+            const testStartObject = getTestStartObject('test title', undefined, duration);
 
             expect(testStartObject).toBeDefined();
             expect(testStartObject).toEqual(expectedTestStartObject);
@@ -154,10 +155,10 @@ describe('Object Utils script', () => {
             const expectedSuiteStartObject = {
                 type: 'SUITE',
                 name: 'suite name',
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
 
-            const suiteStartObject = getSuiteStartObject('suite name');
+            const suiteStartObject = getSuiteStartObject('suite name', undefined, duration);
 
             expect(suiteStartObject).toBeDefined();
             expect(suiteStartObject).toEqual(expectedSuiteStartObject);
