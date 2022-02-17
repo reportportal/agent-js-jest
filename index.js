@@ -212,7 +212,7 @@ class JestReportPortal {
         const finishTestObj = {
             status,
             retry: isRetried,
-            ...issue && { issue },
+            ...(issue && { issue }),
         };
         const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
