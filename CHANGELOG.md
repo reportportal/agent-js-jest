@@ -1,8 +1,13 @@
 ### Added
 - Added possibility to attach tests with existing launch
+- Added possibility provide RP_ENDPOINT via environment variable
+- Added a handle mechanism for waiting for all tests to be reported
+- Added display of the duration of tests and suites
+- Added new [option](./README.md#loglaunchlink-flag) `logLaunchLink` to print launch url in console.
 
 ### Changed
 - Package size reduced
+- Update packages
 
 ## [5.0.3] - 2021-06-23
 ### Fixed
