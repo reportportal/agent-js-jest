@@ -61,10 +61,19 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onTestResult(test, testResult) {
+        let suiteDuration = 0;
+        let testDuration = 0;
+        for (let result = 0; result < testResult.testResults.length; result++) {
+            suiteDuration += testResult.testResults[result].duration;
+            if (testResult.testResults[result].ancestorTitles.length !== 1) {
+                testDuration += testResult.testResults[result].duration;
+            }
+        }
+
         testResult.testResults.forEach((t) => {
-            this._startSuite(t.ancestorTitles[0], test.path);
+            this._startSuite(t.ancestorTitles[0], test.path, suiteDuration);
             if (t.ancestorTitles.length !== 1) {
-                this._startTest(t, test.path);
+                this._startTest(t, test.path, testDuration);
             }
 
             if (!t.invocations) {
@@ -105,12 +114,12 @@ class JestReportPortal {
         await promise;
     }
 
-    _startSuite(suiteName, path) {
+    _startSuite(suiteName, path, suiteDuration) {
         if (this.tempSuiteIds.get(suiteName)) {
             return;
         }
         const codeRef = getCodeRef(path, suiteName);
-        const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName, codeRef),
+        const { tempId, promise } = this.client.startTestItem(getSuiteStartObject(suiteName, codeRef, suiteDuration),
             this.tempLaunchId);
 
         this.tempSuiteIds.set(suiteName, tempId);
@@ -118,7 +127,7 @@ class JestReportPortal {
         this.promises.push(promise);
     }
 
-    _startTest(test, testPath) {
+    _startTest(test, testPath, testDuration) {
         if (this.tempTestIds.get(test.ancestorTitles.join('/'))) {
             return;
         }
@@ -126,7 +135,9 @@ class JestReportPortal {
         const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
         const fullTestName = getFullTestName(test);
         const codeRef = getCodeRef(testPath, fullTestName);
-        const testStartObj = getTestStartObject(test.ancestorTitles[test.ancestorTitles.length - 1], codeRef);
+        const testStartObj = getTestStartObject(
+            test.ancestorTitles[test.ancestorTitles.length - 1], codeRef, testDuration,
+        );
         const parentId = this.tempTestIds.get(test.ancestorTitles.slice(0, -1).join('/')) || tempSuiteId;
         const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, parentId);
 
@@ -139,7 +150,8 @@ class JestReportPortal {
         const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
         const fullStepName = getFullStepName(test);
         const codeRef = getCodeRef(testPath, fullStepName);
-        const stepStartObj = getStepStartObject(test.title, isRetried, codeRef);
+        const stepDuration = test.duration;
+        const stepStartObj = getStepStartObject(test.title, isRetried, codeRef, stepDuration);
         const parentId = this.tempTestIds.get(test.ancestorTitles.join('/')) || tempSuiteId;
         const { tempId, promise } = this.client.startTestItem(stepStartObj, this.tempLaunchId, parentId);
 

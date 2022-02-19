@@ -38,27 +38,27 @@ const getStartLaunchObject = (options = {}) => {
     };
 };
 
-const getStepStartObject = (stepTitle, isRetried, codeRef) => Object.assign(
+const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration) => Object.assign(
     {
         type: entityType.STEP,
         name: stepTitle,
         codeRef,
-        startTime: new Date().valueOf(),
+        startTime: new Date().valueOf() - stepDuration,
     }, { retry: isRetried },
 );
 
-const getTestStartObject = (testTitle, codeRef) => ({
+const getTestStartObject = (testTitle, codeRef, testDuration) => ({
     type: entityType.TEST,
     name: testTitle,
     codeRef,
-    startTime: new Date().valueOf(),
+    startTime: new Date().valueOf() - testDuration,
 });
 
-const getSuiteStartObject = (suiteName, codeRef) => ({
+const getSuiteStartObject = (suiteName, codeRef, suiteDuration) => ({
     type: entityType.SUITE,
     name: suiteName,
     codeRef,
-    startTime: new Date().valueOf(),
+    startTime: new Date().valueOf() - suiteDuration,
 });
 
 const getClientInitObject = (options = {}) => {

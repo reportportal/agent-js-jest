@@ -30,6 +30,7 @@ const systemAttr = {
     value: `${pjson.name}|${pjson.version}`,
     system: true,
 };
+const duration = 5;
 const testResult = {
     testResults: [
         {
@@ -38,6 +39,7 @@ const testResult = {
             ancestorTitles: ['Suite name', 'Test name'],
             failureMessages: 'error message',
             invocations: 1,
+            duration,
         },
     ],
 };
@@ -117,8 +119,10 @@ describe('index script', () => {
 
             reporter.onTestResult(testObj, testResult);
 
-            expect(spyStartSuite).toHaveBeenCalledWith(testResult.testResults[0].ancestorTitles[0], testObj.path);
-            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], testObj.path);
+            expect(spyStartSuite).toHaveBeenCalledWith(
+                testResult.testResults[0].ancestorTitles[0], testObj.path, duration,
+            );
+            expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], testObj.path, duration);
             expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
             expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
             expect(spyFinishTest).toHaveBeenCalledWith('1234', 'tempTestId');
@@ -220,12 +224,12 @@ describe('index script', () => {
                 type: 'SUITE',
                 name: 'suite name',
                 codeRef: 'example.js/suite name',
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
             const expectedTempSuiteIds = new Map([['suite name', 'startTestItem']]);
             reporter.tempLaunchId = 'tempLaunchId';
 
-            reporter._startSuite('suite name', testObj.path);
+            reporter._startSuite('suite name', testObj.path, duration);
 
             expect(reporter.client.startTestItem).toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId');
             expect(reporter.tempSuiteIds).toEqual(expectedTempSuiteIds);
@@ -248,13 +252,13 @@ describe('index script', () => {
                 type: 'TEST',
                 name: 'Test name',
                 codeRef: 'example.js/Suite name/Test name',
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
             const expectedTempTestIds = new Map([['Suite name/Test name', 'startTestItem']]);
             reporter.tempLaunchId = 'tempLaunchId';
             reporter.tempSuiteIds = new Map([['Suite name', 'suiteId']]);
 
-            reporter._startTest({ ancestorTitles: ['Suite name', 'Test name'] }, testObj.path);
+            reporter._startTest({ ancestorTitles: ['Suite name', 'Test name'] }, testObj.path, duration);
 
             expect(reporter.client.startTestItem)
                 .toHaveBeenCalledWith(expectedStartTestItemParameter, 'tempLaunchId', 'suiteId');
@@ -278,12 +282,12 @@ describe('index script', () => {
                 name: 'Step',
                 codeRef: 'example.js/Suite/Test/Step',
                 retry: true,
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
             reporter.tempLaunchId = 'tempLaunchId';
             reporter.tempTestIds = new Map([['Suite/Test', 'tempTestId']]);
 
-            reporter._startStep({ title: 'Step', ancestorTitles: ['Suite', 'Test'] }, true, testObj.path);
+            reporter._startStep({ title: 'Step', ancestorTitles: ['Suite', 'Test'], duration }, true, testObj.path);
 
             expect(reporter.client.startTestItem)
                 .toHaveBeenCalledWith(expectedStartStepItemParameter, 'tempLaunchId', 'tempTestId');
@@ -297,12 +301,12 @@ describe('index script', () => {
                 name: 'Step',
                 codeRef: 'example.js/Suite/Step',
                 retry: true,
-                startTime: new Date().valueOf(),
+                startTime: new Date().valueOf() - duration,
             };
             reporter.tempLaunchId = 'tempLaunchId';
             reporter.tempSuiteIds = new Map([['Suite', 'tempSuiteId']]);
 
-            reporter._startStep({ title: 'Step', ancestorTitles: ['Suite'] }, true, testObj.path);
+            reporter._startStep({ title: 'Step', ancestorTitles: ['Suite'], duration }, true, testObj.path);
 
             expect(reporter.client.startTestItem)
                 .toHaveBeenCalledWith(expectedStartStepItemParameter, 'tempLaunchId', 'tempSuiteId');
