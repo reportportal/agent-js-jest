@@ -46,6 +46,7 @@ class JestReportPortal {
         this.tempSuiteIds = new Map();
         this.tempTestIds = new Map();
         this.tempStepId = null;
+        this.promises = [];
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -55,6 +56,7 @@ class JestReportPortal {
 
         this.tempLaunchId = tempId;
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -88,7 +90,8 @@ class JestReportPortal {
     }
 
     // eslint-disable-next-line no-unused-vars
-    onRunComplete() {
+    async onRunComplete() {
+        await Promise.all(this.promises);
         if (this.reportOptions.launchId) return;
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
@@ -99,6 +102,7 @@ class JestReportPortal {
         }
 
         promiseErrorHandler(promise);
+        await promise;
     }
 
     _startSuite(suiteName, path) {
@@ -111,6 +115,7 @@ class JestReportPortal {
 
         this.tempSuiteIds.set(suiteName, tempId);
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _startTest(test, testPath) {
@@ -127,6 +132,7 @@ class JestReportPortal {
 
         this.tempTestIds.set(fullTestName, tempId);
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _startStep(test, isRetried, testPath) {
@@ -139,6 +145,7 @@ class JestReportPortal {
 
         this.tempStepId = tempId;
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishStep(test, isRetried) {
@@ -162,6 +169,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishFailedStep(failureMessage, isRetried) {
@@ -173,6 +181,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _sendLog(message) {
@@ -183,6 +192,7 @@ class JestReportPortal {
         const { promise } = this.client.sendLog(this.tempStepId, logObject);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishSkippedStep(isRetried) {
@@ -195,6 +205,7 @@ class JestReportPortal {
         const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishTest(tempTestId, key) {
@@ -204,6 +215,7 @@ class JestReportPortal {
 
         this.tempTestIds.delete(key);
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 
     _finishSuite(tempSuiteId, key) {
@@ -213,6 +225,7 @@ class JestReportPortal {
 
         this.tempSuiteIds.delete(key);
         promiseErrorHandler(promise);
+        this.promises.push(promise);
     }
 }
 
