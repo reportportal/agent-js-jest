@@ -71,8 +71,10 @@ class JestReportPortal {
         }
 
         testResult.testResults.forEach((t) => {
-            this._startSuite(t.ancestorTitles[0], test.path, suiteDuration);
-            if (t.ancestorTitles.length !== 1) {
+            if (t.ancestorTitles.length > 0) {
+                this._startSuite(t.ancestorTitles[0], test.path, suiteDuration);
+            }
+            if (t.ancestorTitles.length > 1) {
                 this._startTest(t, test.path, testDuration);
             }
 
