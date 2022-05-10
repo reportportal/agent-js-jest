@@ -37,7 +37,6 @@ const promiseErrorHandler = (promise) => {
     });
 };
 
-
 class JestReportPortal {
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
@@ -212,10 +211,11 @@ class JestReportPortal {
     _finishSkippedStep(isRetried) {
         const status = 'skipped';
         const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
-        const finishTestObj = Object.assign({
+        const finishTestObj = {
             status,
             retry: isRetried,
-        }, issue && { issue });
+            ...(issue && { issue }),
+        };
         const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
         promiseErrorHandler(promise);

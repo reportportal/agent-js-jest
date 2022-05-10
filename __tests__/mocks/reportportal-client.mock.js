@@ -78,6 +78,6 @@ class RPClient {
 }
 
 module.exports = {
-    getOptions: options => Object.assign(reporterOptions, options),
+    getOptions: (options) => Object.assign(reporterOptions, options),
     RPClient,
 };
