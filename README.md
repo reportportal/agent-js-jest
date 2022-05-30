@@ -25,6 +25,7 @@ In your jest config section of `package.json`, add the following entry:
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
                 "description": "YourDescription",
+                "logLaunchLink": true,
                 "attributes": [
                     {
                         "key": "YourKey",
@@ -60,6 +61,7 @@ module.exports = {
                 "project": "YourReportPortalProjectName",
                 "launch": "YourLauncherName",
                 "description": "YourDescription",
+                "logLaunchLink": true,
                 "attributes": [
                     {
                         "key": "YourKey",
@@ -80,8 +82,10 @@ It's possible by using environment variables, it's important to mention that env
 ```shell
 $ export RP_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 $ export RP_PROJECT_NAME=MY_AWESOME_PROJECT
+$ export RP_ENDPOINT=MY_RP_ENDPOINT
 $ export RP_LAUNCH=MY_COOL_LAUNCHER
 $ export RP_ATTRIBUTES=key:value,key:value,value
+$ export RP_LAUNCH_ID=EXIST_LAUNCH_ID
 ```
 
 This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
@@ -137,6 +141,16 @@ Example:
 
 ```json
 "debug": true
+```
+
+## LogLaunchLink flag:
+
+This flag allows print the URL of the Launch of the tests in console.
+
+Example:
+
+```json
+"logLaunchLink": true
 ```
 
 ## REST Client config:

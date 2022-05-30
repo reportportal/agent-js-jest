@@ -20,6 +20,7 @@ const reporterOptions = {
     project: 'projectName',
     launch: 'launcherName',
     description: 'description',
+    logLaunchLink: true,
     attributes: [
         {
             key: 'YourKey',
@@ -77,6 +78,6 @@ class RPClient {
 }
 
 module.exports = {
-    getOptions: options => Object.assign(reporterOptions, options),
+    getOptions: (options) => Object.assign(reporterOptions, options),
     RPClient,
 };

@@ -16,7 +16,7 @@
 
 /* eslint-disable no-process-env */
 const path = require('path');
-const pjson = require('./../package.json');
+const pjson = require('../package.json');
 
 const PJSON_VERSION = pjson.version;
 const PJSON_NAME = pjson.name;
@@ -34,30 +34,30 @@ const getStartLaunchObject = (options = {}) => {
         mode: options.mode,
         skippedIssue: options.skippedIssue,
         startTime: new Date().valueOf(),
+        id: process.env.RP_LAUNCH_ID || options.launchId,
     };
 };
 
-const getStepStartObject = (stepTitle, isRetried, codeRef) => Object.assign(
-    {
-        type: entityType.STEP,
-        name: stepTitle,
-        codeRef,
-        startTime: new Date().valueOf(),
-    }, { retry: isRetried },
-);
+const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration) => ({
+    type: entityType.STEP,
+    name: stepTitle,
+    codeRef,
+    startTime: new Date().valueOf() - stepDuration,
+    retry: isRetried,
+});
 
-const getTestStartObject = (testTitle, codeRef) => ({
+const getTestStartObject = (testTitle, codeRef, testDuration) => ({
     type: entityType.TEST,
     name: testTitle,
     codeRef,
-    startTime: new Date().valueOf(),
+    startTime: new Date().valueOf() - testDuration,
 });
 
-const getSuiteStartObject = (suiteName, codeRef) => ({
+const getSuiteStartObject = (suiteName, codeRef, suiteDuration) => ({
     type: entityType.SUITE,
     name: suiteName,
     codeRef,
-    startTime: new Date().valueOf(),
+    startTime: new Date().valueOf() - suiteDuration,
 });
 
 const getClientInitObject = (options = {}) => {
@@ -74,7 +74,7 @@ const getClientInitObject = (options = {}) => {
 
     return {
         token: process.env.RP_TOKEN || options.token,
-        endpoint: options.endpoint,
+        endpoint: process.env.RP_ENDPOINT || options.endpoint,
         launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
         project: process.env.RP_PROJECT_NAME || options.project,
         rerun: options.rerun,
@@ -85,6 +85,8 @@ const getClientInitObject = (options = {}) => {
         mode: options.mode,
         debug: options.debug,
         restClientConfig: options.restClientConfig,
+        launchId: process.env.RP_LAUNCH_ID || options.launchId,
+        logLaunchLink: options.logLaunchLink,
     };
 };
 
@@ -123,9 +125,9 @@ const getCodeRef = (testPath, title) => {
     return `${testFileDir}${separator}${testFile.base}/${title}`;
 };
 
-const getFullTestName = test => `${test.ancestorTitles.join('/')}`;
+const getFullTestName = (test) => `${test.ancestorTitles.join('/')}`;
 
-const getFullStepName = test => `${test.ancestorTitles.join('/')}/${test.title}`;
+const getFullStepName = (test) => `${test.ancestorTitles.join('/')}/${test.title}`;
 
 module.exports = {
     getClientInitObject,

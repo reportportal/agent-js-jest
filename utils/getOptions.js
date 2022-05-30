@@ -55,7 +55,6 @@ const getAppOptions = (pathToResolve) => {
     return {};
 };
 
-
 module.exports = {
     options: (reporterOptions = {}) => Object.assign(
         constants.DEFAULT_OPTIONS,
