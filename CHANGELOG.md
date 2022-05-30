@@ -1,3 +1,5 @@
+
+## [5.0.4] - 2022-05-30
 ### Added
 - Possibility to provide endpoint url via `RP_ENDPOINT` environment variable
 - New [option](./README.md#loglaunchlink-flag) `logLaunchLink` to print launch url in console
