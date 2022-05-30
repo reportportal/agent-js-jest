@@ -6,6 +6,7 @@
 - The duration of tests and suites is now displayed correctly
 - The reporter will now wait for a report on all tests
 - Security vulnerabilities
+- Tests without describe block causes error [#82](https://github.com/reportportal/agent-js-jest/issues/82)
 
 ### Changed
 - Package size reduced
