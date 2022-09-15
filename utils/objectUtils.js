@@ -27,7 +27,7 @@ const getStartLaunchObject = (options = {}) => {
 
     return {
         launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
-        description: options.description,
+        description: process.env.RP_DESCRIPTION || options.description,
         attributes: options.attributes ? options.attributes.concat(systemAttr) : systemAttr,
         rerun: options.rerun,
         rerunOf: options.rerunOf,
@@ -81,7 +81,7 @@ const getClientInitObject = (options = {}) => {
         rerun: options.rerun,
         rerunOf: options.rerunOf,
         skippedIssue: options.skippedIssue,
-        description: options.description,
+        description: process.env.RP_DESCRIPTION || options.description,
         attributes: env_attributes || options.attributes,
         mode: options.mode,
         debug: options.debug,
