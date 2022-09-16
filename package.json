@@ -1,6 +1,6 @@
 {
   "name": "jonathan-rp-agent-js-jest",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Jest reporter that uploads test results to ReportPortal",
   "main": "index.js",
   "repository": {

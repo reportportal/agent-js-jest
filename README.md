@@ -1,11 +1,11 @@
-# @reportportal/agent-js-jest
+# jonathan-rp-agent-js-jest
 
 A Jest reporter that uploads the results to a [ReportPortal](http://reportportal.io/) server.
 
 ## Installation
 
 ```shell
-npm install --save-dev @reportportal/agent-js-jest
+npm install --save-dev onathan-rp-agent-js-jest
 ```
 
 ## Usage
