@@ -73,6 +73,7 @@ const getClientInitObject = (options = {}) => {
         });
 
     return {
+        enabled: process.env.RP_ENABLED || options.enabled,
         token: process.env.RP_TOKEN || options.token,
         endpoint: process.env.RP_ENDPOINT || options.endpoint,
         launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',

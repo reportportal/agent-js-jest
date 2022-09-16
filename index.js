@@ -41,6 +41,7 @@ class JestReportPortal {
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
         this.reportOptions = getClientInitObject(getOptions.options(options));
+        if(this.reportOptions.enabled ==='false') return {invalid:true};
         this.client = new RPClient(this.reportOptions, agentInfo);
         this.tempSuiteIds = new Map();
         this.tempTestIds = new Map();

@@ -76,10 +76,11 @@ module.exports = {
     ]
     ...
 ```
-
+You can disable it adding `"enabled": false` as an configuration.
 It's possible by using environment variables, it's important to mention that environment variables has precedence over `package.json` definition.
 
 ```shell
+$ export RP_ENABLED=false
 $ export RP_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 $ export RP_PROJECT_NAME=MY_AWESOME_PROJECT
 $ export RP_ENDPOINT=MY_RP_ENDPOINT
