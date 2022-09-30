@@ -37,6 +37,17 @@ const promiseErrorHandler = (promise) => {
     });
 };
 
+async function healthCheck(rpClient) {
+    await rpClient.checkConnect().then((response) => {
+        console.log('You have successfully connected to the server.');
+        console.log(`You are using an account: ${response.fullName}`);
+    }, (error) => {
+        throw error;
+        console.log('Error connection to server');
+        console.dir(error);
+    });
+}
+
 class JestReportPortal {
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
@@ -47,10 +58,17 @@ class JestReportPortal {
         this.tempTestIds = new Map();
         this.tempStepId = null;
         this.promises = [];
+        this.stop = false;
     }
 
     // eslint-disable-next-line no-unused-vars
-    onRunStart() {
+    async onRunStart() {
+        try {
+            await healthCheck(this.client);
+        } catch (e) {
+            this.stop = true;
+            return {invalid: true}
+        }
         const startLaunchObj = getStartLaunchObject(this.reportOptions);
         const { tempId, promise } = this.client.startLaunch(startLaunchObj);
 
@@ -61,6 +79,7 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     onTestResult(test, testResult) {
+        if (this.stop) return {invalid: true};
         let suiteDuration = 0;
         let testDuration = 0;
         for (let result = 0; result < testResult.testResults.length; result++) {
@@ -102,6 +121,7 @@ class JestReportPortal {
 
     // eslint-disable-next-line no-unused-vars
     async onRunComplete() {
+        if (this.stop) return {invalid: true};
         await Promise.all(this.promises);
         if (this.reportOptions.launchId) return;
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
