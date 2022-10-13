@@ -1,3 +1,5 @@
+### Fixed
+- Log messages in RP shown without ANSI characters
 
 ## [5.0.4] - 2022-05-30
 ### Added
