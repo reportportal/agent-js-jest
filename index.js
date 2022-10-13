@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
 const {
@@ -198,8 +199,9 @@ class JestReportPortal {
     }
 
     _sendLog(message) {
+        const newMessage = stripAnsi(message);
         const logObject = {
-            message,
+            message: newMessage,
             level: logLevels.ERROR,
         };
         const { promise } = this.client.sendLog(this.tempStepId, logObject);
