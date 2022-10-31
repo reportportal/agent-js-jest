@@ -86,6 +86,7 @@ $ export RP_ENDPOINT=MY_RP_ENDPOINT
 $ export RP_LAUNCH=MY_COOL_LAUNCHER
 $ export RP_ATTRIBUTES=key:value,key:value,value
 $ export RP_LAUNCH_ID=EXIST_LAUNCH_ID
+$ export RP_MODE=DEBUG
 ```
 
 This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
