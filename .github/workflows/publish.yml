@@ -11,16 +11,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12.x
+          node-version: 18
       - name: Clean install of node dependencies
         run: npm ci
       - name: Run lint
         run: npm run lint
-      - name: Run tests
-        run: npm test
-      - name: Check coverage
+      - name: Run tests and check coverage
         run: npm run test:coverage
 
   publish-to-npm-and-gpr:
@@ -30,9 +28,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12.x
+          node-version: 18
           registry-url: 'https://registry.npmjs.org'
       - name: Clean install of node dependencies
         run: npm ci
@@ -44,9 +42,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12.x
+          node-version: 18
           registry-url: 'https://npm.pkg.github.com'
           scope: '@reportportal'
       - name: Publish to GPR
