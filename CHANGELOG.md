@@ -1,3 +1,5 @@
+
+## [5.0.5] - 2023-03-16
 ### Added
 - `RP_DESCRIPTION` & `RP.MODE` env variables support. Thanks to [Jonathan Carvalheiro](https://github.com/Jonathan-Carvalheiro)
 ### Fixed
