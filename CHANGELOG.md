@@ -1,3 +1,5 @@
+### Added
+- `RP_DESCRIPTION` & `RP.MODE` env variables support. Thanks to [Jonathan Carvalheiro](https://github.com/Jonathan-Carvalheiro)
 ### Fixed
 - Log messages in RP shown without ANSI characters
 
