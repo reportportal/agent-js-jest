@@ -1,6 +1,8 @@
 # @reportportal/agent-js-jest
 
-A Jest reporter that uploads the results to a [ReportPortal](http://reportportal.io/) server.
+Agent to integrate Jest with ReportPortal.
+* More about [Jest](https://jestjs.io/)
+* More about [ReportPortal](http://reportportal.io/)
 
 ## Installation
 
