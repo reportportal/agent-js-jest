@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
+const { stripAnsi } = require('./utils/stripAnsi');
 const {
     getClientInitObject, getSuiteStartObject,
     getStartLaunchObject, getTestStartObject, getStepStartObject,
