@@ -24,17 +24,17 @@
         "test:coverage": "jest --coverage"
     },
     "dependencies": {
-        "@jest/reporters": "29.5.0",
-        "@reportportal/client-javascript": "^5.0.10",
-        "jest-cli": "^29.5.0"
+        "@reportportal/client-javascript": "^5.0.10"
     },
     "devDependencies": {
+        "@jest/reporters": "29.5.0",
         "@types/jest": "^29.4.0",
-        "jest": "^29.5.0",
         "eslint": "^8.35.0",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "^2.27.5",
-        "eslint-plugin-node": "^11.1.0"
+        "eslint-plugin-node": "^11.1.0",
+        "jest": "^29.5.0",
+        "jest-cli": "^29.5.0"
     },
     "bugs": {
         "url": "https://github.com/reportportal/agent-js-jest/issues"
