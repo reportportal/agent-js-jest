@@ -12,7 +12,7 @@ npm install --save-dev @reportportal/agent-js-jest
 
 ## Configuration
 
-**1.** Create `jest.config.js` (alternatively update the jest config section of `package.json`) file with reportportal configuration:
+**1.** Create `jest.config.js` file with reportportal configuration:
 ```javascript
 module.exports = {
     testRunner: 'jest-circus/runner',
@@ -24,8 +24,8 @@ module.exports = {
             {
                 apiKey: 'reportportalApiKey',
                 endpoint: 'https://your.reportportal.server/api/v1',
-                project: 'Your project',
-                launch: 'Jest test',
+                project: 'Your reportportal project name',
+                launch: 'Your launch name',
                 attributes: [
                     {
                         key: 'key',
@@ -39,8 +39,42 @@ module.exports = {
             }
         ]
     ],
+    ...
 };
 ```
+
+In case you use the jest config section of `package.json`, add the following entry:
+
+```JSON
+{
+    "jest": {
+        ...
+        "reporters": [
+            "default",
+            ["@reportportal/agent-js-jest",
+            {
+                "token": "reportportalApiKey",
+                "endpoint": "https://your.reportportal.server/api/v1",
+                "project": "Your reportportal project name",
+                "launch": "Your launch name",
+                "attributes": [
+                    {
+                        "key": "key",
+                        "value": "value"
+                    },
+                    {
+                        "value": "value"
+                    }
+                ],
+                "description": "Your launch description"
+            }]
+        ],
+        ...
+    }
+}
+```
+
+The full list of available options presented below.
 
 | Option           | Necessity  | Default   | Description                                                                                                                                                                                                                                                                                                                                                                              |
 |------------------|------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -74,7 +108,7 @@ The following options can be overridden using ENVIRONMENT variables:
 | mode        | RP_MODE         ||
 | token       | RP_TOKEN        | *deprecated*                        |
 
-This for your convenience in case you have a continuous job that run your tests and may post the results pointing to a different reportportal definition of project, launcher name or attributes.
+This is for your convenience if you have a continuous job that runs your tests and may report results that point to a different reportportal project definition, launch name, or attributes.
 
 **2.** Add script to `package.json` file:
 ```json
