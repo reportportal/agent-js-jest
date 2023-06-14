@@ -114,7 +114,7 @@ This is for your convenience if you have a continuous job that runs your tests a
 ```json
 {
   "scripts": {
-    "test": "npx playwright test --config=playwright.config.ts"
+    "test": "jest --no-colors --detectOpenHandles --config ./jest.config.js"
   }
 }
 ```
