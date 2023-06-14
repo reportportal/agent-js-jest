@@ -10,9 +10,40 @@ Agent to integrate Jest with ReportPortal.
 npm install --save-dev @reportportal/agent-js-jest
 ```
 
-## Usage
+## Configuration
 
-In your jest config section of `package.json`, add the following entry:
+**1.** Create `jest.config.js` file with reportportal configuration:
+```javascript
+module.exports = {
+    testRunner: 'jest-circus/runner',
+    testRegex: ['/__tests__/.*.spec.js?$'],
+    reporters: [
+        'default',
+        [
+            '@reportportal/agent-js-jest',
+            {
+                apiKey: 'reportportalApiKey',
+                endpoint: 'https://your.reportportal.server/api/v1',
+                project: 'Your reportportal project name',
+                launch: 'Your launch name',
+                attributes: [
+                    {
+                        key: 'key',
+                        value: 'value',
+                    },
+                    {
+                        value: 'value',
+                    },
+                ],
+                description: 'Your launch description',
+            }
+        ]
+    ],
+    ...
+};
+```
+
+In case you use the jest config section of `package.json`, add the following entry:
 
 ```JSON
 {
@@ -22,24 +53,20 @@ In your jest config section of `package.json`, add the following entry:
             "default",
             ["@reportportal/agent-js-jest",
             {
-                "token": "00000000-0000-0000-0000-000000000000",
+                "token": "reportportalApiKey",
                 "endpoint": "https://your.reportportal.server/api/v1",
-                "project": "YourReportPortalProjectName",
-                "launch": "YourLauncherName",
-                "description": "YourDescription",
-                "logLaunchLink": true,
+                "project": "Your reportportal project name",
+                "launch": "Your launch name",
                 "attributes": [
                     {
-                        "key": "YourKey",
-                        "value": "YourValue"
+                        "key": "key",
+                        "value": "value"
                     },
                     {
-                        "value": "YourValue"
-                    },
+                        "value": "value"
+                    }
                 ],
-                "restClientConfig": {
-                  "timeout": 0
-                }
+                "description": "Your launch description"
             }]
         ],
         ...
@@ -47,121 +74,57 @@ In your jest config section of `package.json`, add the following entry:
 }
 ```
 
-In case you use `jest.config.js`, you should add to it the following:
+The full list of available options presented below.
 
-```javascript
+| Option           | Necessity  | Default   | Description                                                                                                                                                                                                                                                                                                                                                                              |
+|------------------|------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apiKey           | Required   |           | User's reportportal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                                        |
+| endpoint         | Required   |           | URL of your server. For example 'https://server:8080/api/v1'.                                                                                                                                                                                                                                                                                                                            |
+| launch           | Required   |           | Name of launch at creation.                                                                                                                                                                                                                                                                                                                                                              |
+| project          | Required   |           | The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                                           |
+| attributes       | Optional   | []        | Launch attributes.                                                                                                                                                                                                                                                                                                                                                                       |
+| description      | Optional   | ''        | Launch description.                                                                                                                                                                                                                                                                                                                                                                      |
+| rerun            | Optional   | false     | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)                                                                                                                                                                                                                                                                                  |
+| rerunOf          | Optional   | Not set   | UUID of launch you want to rerun. If not specified, reportportal will update the latest launch with the same name                                                                                                                                                                                                                                                                        |
+| mode             | Optional   | 'DEFAULT' | Results will be submitting to Launches page <br/> *"DEBUG"* - Results will be submitting to Debug page.                                                                                                                                                                                                                                                                                  |
+| skippedIssue     | Optional   | true      | reportportal provides feature to mark skipped tests as not 'To Investigate'. <br/> Option could be equal boolean values: <br/> *true* - skipped tests considered as issues and will be marked as 'To Investigate' on reportportal. <br/> *false* - skipped tests will not be marked as 'To Investigate' on application.                                                                  |
+| debug            | Optional   | false     | This flag allows seeing the logs of the client-javascript. Useful for debugging.                                                                                                                                                                                                                                                                                                         |
+| launchId         | Optional   | Not set   | The _ID_ of an already existing launch. The launch must be in "IN_PROGRESS status while the tests are running. Please note that if this _ID_ is provided, the launch will not be finished at the end of the run and must be finished separately.                                                                                                                                         |
+| logLaunchLink    | Optional   | false     | This flag allows print the URL of the Launch of the tests in console.                                                                                                                                         |
+| restClientConfig | Optional   | Not set   | The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. [`timeout`](https://github.com/reportportal/client-javascript#timeout-30000ms-on-axios-requests). <br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details. |
+| token            | Deprecated | Not set   | Use `apiKey` instead.                                                                                                                                                                                                                                                                                                                                                                    |
 
-module.exports = {
-    ...
-    reporters: [
-        "default",
-        [
-            "@reportportal/agent-js-jest",
-            {
-                "token": "00000000-0000-0000-0000-000000000000",
-                "endpoint": "https://your.reportportal.server/api/v1",
-                "project": "YourReportPortalProjectName",
-                "launch": "YourLauncherName",
-                "description": "YourDescription",
-                "logLaunchLink": true,
-                "attributes": [
-                    {
-                        "key": "YourKey",
-                        "value": "YourValue"
-                    },
-                    {
-                        "value": "YourValue"
-                    },
-                ]
-            }
-        ]
-    ]
-    ...
-```
+The following options can be overridden using ENVIRONMENT variables:
 
-It's possible by using environment variables, it's important to mention that environment variables has precedence over `package.json` definition.
+| Option   | ENV variable    | Note                                |
+|-------------|-----------------|-------------------------------------|
+| apiKey      | RP_API_KEY      ||
+| project     | RP_PROJECT_NAME ||
+| endpoint    | RP_ENDPOINT     ||
+| launch      | RP_LAUNCH       |                                     |
+| attributes  | RP_ATTRIBUTES   | *Format:* key:value,key:value,value |
+| description | RP_DESCRIPTION  ||
+| launchId    | RP_LAUNCH_ID    |                                     |
+| mode        | RP_MODE         ||
+| token       | RP_TOKEN        | *deprecated*                        |
 
-```shell
-$ export RP_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-$ export RP_PROJECT_NAME=MY_AWESOME_PROJECT
-$ export RP_ENDPOINT=MY_RP_ENDPOINT
-$ export RP_LAUNCH=MY_COOL_LAUNCHER
-$ export RP_DESCRIPTION=RP_DESCRIPTION
-$ export RP_ATTRIBUTES=key:value,key:value,value
-$ export RP_LAUNCH_ID=EXIST_LAUNCH_ID
-$ export RP_MODE=DEBUG
-```
+This is for your convenience if you have a continuous job that runs your tests and may report results that point to a different reportportal project definition, launch name, or attributes.
 
-This for your convenience in case you has a continuous job that run your tests and may post the results pointing to a different Report Portal definition of project, launcher name or tags.
-
-## Disable the colors of test output:
-
-In the Report Portal, the output of the test results may contain ANSI character set, this may be caused by the color setting in Jest. For version `"jest": "^24.8.0"`, use `jest --no-colors` command to disable the colors of test output.
-
-## Used to report retry of test:
-
-The agent supports of Retries.
-Read more about [retries in jest](https://jestjs.io/docs/ru/jest-object#jestretrytimes).
-
-## Rerun:
-
-To report [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md) to the report portal you need to specify the following options:
-
--   rerun - to enable rerun
--   rerunOf - UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name
-
-Example:
-
+**2.** Add script to `package.json` file:
 ```json
-"rerun": true,
-"rerunOf": "f68f39f9-279c-4e8d-ac38-1216dffcc59c"
+{
+  "scripts": {
+    "test": "npx playwright test --config=playwright.config.ts"
+  }
+}
 ```
 
-## Skipped issue:
+## Features
 
-_Default: true._ ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> _TRUE_ - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal.<br> _FALSE_ - skipped tests will not be marked as 'To Investigate' on application.
+### Retries
 
-Example:
-
-```json
-"skippedIssue": false
-```
-
-## Launch mode:
-
-Launch mode. Allowable values _DEFAULT_ (by default) or _DEBUG_.
-
-Example:
-
-```json
-"mode": "DEBUG"
-```
-
-## Debug flag:
-
-This flag allows seeing the logs of the client-javascript. Useful for debugging an agent.
-
-Example:
-
-```json
-"debug": true
-```
-
-## LogLaunchLink flag:
-
-This flag allows print the URL of the Launch of the tests in console.
-
-Example:
-
-```json
-"logLaunchLink": true
-```
-
-## REST Client config:
-
-Optional property.<br/>
-The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/>
-Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details.
+The agent has support of retries.
+Read more about [retries in jest](https://jestjs.io/ru/docs/jest-object#jestretrytimesnumretries-options).
 
 # Copyright Notice
 
