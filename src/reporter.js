@@ -205,7 +205,7 @@ class JestReportPortal {
     const tempStepId = this.tempStepIds.get(fullName);
 
     if (tempStepId === undefined) {
-      console.error(`Could not finish Test Step - "${fullName}"`);
+      console.error(`Could not finish Test Step - "${fullName}". tempId not found`);
       return;
     }
 
