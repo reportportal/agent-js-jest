@@ -26,15 +26,13 @@ const getStartLaunchObject = (options = {}) => {
     const systemAttr = getSystemAttributes(options.skippedIssue);
 
     return {
-        launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
-        description: process.env.RP_DESCRIPTION || options.description,
+        description: options.description,
         attributes: options.attributes ? options.attributes.concat(systemAttr) : systemAttr,
         rerun: options.rerun,
         rerunOf: options.rerunOf,
-        mode: process.env.RP_MODE || options.mode,
-        skippedIssue: options.skippedIssue,
+        mode: options.mode,
         startTime: new Date().valueOf(),
-        id: process.env.RP_LAUNCH_ID || options.launchId,
+        id: options.launchId,
     };
 };
 
@@ -60,7 +58,7 @@ const getSuiteStartObject = (suiteName, codeRef, suiteDuration) => ({
     startTime: new Date().valueOf() - suiteDuration,
 });
 
-const getClientInitObject = (options = {}) => {
+const getAgentOptions = (options = {}) => {
     const env_attributes = process.env.RP_ATTRIBUTES === undefined
         ? undefined
         : process.env.RP_ATTRIBUTES.split(',').map((item) => {
@@ -72,10 +70,18 @@ const getClientInitObject = (options = {}) => {
             };
         });
 
+    let apiKey = process.env.RP_API_KEY || options.apiKey;
+    if (!apiKey) {
+        apiKey = process.env.RP_TOKEN || options.token;
+        if (apiKey) {
+            console.warn('ReportPortal warning. Option "token" is deprecated. Use "apiKey" instead.');
+        }
+    }
+
     return {
-        token: process.env.RP_TOKEN || options.token,
+        apiKey,
         endpoint: process.env.RP_ENDPOINT || options.endpoint,
-        launch: process.env.RP_LAUNCH || options.launch || 'Unit Tests',
+        launch: process.env.RP_LAUNCH || options.launch,
         project: process.env.RP_PROJECT_NAME || options.project,
         rerun: options.rerun,
         rerunOf: options.rerunOf,
@@ -130,7 +136,7 @@ const getFullTestName = (test) => `${test.ancestorTitles.join('/')}`;
 const getFullStepName = (test) => `${test.ancestorTitles.join('/')}/${test.title}`;
 
 module.exports = {
-    getClientInitObject,
+    getAgentOptions,
     getStartLaunchObject,
     getSuiteStartObject,
     getTestStartObject,
