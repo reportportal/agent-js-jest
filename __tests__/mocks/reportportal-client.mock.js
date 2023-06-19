@@ -15,7 +15,7 @@
  */
 
 const reporterOptions = {
-    token: '00000000-0000-0000-0000-000000000000',
+    apiKey: '00000000-0000-0000-0000-000000000000',
     endpoint: 'endpoint',
     project: 'projectName',
     launch: 'launcherName',

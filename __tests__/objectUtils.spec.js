@@ -17,7 +17,7 @@
 /* eslint-disable no-undef */
 const path = require('path');
 const {
-    getClientInitObject,
+    getAgentOptions,
     getStartLaunchObject,
     getSuiteStartObject,
     getTestStartObject,
@@ -74,7 +74,6 @@ describe('Object Utils script', () => {
     describe('getStartLaunchObject', () => {
         test('should return start launch object with correct values', () => {
             const expectedStartLaunchObject = {
-                launch: 'launchName',
                 description: 'description',
                 attributes: [
                     {
@@ -101,7 +100,6 @@ describe('Object Utils script', () => {
 
         test('should return start launch object with default values if options don\'t set', () => {
             const expectedStartLaunchObject = {
-                launch: 'Unit Tests',
                 attributes: [
                     {
                         key: 'agent',
@@ -165,18 +163,17 @@ describe('Object Utils script', () => {
         });
     });
 
-    describe('getClientInitObject', () => {
-        test('should return client init object with correct values, some parameters taken from'
+    describe('getAgentOptions', () => {
+        test('should return agent options object with correct values, some parameters taken from'
             + ' environment variables', () => {
             process.env = {
-                RP_TOKEN: '00000000-0000-0000-0000-000000000000',
+                RP_API_KEY: '123',
                 RP_LAUNCH: 'launch name',
                 RP_PROJECT_NAME: 'project name',
                 RP_ATTRIBUTES: 'attributesOne,attributesTwoKey:attributesTwoValue',
-
             };
-            const expectedClientInitObject = {
-                token: '00000000-0000-0000-0000-000000000000',
+            const expectedAgentOptions = {
+                apiKey: '123',
                 endpoint: 'endpoint',
                 launch: 'launch name',
                 project: 'project name',
@@ -199,18 +196,16 @@ describe('Object Utils script', () => {
                 debug: true,
             };
 
-            const clientInitObject = getClientInitObject(options);
+            const agentOptions = getAgentOptions(options);
 
-            expect(clientInitObject).toBeDefined();
-            expect(clientInitObject).toEqual(expectedClientInitObject);
+            expect(agentOptions).toBeDefined();
+            expect(agentOptions).toEqual(expectedAgentOptions);
         });
 
-        test('should return client init object with default values if options don\'t set', () => {
-            const expectedClientInitObject = {
-                launch: 'Unit Tests',
-            };
+        test('should return agent options object with default values if options don\'t set', () => {
+            const expectedClientInitObject = {};
 
-            const clientInitObject = getClientInitObject();
+            const clientInitObject = getAgentOptions();
 
             expect(clientInitObject).toBeDefined();
             expect(clientInitObject).toEqual(expectedClientInitObject);

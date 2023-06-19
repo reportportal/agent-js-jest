@@ -18,7 +18,7 @@ const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
 const {
-    getClientInitObject, getSuiteStartObject,
+    getAgentOptions, getSuiteStartObject,
     getStartLaunchObject, getTestStartObject, getStepStartObject,
     getAgentInfo, getCodeRef, getFullTestName, getFullStepName,
 } = require('./utils/objectUtils');
@@ -41,7 +41,7 @@ const promiseErrorHandler = (promise) => {
 class JestReportPortal {
     constructor(globalConfig, options) {
         const agentInfo = getAgentInfo();
-        this.reportOptions = getClientInitObject(getOptions.options(options));
+        this.reportOptions = getAgentOptions(getOptions.options(options));
         this.client = new RPClient(this.reportOptions, agentInfo);
         this.tempSuiteIds = new Map();
         this.tempTestIds = new Map();
@@ -103,7 +103,9 @@ class JestReportPortal {
     // eslint-disable-next-line no-unused-vars
     async onRunComplete() {
         await Promise.all(this.promises);
-        if (this.reportOptions.launchId) return;
+        if (this.reportOptions.launchId) {
+            return;
+        }
         const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
         if (this.reportOptions.logLaunchLink === true) {

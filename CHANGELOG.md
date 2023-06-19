@@ -1,3 +1,6 @@
+### Changed
+- `token` configuration option was renamed to `apiKey` to maintain common convention.
+- `@reportportal/client-javascript` bumped to version `5.0.12`.
 
 ## [5.0.5] - 2023-03-16
 ### Added
