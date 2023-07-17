@@ -8,7 +8,6 @@
         "es6": true
     },
     "rules": {
-        "indent": ["error", 4],
         "max-len": ["error", 120],
         "valid-jsdoc": ["error", { "requireReturn": false }],
         "consistent-return": 0,

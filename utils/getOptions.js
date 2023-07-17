@@ -20,48 +20,48 @@ const fs = require('fs');
 const constants = require('../constants/index');
 
 const getEnvOptions = () => {
-    const options = {};
+  const options = {};
 
-    for (const name in constants.ENVIRONMENT_CONFIG_MAP) {
-        if (process.env[name]) {
-            options[constants.ENVIRONMENT_CONFIG_MAP[name]] = process.env[name];
-        }
+  for (const name in constants.ENVIRONMENT_CONFIG_MAP) {
+    if (process.env[name]) {
+      options[constants.ENVIRONMENT_CONFIG_MAP[name]] = process.env[name];
     }
+  }
 
-    return options;
+  return options;
 };
 
 const getAppOptions = (pathToResolve) => {
-    let traversing = true;
+  let traversing = true;
 
-    // Find nearest package.json by traversing up directories until /
-    while (traversing) {
-        traversing = pathToResolve !== path.sep;
+  // Find nearest package.json by traversing up directories until /
+  while (traversing) {
+    traversing = pathToResolve !== path.sep;
 
-        const pkgpath = path.join(pathToResolve, 'package.json');
+    const pkgpath = path.join(pathToResolve, 'package.json');
 
-        if (fs.existsSync(pkgpath)) {
-            let options = (require(pkgpath) || {})['jest-junit'];
+    if (fs.existsSync(pkgpath)) {
+      let options = (require(pkgpath) || {})['jest-junit'];
 
-            if (Object.prototype.toString.call(options) !== '[object Object]') {
-                options = {};
-            }
+      if (Object.prototype.toString.call(options) !== '[object Object]') {
+        options = {};
+      }
 
-            return options;
-        }
-        pathToResolve = path.dirname(pathToResolve);
+      return options;
     }
+    pathToResolve = path.dirname(pathToResolve);
+  }
 
-    return {};
+  return {};
 };
 
 module.exports = {
-    options: (reporterOptions = {}) => Object.assign(
-        constants.DEFAULT_OPTIONS,
-        reporterOptions,
-        getAppOptions(process.cwd()),
-        getEnvOptions(),
-    ),
-    getAppOptions,
-    getEnvOptions,
+  options: (reporterOptions = {}) => Object.assign(
+    constants.DEFAULT_OPTIONS,
+    reporterOptions,
+    getAppOptions(process.cwd()),
+    getEnvOptions(),
+  ),
+  getAppOptions,
+  getEnvOptions,
 };
