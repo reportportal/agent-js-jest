@@ -59,16 +59,17 @@ const getSuiteStartObject = (suiteName, codeRef, suiteDuration) => ({
 });
 
 const getAgentOptions = (options = {}) => {
-  const env_attributes = process.env.RP_ATTRIBUTES === undefined
-    ? undefined
-    : process.env.RP_ATTRIBUTES.split(',').map((item) => {
-      const itemArr = item.split(':');
+  const env_attributes =
+    process.env.RP_ATTRIBUTES === undefined
+      ? undefined
+      : process.env.RP_ATTRIBUTES.split(',').map((item) => {
+          const itemArr = item.split(':');
 
-      return {
-        key: itemArr.length === 1 ? null : itemArr[0],
-        value: itemArr.length === 1 ? itemArr[0] : itemArr[1],
-      };
-    });
+          return {
+            key: itemArr.length === 1 ? null : itemArr[0],
+            value: itemArr.length === 1 ? itemArr[0] : itemArr[1],
+          };
+        });
 
   let apiKey = process.env.RP_API_KEY || options.apiKey;
   if (!apiKey) {
@@ -102,11 +103,13 @@ const getAgentInfo = () => ({
 });
 
 const getSystemAttributes = (skippedIssue) => {
-  const systemAttr = [{
-    key: 'agent',
-    value: `${PJSON_NAME}|${PJSON_VERSION}`,
-    system: true,
-  }];
+  const systemAttr = [
+    {
+      key: 'agent',
+      value: `${PJSON_NAME}|${PJSON_VERSION}`,
+      system: true,
+    },
+  ];
 
   if (skippedIssue === false) {
     const skippedIssueAttribute = {

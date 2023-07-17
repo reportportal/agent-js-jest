@@ -37,7 +37,8 @@ const defaultOptions = {
     {
       key: 'YourKey',
       value: 'YourValue',
-    }, {
+    },
+    {
       value: 'YourValue',
     },
   ],
@@ -52,11 +53,8 @@ describe('Object Utils script', () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
-    global.Date = jest.fn(
-      (...args) =>
-        (args.length
-          ? new RealDate(...args)
-          : new RealDate(currentDate)),
+    global.Date = jest.fn((...args) =>
+      args.length ? new RealDate(...args) : new RealDate(currentDate),
     );
     Object.assign(Date, RealDate);
 
@@ -79,9 +77,11 @@ describe('Object Utils script', () => {
           {
             key: 'YourKey',
             value: 'YourValue',
-          }, {
+          },
+          {
             value: 'YourValue',
-          }, {
+          },
+          {
             key: 'agent',
             value: `${pjson.name}|${pjson.version}`,
             system: true,
@@ -98,7 +98,7 @@ describe('Object Utils script', () => {
       expect(startLaunchObject).toEqual(expectedStartLaunchObject);
     });
 
-    test('should return start launch object with default values if options don\'t set', () => {
+    test("should return start launch object with default values if options don't set", () => {
       const expectedStartLaunchObject = {
         attributes: [
           {
@@ -164,45 +164,48 @@ describe('Object Utils script', () => {
   });
 
   describe('getAgentOptions', () => {
-    test('should return agent options object with correct values, some parameters taken from'
-            + ' environment variables', () => {
-      process.env = {
-        RP_API_KEY: '123',
-        RP_LAUNCH: 'launch name',
-        RP_PROJECT_NAME: 'project name',
-        RP_ATTRIBUTES: 'attributesOne,attributesTwoKey:attributesTwoValue',
-      };
-      const expectedAgentOptions = {
-        apiKey: '123',
-        endpoint: 'endpoint',
-        launch: 'launch name',
-        project: 'project name',
-        rerun: true,
-        rerunOf: '00000000-0000-0000-0000-000000000000',
-        description: 'description',
-        attributes: [
-          { key: null, value: 'attributesOne' },
-          { key: 'attributesTwoKey', value: 'attributesTwoValue' },
-        ],
-        mode: 'DEBUG',
-        debug: true,
-      };
-      const options = {
-        endpoint: 'endpoint',
-        rerun: true,
-        rerunOf: '00000000-0000-0000-0000-000000000000',
-        description: 'description',
-        mode: 'DEBUG',
-        debug: true,
-      };
+    test(
+      'should return agent options object with correct values, some parameters taken from' +
+        ' environment variables',
+      () => {
+        process.env = {
+          RP_API_KEY: '123',
+          RP_LAUNCH: 'launch name',
+          RP_PROJECT_NAME: 'project name',
+          RP_ATTRIBUTES: 'attributesOne,attributesTwoKey:attributesTwoValue',
+        };
+        const expectedAgentOptions = {
+          apiKey: '123',
+          endpoint: 'endpoint',
+          launch: 'launch name',
+          project: 'project name',
+          rerun: true,
+          rerunOf: '00000000-0000-0000-0000-000000000000',
+          description: 'description',
+          attributes: [
+            { key: null, value: 'attributesOne' },
+            { key: 'attributesTwoKey', value: 'attributesTwoValue' },
+          ],
+          mode: 'DEBUG',
+          debug: true,
+        };
+        const options = {
+          endpoint: 'endpoint',
+          rerun: true,
+          rerunOf: '00000000-0000-0000-0000-000000000000',
+          description: 'description',
+          mode: 'DEBUG',
+          debug: true,
+        };
 
-      const agentOptions = getAgentOptions(options);
+        const agentOptions = getAgentOptions(options);
 
-      expect(agentOptions).toBeDefined();
-      expect(agentOptions).toEqual(expectedAgentOptions);
-    });
+        expect(agentOptions).toBeDefined();
+        expect(agentOptions).toEqual(expectedAgentOptions);
+      },
+    );
 
-    test('should return agent options object with default values if options don\'t set', () => {
+    test("should return agent options object with default values if options don't set", () => {
       const expectedClientInitObject = {};
 
       const clientInitObject = getAgentOptions();
@@ -223,11 +226,13 @@ describe('Object Utils script', () => {
 
   describe('getSystemAttributes', () => {
     test('should return only agent system attribute if parameter is true', () => {
-      const expectedSystemAttribute = [{
-        key: 'agent',
-        value: `${pjson.name}|${pjson.version}`,
-        system: true,
-      }];
+      const expectedSystemAttribute = [
+        {
+          key: 'agent',
+          value: `${pjson.name}|${pjson.version}`,
+          system: true,
+        },
+      ];
 
       const systemAttributes = getSystemAttributes(true);
 
@@ -235,11 +240,13 @@ describe('Object Utils script', () => {
     });
 
     test('should return only agent system attribute if there is no parameter', () => {
-      const expectedSystemAttribute = [{
-        key: 'agent',
-        value: `${pjson.name}|${pjson.version}`,
-        system: true,
-      }];
+      const expectedSystemAttribute = [
+        {
+          key: 'agent',
+          value: `${pjson.name}|${pjson.version}`,
+          system: true,
+        },
+      ];
 
       const systemAttributes = getSystemAttributes();
 
@@ -247,15 +254,18 @@ describe('Object Utils script', () => {
     });
 
     test('should return agent and skippedIssue system attributes if parameter is false', () => {
-      const expectedSystemAttribute = [{
-        key: 'agent',
-        value: `${pjson.name}|${pjson.version}`,
-        system: true,
-      }, {
-        key: 'skippedIssue',
-        value: 'false',
-        system: true,
-      }];
+      const expectedSystemAttribute = [
+        {
+          key: 'agent',
+          value: `${pjson.name}|${pjson.version}`,
+          system: true,
+        },
+        {
+          key: 'skippedIssue',
+          value: 'false',
+          system: true,
+        },
+      ];
 
       const systemAttributes = getSystemAttributes(false);
 

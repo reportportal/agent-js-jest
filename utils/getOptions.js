@@ -56,12 +56,13 @@ const getAppOptions = (pathToResolve) => {
 };
 
 module.exports = {
-  options: (reporterOptions = {}) => Object.assign(
-    constants.DEFAULT_OPTIONS,
-    reporterOptions,
-    getAppOptions(process.cwd()),
-    getEnvOptions(),
-  ),
+  options: (reporterOptions = {}) =>
+    Object.assign(
+      constants.DEFAULT_OPTIONS,
+      reporterOptions,
+      getAppOptions(process.cwd()),
+      getEnvOptions(),
+    ),
   getAppOptions,
   getEnvOptions,
 };

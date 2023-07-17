@@ -18,9 +18,15 @@ const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
 const {
-  getAgentOptions, getSuiteStartObject,
-  getStartLaunchObject, getTestStartObject, getStepStartObject,
-  getAgentInfo, getCodeRef, getFullTestName, getFullStepName,
+  getAgentOptions,
+  getSuiteStartObject,
+  getStartLaunchObject,
+  getTestStartObject,
+  getStepStartObject,
+  getAgentInfo,
+  getCodeRef,
+  getFullTestName,
+  getFullStepName,
 } = require('./utils/objectUtils');
 
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
@@ -138,9 +144,18 @@ class JestReportPortal {
     const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
     const fullTestName = getFullTestName(test);
     const codeRef = getCodeRef(testPath, fullTestName);
-    const testStartObj = getTestStartObject(test.ancestorTitles[test.ancestorTitles.length - 1], codeRef, testDuration);
-    const parentId = this.tempTestIds.get(test.ancestorTitles.slice(0, -1).join('/')) || tempSuiteId;
-    const { tempId, promise } = this.client.startTestItem(testStartObj, this.tempLaunchId, parentId);
+    const testStartObj = getTestStartObject(
+      test.ancestorTitles[test.ancestorTitles.length - 1],
+      codeRef,
+      testDuration,
+    );
+    const parentId =
+      this.tempTestIds.get(test.ancestorTitles.slice(0, -1).join('/')) || tempSuiteId;
+    const { tempId, promise } = this.client.startTestItem(
+      testStartObj,
+      this.tempLaunchId,
+      parentId,
+    );
 
     this.tempTestIds.set(fullTestName, tempId);
     promiseErrorHandler(promise);
@@ -154,7 +169,11 @@ class JestReportPortal {
     const stepDuration = test.duration;
     const stepStartObj = getStepStartObject(test.title, isRetried, codeRef, stepDuration);
     const parentId = this.tempTestIds.get(test.ancestorTitles.join('/')) || tempSuiteId;
-    const { tempId, promise } = this.client.startTestItem(stepStartObj, this.tempLaunchId, parentId);
+    const { tempId, promise } = this.client.startTestItem(
+      stepStartObj,
+      this.tempLaunchId,
+      parentId,
+    );
 
     this.tempStepId = tempId;
     promiseErrorHandler(promise);

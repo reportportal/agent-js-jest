@@ -15,14 +15,9 @@
  */
 
 module.exports = {
-  moduleFileExtensions: [
-    'js',
-  ],
+  moduleFileExtensions: ['js'],
   testRegex: '/__tests__/.*\\.spec.(js)$',
-  collectCoverageFrom: [
-    './utils/**',
-    './index.js',
-  ],
+  collectCoverageFrom: ['./utils/**', './index.js'],
   coverageThreshold: {
     global: {
       branches: 80,

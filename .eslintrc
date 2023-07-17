@@ -1,5 +1,10 @@
 {
-    "extends": "airbnb-base",
+    "extends": [
+        "airbnb-base",
+        "plugin:prettier/recommended",
+        "plugin:import/recommended"
+    ],
+    "plugins": ["prettier"],
     "globals": {
         "expectAsync": true
     },
