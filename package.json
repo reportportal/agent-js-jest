@@ -1,63 +1,64 @@
 {
-    "name": "@reportportal/agent-js-jest",
-    "version": "5.0.5",
-    "description": "A Jest reporter that uploads test results to ReportPortal",
-    "main": "index.js",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/reportportal/agent-js-jest.git"
+  "name": "@reportportal/agent-js-jest",
+  "version": "5.0.5",
+  "description": "A Jest reporter that uploads test results to ReportPortal",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reportportal/agent-js-jest.git"
+  },
+  "scripts": {
+    "lint": "eslint  . --quiet",
+    "format": "npm run lint -- --fix",
+    "test": "jest --detectOpenHandles --config ./jest.config.js",
+    "test:coverage": "jest --coverage"
+  },
+  "author": "ReportPortal.io",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10.x"
+  },
+  "files": [
+    "index.js",
+    "utils",
+    "constants"
+  ],
+  "dependencies": {
+    "@reportportal/client-javascript": "^5.0.12",
+    "strip-ansi": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "jest": "^29.6.1",
+    "eslint": "^8.45.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.8"
+  },
+  "bugs": {
+    "url": "https://github.com/reportportal/agent-js-jest/issues"
+  },
+  "homepage": "https://github.com/reportportal/agent-js-jest#readme",
+  "keywords": [
+    "reportportal",
+    "jest",
+    "rp",
+    "reporter",
+    "epam"
+  ],
+  "contributors": [
+    {
+      "name": "Uladzislau Akulich"
     },
-    "author": "ReportPortal.io",
-    "license": "Apache-2.0",
-    "engines": {
-        "node": ">=10.x"
+    {
+      "name": "Ringo De Smet"
     },
-    "files": [
-        "index.js",
-        "utils",
-        "constants"
-    ],
-    "scripts": {
-        "lint": "eslint  . --quiet",
-        "format": "npm run lint -- --fix",
-        "test": "jest --detectOpenHandles --config ./jest.config.js",
-        "test:coverage": "jest --coverage"
-    },
-    "dependencies": {
-        "@jest/reporters": "27.5.1",
-        "@reportportal/client-javascript": "^5.0.12",
-        "jest-cli": "^27.5.1",
-        "strip-ansi": "^6.0.1"
-    },
-    "devDependencies": {
-        "@types/jest": "^27.5.2",
-        "jest": "^27.5.1",
-        "jest-circus": "^27.5.1",
-        "eslint": "^7.32.0",
-        "eslint-config-airbnb-base": "^14.2.1",
-        "eslint-plugin-import": "^2.27.5",
-        "eslint-plugin-node": "^11.1.0"
-    },
-    "bugs": {
-        "url": "https://github.com/reportportal/agent-js-jest/issues"
-    },
-    "homepage": "https://github.com/reportportal/agent-js-jest#readme",
-    "keywords": [
-        "epam",
-        "reportportal",
-        "rp",
-        "jest"
-    ],
-    "contributors": [
-        {
-            "name": "Uladzislau Akulich"
-        },
-        {
-            "name": "Ringo De Smet"
-        },
-        {
-            "name": "Ontoforce",
-            "email": "https://www.ontoforce.com"
-        }
-    ]
+    {
+      "name": "Ontoforce",
+      "email": "https://www.ontoforce.com"
+    }
+  ]
 }
