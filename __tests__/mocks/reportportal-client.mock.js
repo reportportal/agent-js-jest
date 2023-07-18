@@ -15,69 +15,69 @@
  */
 
 const reporterOptions = {
-    token: '00000000-0000-0000-0000-000000000000',
-    endpoint: 'endpoint',
-    project: 'projectName',
-    launch: 'launcherName',
-    description: 'description',
-    logLaunchLink: true,
-    attributes: [
-        {
-            key: 'YourKey',
-            value: 'YourValue',
-        },
-        {
-            value: 'YourValue',
-        },
-    ],
+  apiKey: '00000000-0000-0000-0000-000000000000',
+  endpoint: 'endpoint',
+  project: 'projectName',
+  launch: 'launcherName',
+  description: 'description',
+  logLaunchLink: true,
+  attributes: [
+    {
+      key: 'YourKey',
+      value: 'YourValue',
+    },
+    {
+      value: 'YourValue',
+    },
+  ],
 };
 
 class RPClient {
-    constructor() {
-        this.startLaunch = this.mockStartLaunch();
-        this.finishLaunch = this.mockFinishLaunch();
-        this.startTestItem = this.mockStartTestItem();
-        this.finishTestItem = this.mockFinishTestItem();
-        this.sendLog = this.mockSendLog();
-    }
+  constructor() {
+    this.startLaunch = this.mockStartLaunch();
+    this.finishLaunch = this.mockFinishLaunch();
+    this.startTestItem = this.mockStartTestItem();
+    this.finishTestItem = this.mockFinishTestItem();
+    this.sendLog = this.mockSendLog();
+  }
 
-    mockStartLaunch() {
-        return jest.fn().mockReturnValue({
-            promise: Promise.resolve('ok'),
-            tempId: 'startLaunch',
-        });
-    }
+  mockStartLaunch() {
+    return jest.fn().mockReturnValue({
+      promise: Promise.resolve('ok'),
+      tempId: 'startLaunch',
+    });
+  }
 
-    mockFinishLaunch() {
-        return jest.fn().mockReturnValue({
-            promise: Promise.resolve('ok'),
-            tempId: 'finishLaunch',
-        });
-    }
+  mockFinishLaunch() {
+    return jest.fn().mockReturnValue({
+      promise: Promise.resolve('ok'),
+      tempId: 'finishLaunch',
+    });
+  }
 
-    mockStartTestItem() {
-        return jest.fn().mockReturnValue({
-            promise: Promise.resolve('ok'),
-            tempId: 'startTestItem',
-        });
-    }
+  mockStartTestItem() {
+    return jest.fn().mockReturnValue({
+      promise: Promise.resolve('ok'),
+      tempId: 'startTestItem',
+    });
+  }
 
-    mockFinishTestItem() {
-        return jest.fn().mockReturnValue({
-            promise: Promise.resolve('ok'),
-            tempId: 'finishTestItem',
-        });
-    }
+  mockFinishTestItem() {
+    return jest.fn().mockReturnValue({
+      promise: Promise.resolve('ok'),
+      tempId: 'finishTestItem',
+    });
+  }
 
-    mockSendLog() {
-        return jest.fn().mockReturnValue({
-            promise: Promise.resolve('ok'),
-            tempId: 'sendLog',
-        });
-    }
+  mockSendLog() {
+    return jest.fn().mockReturnValue({
+      promise: Promise.resolve('ok'),
+      tempId: 'sendLog',
+    });
+  }
 }
 
 module.exports = {
-    getOptions: (options) => Object.assign(reporterOptions, options),
-    RPClient,
+  getOptions: (options) => Object.assign(reporterOptions, options),
+  RPClient,
 };
