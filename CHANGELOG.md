@@ -1,3 +1,5 @@
+
+## [5.0.7] - 2023-11-20
 ### Fixed
 - `isLaunchMergeRequired` option from `client-javascript` missed.
 ### Changed
