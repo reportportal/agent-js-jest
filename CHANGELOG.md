@@ -1,7 +1,9 @@
+### Added
+- Logging link to the launch on its finish.
 ### Fixed
 - `isLaunchMergeRequired` option from `client-javascript` missed.
 ### Changed
-- `@reportportal/client-javascript` bumped to version `5.0.14`. `launchUuidPrint` and `launchUuidPrintOutput` configuration options introduced.
+- `@reportportal/client-javascript` bumped to version `5.0.15`. `launchUuidPrint` and `launchUuidPrintOutput` configuration options introduced.
 - Readme file updated.
 ### Security
 - Updated versions of vulnerable packages (@babel/traverse).
