@@ -20,7 +20,6 @@ const reporterOptions = {
   project: 'projectName',
   launch: 'launcherName',
   description: 'description',
-  logLaunchLink: true,
   attributes: [
     {
       key: 'YourKey',

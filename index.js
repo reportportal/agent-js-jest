@@ -111,12 +111,6 @@ class JestReportPortal {
     }
     const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
-    if (this.reportOptions.logLaunchLink === true) {
-      promise.then((response) => {
-        console.log(`\nReportPortal Launch Link: ${response.link}`);
-      });
-    }
-
     promiseErrorHandler(promise);
     await promise;
   }
