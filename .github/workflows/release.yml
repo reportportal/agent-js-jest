@@ -65,7 +65,7 @@ jobs:
       - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
-            node-version: '12'
+          node-version: '12'
       - name: Configure git
         run: |
           git config --global user.email "reportportal.io"
@@ -125,7 +125,7 @@ jobs:
         id: createRelease
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ needs.calculate-version.outputs.releaseVersion }}
           release_name: Release v${{ needs.calculate-version.outputs.releaseVersion }}
@@ -136,5 +136,5 @@ jobs:
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           event-type: version-released

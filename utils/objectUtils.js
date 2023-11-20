@@ -93,7 +93,9 @@ const getAgentOptions = (options = {}) => {
     debug: options.debug,
     restClientConfig: options.restClientConfig,
     launchId: process.env.RP_LAUNCH_ID || options.launchId,
-    logLaunchLink: options.logLaunchLink,
+    isLaunchMergeRequired: options.isLaunchMergeRequired,
+    launchUuidPrint: options.launchUuidPrint,
+    launchUuidPrintOutput: options.launchUuidPrintOutput,
   };
 };
 
