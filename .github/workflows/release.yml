@@ -16,7 +16,7 @@ jobs:
       releaseVersion: ${{ steps.exposeVersion.outputs.releaseVersion }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Read version
         id: readVersion
         run: |
@@ -61,9 +61,9 @@ jobs:
       versionInfo: ${{ steps.readChangelogEntry.outputs.log_entry }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup NodeJS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '12'
       - name: Configure git
@@ -110,6 +110,7 @@ jobs:
           git checkout develop
           git merge master -Xtheirs --allow-unrelated-histories
           echo "${{ steps.bumpSnapshotVersion.outputs.next-version }}-SNAPSHOT" > ${{ env.versionFileName }}
+          echo "patch" > ${{ env.versionFragmentFileName }}
           git status
           git add ${{ env.versionFileName }}
           git commit -m "${{ needs.calculate-version.outputs.releaseVersion }} -> ${{ steps.bumpSnapshotVersion.outputs.next-version }}-SNAPSHOT"
@@ -120,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create Release
         id: createRelease
         uses: actions/create-release@v1
