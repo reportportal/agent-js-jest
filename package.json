@@ -16,7 +16,7 @@
   "author": "ReportPortal.io",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=10.x"
+    "node": ">=12.x"
   },
   "files": [
     "index.js",
