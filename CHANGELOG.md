@@ -1,3 +1,6 @@
+### Changed
+- **Breaking change** Drop support of Node.js 10. The version [5.0.8](https://github.com/reportportal/agent-js-jest/releases/tag/v5.0.8) is the latest that supports it.
+- `@reportportal/client-javascript` bumped to version `5.1.0`.
 
 ## [5.0.8] - 2024-01-19
 ### Deprecated
