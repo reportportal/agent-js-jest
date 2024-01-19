@@ -1,3 +1,5 @@
+
+## [5.0.8] - 2024-01-19
 ### Deprecated
 - Node.js 10 usage. This version is the latest that supports Node.js 10.
 
