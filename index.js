@@ -114,18 +114,6 @@ class JestReportPortal {
     }
     const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
-    if (this.reportOptions.logLaunchLink === true) {
-      promise.then((response) => {
-        response.link = response.link.replace('-api', '');
-        console.log(`\nReportPortal Launch Link: ${response.link}`);
-        // Special code to save the launch url to an env var in bitrise to be used in a Slack message
-        if (process.env.CI === 'true') {
-          execSync(`envman add --key LAUNCH_URL --value "${response.link}"`);
-          console.log(process.env.LAUNCH_URL)
-        }
-      });
-    }
-
     promiseErrorHandler(promise);
     await promise;
   }
