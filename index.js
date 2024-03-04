@@ -14,8 +14,11 @@
  *  limitations under the License.
  */
 
+const { execSync } = require('child_process');
 const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
+const fs = require('fs');
+const path = require('path');
 const getOptions = require('./utils/getOptions');
 const {
   getAgentOptions,
@@ -111,6 +114,18 @@ class JestReportPortal {
     }
     const { promise } = this.client.finishLaunch(this.tempLaunchId);
 
+    if (this.reportOptions.logLaunchLink === true) {
+      promise.then((response) => {
+        response.link = response.link.replace('-api', '');
+        console.log(`\nReportPortal Launch Link: ${response.link}`);
+        // Special code to save the launch url to an env var in bitrise to be used in a Slack message
+        if (process.env.CI === 'true') {
+          execSync(`envman add --key LAUNCH_URL --value "${response.link}"`);
+          console.log(process.env.LAUNCH_URL)
+        }
+      });
+    }
+
     promiseErrorHandler(promise);
     await promise;
   }
@@ -174,6 +189,8 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
+
+
   _finishStep(test, isRetried) {
     const errorMsg = test.failureMessages[0];
 
@@ -182,7 +199,7 @@ class JestReportPortal {
         this._finishPassedStep(isRetried);
         break;
       case testItemStatuses.FAILED:
-        this._finishFailedStep(errorMsg, isRetried);
+        this._finishFailedStep(errorMsg, isRetried, test);
         break;
       default:
         this._finishSkippedStep(isRetried);
@@ -198,14 +215,13 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishFailedStep(failureMessage, isRetried) {
+  _finishFailedStep(failureMessage, isRetried, test) {
     const status = testItemStatuses.FAILED;
     const finishTestObj = { status, retry: isRetried };
 
-    this._sendLog(failureMessage);
+    this._uploadScreenshot(test, this.tempStepId, failureMessage); // Custom function to upload screenshot on test failure
 
     const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
-
     promiseErrorHandler(promise);
     this.promises.push(promise);
   }
@@ -254,6 +270,112 @@ class JestReportPortal {
     this.tempSuiteIds.delete(key);
     promiseErrorHandler(promise);
     this.promises.push(promise);
+  }
+
+  /*
+    * Custom function to upload screenshot on test failure
+    * Sorts through artifacts/ dir and finds the latest device/timestamp directory
+    * Then searches for a directory with a name that contains the test title
+    * If found, it uploads the screenshot
+  */
+  async _uploadScreenshot(test, tempStepId, failureMessage) {
+    const screenshotPath = await this._getScreenshotPath(test);
+    if (!fs.existsSync(screenshotPath)) {
+      console.error('Screenshot does not exist:', screenshotPath);
+      return;
+    }
+
+    const fileContent = fs.readFileSync(screenshotPath);
+    const fileObj = {
+      name: path.basename(screenshotPath),
+      type: 'image/png',
+      content: fileContent.toString('base64')
+    };
+
+    const logData = {
+      time: this.client.helpers.now(),
+      message: failureMessage,
+      level: 'ERROR',
+    };
+
+    try {
+      const result = await this.client.sendLog(tempStepId, logData, fileObj);
+      console.debug('Screenshot upload successful:', result);
+      console.debug("For test: ", test.title);
+    } catch (error) {
+      console.error('Failed to upload screenshot:', error);
+      console.debug("For test: ", test.title);
+    }
+  }
+
+  _getDirectoryName() {
+    const baseDir = `artifacts/`;
+    console.debug(`Current working directory: ${process.cwd()}`);
+    fs.readdirSync(process.cwd()).forEach(file => {
+      console.debug(file);
+    });
+    console.debug(`Looking for directories in: ${baseDir}`);
+    try {
+      const directories = fs.readdirSync(baseDir, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+    
+      console.debug(`Found directories: ${directories.join(', ')}`);
+
+      const sortedDirectories = directories.sort((a, b) => a.localeCompare(b));
+      const latestDirectory = sortedDirectories.pop();
+      console.debug(`Latest directory: ${latestDirectory}`);
+
+      return latestDirectory;
+    } catch (error) {
+      console.error('Error finding the device/timestamp directory:', error);
+      return null;
+    }
+  }
+
+
+
+  async _getScreenshotPath(test) {
+    const deviceName = this._getDirectoryName();
+    if (!deviceName) {
+      console.error("No device/timestamp directory found.");
+      return null;
+    }
+
+    const baseDir = path.join(`artifacts`, deviceName);
+    const normalizedTestTitle = this._normalizeStringForComparison(test.title);
+
+    try {
+      const directories = fs.readdirSync(baseDir, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+      const matchingDir = directories.find(dir => this._normalizeStringForComparison(dir).includes(normalizedTestTitle));
+
+      if (matchingDir) {
+        const screenshotPath = path.join(baseDir, matchingDir, 'testFnFailure.png');
+        console.debug(`Found matching directory: ${matchingDir}, screenshot path: ${screenshotPath}`); // Debug statement
+
+        if (fs.existsSync(screenshotPath)) {
+          return screenshotPath;
+        } else {
+          console.error(`Screenshot does not exist: ${screenshotPath}`);
+        }
+      } else {
+          console.error(`No matching directory found for test title: ${test.title}`);
+      }
+    } catch (error) {
+      console.error('Error searching for screenshot directory:', error);
+    }
+    return null;
+  }
+
+
+  _normalizeStringForComparison(str) {
+    return str
+    .toLowerCase() // Convert to lowercase
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()"'\[\]]/g, '') // Remove punctuation
+    .replace(/\s+/g, ' ') // Collapse multiple spaces into a single space
+    .trim();
   }
 }
 
