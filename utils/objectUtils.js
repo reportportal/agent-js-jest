@@ -96,6 +96,7 @@ const getAgentOptions = (options = {}) => {
     isLaunchMergeRequired: options.isLaunchMergeRequired,
     launchUuidPrint: options.launchUuidPrint,
     launchUuidPrintOutput: options.launchUuidPrintOutput,
+    extendTestDescriptionWithLastError: options.extendTestDescriptionWithLastError,
   };
 };
 
