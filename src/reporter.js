@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 EPAM Systems
+ *  Copyright 2024 EPAM Systems
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
+const ReportingApi = require('./reportingApi');
 const {
   getAgentOptions,
   getSuiteStartObject,
@@ -28,15 +29,7 @@ const {
   getFullTestName,
   getFullStepName,
 } = require('./utils/objectUtils');
-
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
-const logLevels = {
-  ERROR: 'error',
-  TRACE: 'trace',
-  DEBUG: 'debug',
-  INFO: 'info',
-  WARN: 'warn',
-};
+const { TEST_ITEM_STATUSES, LOG_LEVEL } = require('./constants');
 
 const promiseErrorHandler = (promise) => {
   promise.catch((err) => {
@@ -51,8 +44,11 @@ class JestReportPortal {
     this.client = new RPClient(this.reportOptions, agentInfo);
     this.tempSuiteIds = new Map();
     this.tempTestIds = new Map();
+    this.tempStepIds = new Map();
     this.tempStepId = null;
     this.promises = [];
+
+    global.ReportingApi = new ReportingApi(this);
   }
 
   onRunStart() {
@@ -64,17 +60,45 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
+  // Not called for `skipped` and `todo` specs
+  onTestCaseStart(test, testCaseStartInfo) {
+    if (testCaseStartInfo.ancestorTitles.length > 0) {
+      this._startSuite(testCaseStartInfo.ancestorTitles[0], test.path);
+    }
+    if (testCaseStartInfo.ancestorTitles.length > 1) {
+      this._startTest(testCaseStartInfo, test.path);
+    }
+
+    const isRetried = !!this.tempStepIds.get(getFullStepName(testCaseStartInfo));
+
+    this._startStep(testCaseStartInfo, isRetried, test.path);
+  }
+
+  // Not called for `skipped` and `todo` specs
+  onTestCaseResult(test, testCaseStartInfo) {
+    const isRetried = testCaseStartInfo.invocations !== 1;
+    this._finishStep(testCaseStartInfo, isRetried);
+  }
+
+  // Handling `skipped` tests
   onTestResult(test, testResult) {
     let suiteDuration = 0;
     let testDuration = 0;
-    for (let result = 0; result < testResult.testResults.length; result++) {
-      suiteDuration += testResult.testResults[result].duration;
-      if (testResult.testResults[result].ancestorTitles.length !== 1) {
-        testDuration += testResult.testResults[result].duration;
+
+    const skippedTests = testResult.testResults.filter(
+      (t) => t.status === TEST_ITEM_STATUSES.SKIPPED,
+    );
+
+    for (let index = 0; index < skippedTests.length; index++) {
+      const currentTest = skippedTests[index];
+
+      suiteDuration += currentTest.duration;
+      if (currentTest.ancestorTitles.length !== 1) {
+        testDuration += currentTest.duration;
       }
     }
 
-    testResult.testResults.forEach((t) => {
+    skippedTests.forEach((t) => {
       if (t.ancestorTitles.length > 0) {
         this._startSuite(t.ancestorTitles[0], test.path, suiteDuration);
       }
@@ -169,6 +193,7 @@ class JestReportPortal {
       parentId,
     );
 
+    this.tempStepIds.set(fullStepName, tempId);
     this.tempStepId = tempId;
     promiseErrorHandler(promise);
     this.promises.push(promise);
@@ -178,10 +203,10 @@ class JestReportPortal {
     const errorMsg = test.failureMessages[0];
 
     switch (test.status) {
-      case testItemStatuses.PASSED:
+      case TEST_ITEM_STATUSES.PASSED:
         this._finishPassedStep(isRetried);
         break;
-      case testItemStatuses.FAILED:
+      case TEST_ITEM_STATUSES.FAILED:
         this._finishFailedStep(errorMsg, isRetried);
         break;
       default:
@@ -190,7 +215,7 @@ class JestReportPortal {
   }
 
   _finishPassedStep(isRetried) {
-    const status = testItemStatuses.PASSED;
+    const status = TEST_ITEM_STATUSES.PASSED;
     const finishTestObj = { status, retry: isRetried };
     const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
@@ -198,15 +223,15 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishFailedStep(failureMessage, isRetried) {
-    const status = testItemStatuses.FAILED;
+  _finishFailedStep(failureMessage) {
+    const status = TEST_ITEM_STATUSES.FAILED;
     const description =
       this.reportOptions.extendTestDescriptionWithLastError === false
         ? null
         : `\`\`\`error\n${stripAnsi(failureMessage)}\n\`\`\``;
-    const finishTestObj = { status, retry: isRetried, ...(description && { description }) };
+    const finishTestObj = { status, ...(description && { description }) };
 
-    this._sendLog(failureMessage);
+    this.sendLog({ message: failureMessage, level: LOG_LEVEL.ERROR });
 
     const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
 
@@ -214,13 +239,17 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _sendLog(message) {
+  sendLog({ level = LOG_LEVEL.INFO, message = '', file, time }) {
     const newMessage = stripAnsi(message);
-    const logObject = {
-      message: newMessage,
-      level: logLevels.ERROR,
-    };
-    const { promise } = this.client.sendLog(this.tempStepId, logObject);
+    const { promise } = this.client.sendLog(
+      this.tempStepId,
+      {
+        message: newMessage,
+        level,
+        time: time || this.client.helpers.now(),
+      },
+      file,
+    );
 
     promiseErrorHandler(promise);
     this.promises.push(promise);

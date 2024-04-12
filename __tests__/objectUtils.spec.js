@@ -27,7 +27,7 @@ const {
   getFullTestName,
   getFullStepName,
   getSystemAttributes,
-} = require('../utils/objectUtils');
+} = require('../src/utils/objectUtils');
 const pjson = require('../package.json');
 
 const defaultOptions = {

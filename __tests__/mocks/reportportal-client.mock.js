@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+const { mockDate } = require('./data');
+
 const reporterOptions = {
   apiKey: '00000000-0000-0000-0000-000000000000',
   endpoint: 'endpoint',
@@ -38,6 +40,9 @@ class RPClient {
     this.startTestItem = this.mockStartTestItem();
     this.finishTestItem = this.mockFinishTestItem();
     this.sendLog = this.mockSendLog();
+    this.helpers = {
+      now: jest.fn().mockReturnValue(mockDate),
+    };
   }
 
   mockStartLaunch() {
