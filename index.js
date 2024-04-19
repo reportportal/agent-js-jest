@@ -203,7 +203,7 @@ class JestReportPortal {
     const description =
       this.reportOptions.extendTestDescriptionWithLastError === false
         ? null
-        : stripAnsi(failureMessage);
+        : `\`\`\`error\n${stripAnsi(failureMessage)}\n\`\`\``;
     const finishTestObj = { status, retry: isRetried, ...(description && { description }) };
 
     this._sendLog(failureMessage);

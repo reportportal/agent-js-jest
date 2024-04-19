@@ -473,7 +473,7 @@ describe('index script', () => {
       const expectedFinishTestItemParameter = {
         status: 'failed',
         retry: false,
-        description: 'error message',
+        description: '```error\nerror message\n```',
       };
       reporter.tempStepId = 'tempStepId';
 
