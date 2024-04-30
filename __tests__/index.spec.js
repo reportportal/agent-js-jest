@@ -473,6 +473,7 @@ describe('index script', () => {
       const expectedFinishTestItemParameter = {
         status: 'failed',
         retry: false,
+        description: '```error\nerror message\n```',
       };
       reporter.tempStepId = 'tempStepId';
 
@@ -484,6 +485,26 @@ describe('index script', () => {
         expectedFinishTestItemParameter,
       );
     });
+
+    test(
+      'finishTestItem should be called without description parameter ' +
+        'if extendTestDescriptionWithLastError is false',
+      () => {
+        const expectedFinishTestItemParameter = {
+          status: 'failed',
+          retry: false,
+        };
+        reporter.tempStepId = 'tempStepId';
+        reporter.reportOptions.extendTestDescriptionWithLastError = false;
+
+        reporter._finishFailedStep('error message', false);
+
+        expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
+          'tempStepId',
+          expectedFinishTestItemParameter,
+        );
+      },
+    );
   });
 
   describe('_finishSkippedStep', () => {

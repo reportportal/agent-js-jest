@@ -200,7 +200,11 @@ class JestReportPortal {
 
   _finishFailedStep(failureMessage, isRetried) {
     const status = testItemStatuses.FAILED;
-    const finishTestObj = { status, retry: isRetried };
+    const description =
+      this.reportOptions.extendTestDescriptionWithLastError === false
+        ? null
+        : `\`\`\`error\n${stripAnsi(failureMessage)}\n\`\`\``;
+    const finishTestObj = { status, retry: isRetried, ...(description && { description }) };
 
     this._sendLog(failureMessage);
 
