@@ -23,7 +23,7 @@ module.exports = {
             '@reportportal/agent-js-jest',
             {
                 apiKey: 'reportportalApiKey',
-                endpoint: 'https://your.reportportal.server/api/v1',
+                endpoint: 'https://your.reportportal.server/api/v2',
                 project: 'Your reportportal project name',
                 launch: 'Your launch name',
                 attributes: [
@@ -54,7 +54,7 @@ In case you use the jest config section of `package.json`, add the following ent
             ["@reportportal/agent-js-jest",
             {
                 "token": "reportportalApiKey",
-                "endpoint": "https://your.reportportal.server/api/v1",
+                "endpoint": "https://your.reportportal.server/api/v2",
                 "project": "Your reportportal project name",
                 "launch": "Your launch name",
                 "attributes": [
@@ -79,7 +79,7 @@ The full list of available options presented below.
 | Option                             | Necessity  | Default   | Description                                                                                                                                                                                                                                                                                                                                                                              |
 |------------------------------------|------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | apiKey                             | Required   |           | User's reportportal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                                        |
-| endpoint                           | Required   |           | URL of your server. For example 'https://server:8080/api/v1'.                                                                                                                                                                                                                                                                                                                            |
+| endpoint                           | Required   |           | URL of your server. For example 'https://server:8080/api/v2'.                                                                                                                                                                                                                                                                                                                            |
 | launch                             | Required   |           | Name of launch at creation.                                                                                                                                                                                                                                                                                                                                                              |
 | project                            | Required   |           | The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                                           |
 | attributes                         | Optional   | []        | Launch attributes.                                                                                                                                                                                                                                                                                                                                                                       |
