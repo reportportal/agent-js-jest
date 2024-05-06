@@ -23,7 +23,7 @@ module.exports = {
             '@reportportal/agent-js-jest',
             {
                 apiKey: 'reportportalApiKey',
-                endpoint: 'https://your.reportportal.server/api/v2',
+                endpoint: 'https://your.reportportal.server/api/v1',
                 project: 'Your reportportal project name',
                 launch: 'Your launch name',
                 attributes: [
@@ -54,7 +54,7 @@ In case you use the jest config section of `package.json`, add the following ent
             ["@reportportal/agent-js-jest",
             {
                 "token": "reportportalApiKey",
-                "endpoint": "https://your.reportportal.server/api/v2",
+                "endpoint": "https://your.reportportal.server/api/v1",
                 "project": "Your reportportal project name",
                 "launch": "Your launch name",
                 "attributes": [
