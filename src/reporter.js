@@ -76,11 +76,10 @@ class JestReportPortal {
 
   // Not called for `skipped` and `todo` specs
   onTestCaseResult(test, testCaseStartInfo) {
-    const isRetried = testCaseStartInfo.invocations !== 1;
-    this._finishStep(testCaseStartInfo, isRetried);
+    this._finishStep(testCaseStartInfo);
   }
 
-  // Handling `skipped` tests
+  // Handling `skipped` tests and their ancestors
   onTestResult(test, testResult) {
     let suiteDuration = 0;
     let testDuration = 0;
@@ -108,7 +107,7 @@ class JestReportPortal {
 
       if (!t.invocations) {
         this._startStep(t, false, test.path);
-        this._finishStep(t, false);
+        this._finishStep(t);
         return;
       }
 
@@ -116,7 +115,7 @@ class JestReportPortal {
         const isRetried = t.invocations !== 1;
 
         this._startStep(t, isRetried, test.path);
-        this._finishStep(t, isRetried);
+        this._finishStep(t);
       }
     });
 
@@ -199,25 +198,24 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishStep(test, isRetried) {
+  _finishStep(test) {
     const errorMsg = test.failureMessages[0];
 
     switch (test.status) {
       case TEST_ITEM_STATUSES.PASSED:
-        this._finishPassedStep(isRetried);
+        this._finishPassedStep();
         break;
       case TEST_ITEM_STATUSES.FAILED:
-        this._finishFailedStep(errorMsg, isRetried);
+        this._finishFailedStep(errorMsg);
         break;
       default:
-        this._finishSkippedStep(isRetried);
+        this._finishSkippedStep();
     }
   }
 
-  _finishPassedStep(isRetried) {
+  _finishPassedStep() {
     const status = TEST_ITEM_STATUSES.PASSED;
-    const finishTestObj = { status, retry: isRetried };
-    const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
+    const { promise } = this.client.finishTestItem(this.tempStepId, { status });
 
     promiseErrorHandler(promise);
     this.promises.push(promise);
@@ -255,12 +253,11 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishSkippedStep(isRetried) {
+  _finishSkippedStep() {
     const status = 'skipped';
     const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
     const finishTestObj = {
       status,
-      retry: isRetried,
       ...(issue && { issue }),
     };
     const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);

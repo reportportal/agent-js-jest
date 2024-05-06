@@ -131,11 +131,9 @@ Read more about [retries in jest](https://jestjs.io/ru/docs/jest-object#jestretr
 
 ## Reporting API
 
-This report provides `ReportingApi` in global variables to use it directly in tests to send some additional data to the report.
+This reporter provides `ReportingApi` in global variables to use it directly in tests to send some additional data to the report.
 
 ### Reporting API methods
-
-The API provide methods for attaching data.<br/>
 
 #### attachment
 Send file to ReportPortal for the current test. Should be called inside of corresponding test.<br/>
@@ -145,7 +143,7 @@ Send file to ReportPortal for the current test. Should be called inside of corre
 Example:
 ```javascript
 test('should be passed with attachment', () => {
-    const fileName = 'test.jpg';
+    const fileName = 'test.png';
     const fileContent = fs.readFileSync(path.resolve(__dirname, './attachments', fileName));
 
     ReportingApi.attachment({
