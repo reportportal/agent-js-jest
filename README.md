@@ -129,6 +129,33 @@ This is for your convenience if you have a continuous job that runs your tests a
 The agent has support of retries.
 Read more about [retries in jest](https://jestjs.io/ru/docs/jest-object#jestretrytimesnumretries-options).
 
+## Reporting API
+
+This reporter provides `ReportingApi` in global variables to use it directly in tests to send some additional data to the report.
+
+### Reporting API methods
+
+#### attachment
+Send file to ReportPortal for the current test. Should be called inside of corresponding test.<br/>
+`ReportingApi.attachment(file: {name: string; type: string; content: string | Buffer;}, description?: string);`<br/>
+**required**: `file`<br/>
+**optional**: `description`<br/>
+Example:
+```javascript
+test('should be passed with attachment', () => {
+    const fileName = 'test.png';
+    const fileContent = fs.readFileSync(path.resolve(__dirname, './attachments', fileName));
+
+    ReportingApi.attachment({
+        name: fileName,
+        type: 'image/png',
+        content: fileContent.toString('base64'),
+    }, 'Description');
+
+    expect(true).toBe(true);
+});
+```
+
 # Copyright Notice
 
 Licensed under the [Apache License v2.0](LICENSE)

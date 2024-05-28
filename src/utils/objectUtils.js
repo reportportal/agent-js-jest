@@ -16,7 +16,7 @@
 
 /* eslint-disable no-process-env */
 const path = require('path');
-const pjson = require('../package.json');
+const pjson = require('../../package.json');
 
 const PJSON_VERSION = pjson.version;
 const PJSON_NAME = pjson.name;
@@ -36,7 +36,7 @@ const getStartLaunchObject = (options = {}) => {
   };
 };
 
-const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration) => ({
+const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration = 0) => ({
   type: entityType.STEP,
   name: stepTitle,
   codeRef,
@@ -44,14 +44,14 @@ const getStepStartObject = (stepTitle, isRetried, codeRef, stepDuration) => ({
   retry: isRetried,
 });
 
-const getTestStartObject = (testTitle, codeRef, testDuration) => ({
+const getTestStartObject = (testTitle, codeRef, testDuration = 0) => ({
   type: entityType.TEST,
   name: testTitle,
   codeRef,
   startTime: new Date().valueOf() - testDuration,
 });
 
-const getSuiteStartObject = (suiteName, codeRef, suiteDuration) => ({
+const getSuiteStartObject = (suiteName, codeRef, suiteDuration = 0) => ({
   type: entityType.SUITE,
   name: suiteName,
   codeRef,

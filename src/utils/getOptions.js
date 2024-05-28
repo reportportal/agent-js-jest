@@ -17,7 +17,7 @@
 /* eslint-disable no-process-env */
 const path = require('path');
 const fs = require('fs');
-const constants = require('../constants/index');
+const constants = require('../constants');
 
 const getEnvOptions = () => {
   const options = {};

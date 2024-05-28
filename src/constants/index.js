@@ -40,4 +40,15 @@ module.exports = {
   FILEPATH_VAR: 'filepath',
   TITLE_VAR: 'title',
   DISPLAY_NAME_VAR: 'displayName',
+  STEP_META_TYPE: {
+    ATTACHMENT: 'attachment',
+  },
+  TEST_ITEM_STATUSES: { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' },
+  LOG_LEVEL: {
+    ERROR: 'error',
+    TRACE: 'trace',
+    DEBUG: 'debug',
+    INFO: 'info',
+    WARN: 'warn',
+  },
 };
