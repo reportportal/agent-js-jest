@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '.github/**'
+      - README.md
+      - CHANGELOG.md
 
 env:
   versionFileName: 'VERSION'
@@ -16,7 +20,7 @@ jobs:
       releaseVersion: ${{ steps.exposeVersion.outputs.releaseVersion }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Read version
         id: readVersion
         run: |
@@ -61,9 +65,9 @@ jobs:
       versionInfo: ${{ steps.readChangelogEntry.outputs.log_entry }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup NodeJS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '12'
       - name: Configure git
@@ -113,6 +117,7 @@ jobs:
           echo "patch" > ${{ env.versionFragmentFileName }}
           git status
           git add ${{ env.versionFileName }}
+          git add ${{ env.versionFragmentFileName }}
           git commit -m "${{ needs.calculate-version.outputs.releaseVersion }} -> ${{ steps.bumpSnapshotVersion.outputs.next-version }}-SNAPSHOT"
           git push origin develop
 
@@ -121,7 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Create Release
         id: createRelease
         uses: actions/create-release@v1

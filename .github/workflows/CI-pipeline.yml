@@ -3,8 +3,11 @@ name: CI-pipeline
 on:
   push:
     branches:
-      - master
       - develop
+      - '!master'
+    paths-ignore:
+      - README.md
+      - CHANGELOG.md
   pull_request:
 
 jobs:
@@ -12,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install of node dependencies

@@ -17,10 +17,18 @@
 /* eslint-disable no-undef */
 const path = require('path');
 const { getOptions, RPClient } = require('./mocks/reportportal-client.mock');
-const JestReportPortal = require('../index');
+const JestReportPortal = require('../src');
+const { TEST_ITEM_STATUSES, LOG_LEVEL } = require('../src/constants');
 const pjson = require('../package.json');
+const {
+  duration,
+  skippedTestResult,
+  testResult,
+  testObj,
+  mockDate,
+  mockFile,
+} = require('./mocks/data');
 
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 const GLOBAL_CONFIG = {};
 const options = getOptions();
 const currentDate = new Date();
@@ -29,22 +37,6 @@ const systemAttr = {
   key: 'agent',
   value: `${pjson.name}|${pjson.version}`,
   system: true,
-};
-const duration = 5;
-const testResult = {
-  testResults: [
-    {
-      title: 'Title',
-      status: 'failed',
-      ancestorTitles: ['Suite name', 'Test name'],
-      failureMessages: 'error message',
-      invocations: 1,
-      duration,
-    },
-  ],
-};
-const testObj = {
-  path: `C:${path.sep}testProject${path.sep}example.js`,
 };
 
 describe('index script', () => {
@@ -118,17 +110,13 @@ describe('index script', () => {
         reporter.onTestResult(testObj, testResult);
 
         expect(spyStartSuite).toHaveBeenCalledWith(
-          testResult.testResults[0].ancestorTitles[0],
+          skippedTestResult.ancestorTitles[0],
           testObj.path,
           duration,
         );
-        expect(spyStartTest).toHaveBeenCalledWith(
-          testResult.testResults[0],
-          testObj.path,
-          duration,
-        );
-        expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
+        expect(spyStartTest).toHaveBeenCalledWith(skippedTestResult, testObj.path, duration);
+        expect(spyStartStep).toHaveBeenCalledWith(skippedTestResult, false, testObj.path);
+        expect(spyFinishStep).toHaveBeenCalledWith(skippedTestResult);
         expect(spyFinishTest).toHaveBeenCalledWith('1234', 'tempTestId');
         expect(spyFinishSuite).toHaveBeenCalledWith('4321', 'tempSuiteId');
       },
@@ -143,8 +131,8 @@ describe('index script', () => {
 
         reporter.onTestResult(testObj, testResult);
 
-        expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
+        expect(spyStartStep).toHaveBeenCalledWith(skippedTestResult, false, testObj.path);
+        expect(spyFinishStep).toHaveBeenCalledWith(skippedTestResult);
         expect(spyStartStep).toHaveBeenCalledTimes(1);
         expect(spyFinishStep).toHaveBeenCalledTimes(1);
       },
@@ -156,13 +144,14 @@ describe('index script', () => {
       () => {
         const spyStartStep = jest.spyOn(reporter, '_startStep');
         const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+
         const testResult = {
           testResults: [
             {
               title: 'Title',
-              status: 'failed',
+              status: TEST_ITEM_STATUSES.SKIPPED,
               ancestorTitles: ['Suite name', 'Test name'],
-              failureMessages: 'error message',
+              failureMessages: [],
               invocations: 2,
             },
           ],
@@ -171,7 +160,7 @@ describe('index script', () => {
         reporter.onTestResult(testObj, testResult);
 
         expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], true, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], true);
+        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0]);
         expect(spyStartStep).toHaveBeenCalledTimes(2);
         expect(spyFinishStep).toHaveBeenCalledTimes(2);
       },
@@ -187,9 +176,9 @@ describe('index script', () => {
           testResults: [
             {
               title: 'Title',
-              status: 'failed',
+              status: TEST_ITEM_STATUSES.SKIPPED,
               ancestorTitles: ['Suite name', 'Test name'],
-              failureMessages: 'error message',
+              failureMessages: [],
             },
           ],
         };
@@ -197,7 +186,7 @@ describe('index script', () => {
         reporter.onTestResult(testObj, testResult);
 
         expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
+        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0]);
       },
     );
 
@@ -358,19 +347,20 @@ describe('index script', () => {
     });
   });
 
-  describe('_sendLog', () => {
+  describe('sendLog', () => {
     test('sendLog should be called with parameters', () => {
-      const expectedLogObjectParameter = {
-        message: 'message',
-        level: 'error',
-      };
       reporter.tempStepId = 'tempStepId';
 
-      reporter._sendLog('message');
+      reporter.sendLog({ message: 'message', level: LOG_LEVEL.ERROR, file: mockFile });
 
       expect(reporter.client.sendLog).toHaveBeenCalledWith(
         'tempStepId',
-        expectedLogObjectParameter,
+        {
+          message: 'message',
+          level: LOG_LEVEL.ERROR,
+          time: mockDate,
+        },
+        mockFile,
       );
     });
   });
@@ -381,7 +371,7 @@ describe('index script', () => {
       const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
       const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-      reporter._finishStep({ status: testItemStatuses.PASSED, failureMessages: [] });
+      reporter._finishStep({ status: TEST_ITEM_STATUSES.PASSED, failureMessages: [] });
 
       expect(spyFinishPassedTest).toHaveBeenCalled();
       expect(spyFinishFailedTest).not.toHaveBeenCalled();
@@ -394,11 +384,11 @@ describe('index script', () => {
       const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
       reporter._finishStep(
-        { status: testItemStatuses.FAILED, failureMessages: ['error message'] },
+        { status: TEST_ITEM_STATUSES.FAILED, failureMessages: ['error message'] },
         false,
       );
 
-      expect(spyFinishFailedTest).toHaveBeenCalledWith('error message', false);
+      expect(spyFinishFailedTest).toHaveBeenCalledWith('error message');
       expect(spyFinishPassedTest).not.toHaveBeenCalled();
       expect(spyFinishSkippedTest).not.toHaveBeenCalled();
     });
@@ -408,7 +398,7 @@ describe('index script', () => {
       const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
       const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-      reporter._finishStep({ status: testItemStatuses.SKIPPED, failureMessages: [] });
+      reporter._finishStep({ status: TEST_ITEM_STATUSES.SKIPPED, failureMessages: [] });
 
       expect(spyFinishSkippedTest).toHaveBeenCalled();
       expect(spyFinishPassedTest).not.toHaveBeenCalled();
@@ -454,7 +444,6 @@ describe('index script', () => {
     test('finishTestItem should be called with parameters', () => {
       const expectedFinishTestItemParameter = {
         status: 'passed',
-        retry: false,
       };
       reporter.tempStepId = 'tempStepId';
 
@@ -468,29 +457,49 @@ describe('index script', () => {
   });
 
   describe('_finishFailedStep', () => {
-    test('_sendLog should be called with failure message, finishTestItem should be called with parameters', () => {
-      const spySendLog = jest.spyOn(reporter, '_sendLog');
+    test('sendLog should be called with failure message, finishTestItem should be called with parameters', () => {
+      const spySendLog = jest.spyOn(reporter, 'sendLog');
+      const errorMessage = 'error message';
+      const tempStepId = 'tempStepId';
       const expectedFinishTestItemParameter = {
         status: 'failed',
-        retry: false,
+        description: '```error\nerror message\n```',
       };
-      reporter.tempStepId = 'tempStepId';
+      reporter.tempStepId = tempStepId;
 
-      reporter._finishFailedStep('error message', false);
+      reporter._finishFailedStep(errorMessage, false);
 
-      expect(spySendLog).toHaveBeenCalledWith('error message');
+      expect(spySendLog).toHaveBeenCalledWith({ message: errorMessage, level: LOG_LEVEL.ERROR });
       expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
-        'tempStepId',
+        tempStepId,
         expectedFinishTestItemParameter,
       );
     });
+
+    test(
+      'finishTestItem should be called without description parameter ' +
+        'if extendTestDescriptionWithLastError is false',
+      () => {
+        const expectedFinishTestItemParameter = {
+          status: 'failed',
+        };
+        reporter.tempStepId = 'tempStepId';
+        reporter.reportOptions.extendTestDescriptionWithLastError = false;
+
+        reporter._finishFailedStep('error message', false);
+
+        expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
+          'tempStepId',
+          expectedFinishTestItemParameter,
+        );
+      },
+    );
   });
 
   describe('_finishSkippedStep', () => {
     test('finishTestItem should be called with parameters', () => {
       const expectedFinishTestItemParameter = {
         status: 'skipped',
-        retry: false,
       };
       reporter.tempStepId = 'tempStepId';
 
@@ -505,7 +514,6 @@ describe('index script', () => {
     test('finishTestItem should be called with issue parameter if skippedIssue is false', () => {
       const expectedFinishTestItemParameter = {
         status: 'skipped',
-        retry: false,
         issue: { issueType: 'NOT_ISSUE' },
       };
       reporter.tempStepId = 'tempStepId';
