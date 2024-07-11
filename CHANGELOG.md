@@ -1,3 +1,5 @@
+
+## [5.1.0] - 2024-07-11
 ### Added
 - `ReportingApi` with `attachment` method support. Resolves [#122](https://github.com/reportportal/agent-js-jest/issues/122).
 - `extendTestDescriptionWithLastError` config option to extend test description with last error message. Resolves [#136](https://github.com/reportportal/agent-js-jest/issues/136). Thanks to [artsiomBandarenka](https://github.com/artsiomBandarenka).
