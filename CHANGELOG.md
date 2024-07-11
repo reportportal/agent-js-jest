@@ -7,7 +7,7 @@
 ### Security
 - Updated versions of vulnerable packages (braces).
 ### Deprecated
-- Node.js 12 usage. This version is the latest that supports Node.js 12.
+- Node.js 12 usage. This minor version is the latest that supports Node.js 12.
 - `token` config option. Use `apiKey` instead.
 
 ## [5.0.8] - 2024-01-19
