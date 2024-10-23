@@ -40,6 +40,9 @@ const systemAttr = {
 };
 
 describe('index script', () => {
+  /**
+   * @type {JestReportPortal}
+   */
   let reporter;
 
   beforeAll(() => {
@@ -371,7 +374,14 @@ describe('index script', () => {
       const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
       const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-      reporter._finishStep({ status: TEST_ITEM_STATUSES.PASSED, failureMessages: [] });
+      reporter.tempStepIds.set('/fake test', 'tempStepId');
+
+      reporter._finishStep({
+        status: TEST_ITEM_STATUSES.PASSED,
+        failureMessages: [],
+        ancestorTitles: [],
+        title: 'fake test',
+      });
 
       expect(spyFinishPassedTest).toHaveBeenCalled();
       expect(spyFinishFailedTest).not.toHaveBeenCalled();
@@ -383,12 +393,19 @@ describe('index script', () => {
       const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
       const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
+      reporter.tempStepIds.set('/fake test', 'tempStepId');
+
       reporter._finishStep(
-        { status: TEST_ITEM_STATUSES.FAILED, failureMessages: ['error message'] },
+        {
+          status: TEST_ITEM_STATUSES.FAILED,
+          failureMessages: ['error message'],
+          ancestorTitles: [],
+          title: 'fake test',
+        },
         false,
       );
 
-      expect(spyFinishFailedTest).toHaveBeenCalledWith('error message');
+      expect(spyFinishFailedTest).toHaveBeenCalledWith('tempStepId', 'error message');
       expect(spyFinishPassedTest).not.toHaveBeenCalled();
       expect(spyFinishSkippedTest).not.toHaveBeenCalled();
     });
@@ -398,7 +415,14 @@ describe('index script', () => {
       const spyFinishFailedTest = jest.spyOn(reporter, '_finishFailedStep');
       const spyFinishSkippedTest = jest.spyOn(reporter, '_finishSkippedStep');
 
-      reporter._finishStep({ status: TEST_ITEM_STATUSES.SKIPPED, failureMessages: [] });
+      reporter.tempStepIds.set('/fake test', 'tempStepId');
+
+      reporter._finishStep({
+        status: TEST_ITEM_STATUSES.SKIPPED,
+        failureMessages: [],
+        ancestorTitles: [],
+        title: 'fake test',
+      });
 
       expect(spyFinishSkippedTest).toHaveBeenCalled();
       expect(spyFinishPassedTest).not.toHaveBeenCalled();
@@ -447,7 +471,7 @@ describe('index script', () => {
       };
       reporter.tempStepId = 'tempStepId';
 
-      reporter._finishPassedStep(false);
+      reporter._finishPassedStep('tempStepId', false);
 
       expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
         'tempStepId',
@@ -467,9 +491,13 @@ describe('index script', () => {
       };
       reporter.tempStepId = tempStepId;
 
-      reporter._finishFailedStep(errorMessage, false);
+      reporter._finishFailedStep('tempStepId', errorMessage, false);
 
-      expect(spySendLog).toHaveBeenCalledWith({ message: errorMessage, level: LOG_LEVEL.ERROR });
+      expect(spySendLog).toHaveBeenCalledWith({
+        message: errorMessage,
+        level: LOG_LEVEL.ERROR,
+        tempStepId: 'tempStepId',
+      });
       expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
         tempStepId,
         expectedFinishTestItemParameter,
@@ -486,7 +514,7 @@ describe('index script', () => {
         reporter.tempStepId = 'tempStepId';
         reporter.reportOptions.extendTestDescriptionWithLastError = false;
 
-        reporter._finishFailedStep('error message', false);
+        reporter._finishFailedStep('tempStepId', 'error message', false);
 
         expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
           'tempStepId',
@@ -503,7 +531,7 @@ describe('index script', () => {
       };
       reporter.tempStepId = 'tempStepId';
 
-      reporter._finishSkippedStep(false);
+      reporter._finishSkippedStep('tempStepId', false);
 
       expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
         'tempStepId',
@@ -519,7 +547,7 @@ describe('index script', () => {
       reporter.tempStepId = 'tempStepId';
       reporter.reportOptions.skippedIssue = false;
 
-      reporter._finishSkippedStep(false);
+      reporter._finishSkippedStep('tempStepId', false);
 
       expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
         'tempStepId',
