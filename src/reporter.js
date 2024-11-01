@@ -201,27 +201,35 @@ class JestReportPortal {
   _finishStep(test) {
     const errorMsg = test.failureMessages[0];
 
+    const fullName = getFullStepName(test);
+    const tempStepId = this.tempStepIds.get(fullName);
+
+    if (tempStepId === undefined) {
+      console.error(`Could not finish Test Step - "${fullName}". tempId not found`);
+      return;
+    }
+
     switch (test.status) {
       case TEST_ITEM_STATUSES.PASSED:
-        this._finishPassedStep();
+        this._finishPassedStep(tempStepId);
         break;
       case TEST_ITEM_STATUSES.FAILED:
-        this._finishFailedStep(errorMsg);
+        this._finishFailedStep(tempStepId, errorMsg);
         break;
       default:
-        this._finishSkippedStep();
+        this._finishSkippedStep(tempStepId);
     }
   }
 
-  _finishPassedStep() {
+  _finishPassedStep(tempStepId) {
     const status = TEST_ITEM_STATUSES.PASSED;
-    const { promise } = this.client.finishTestItem(this.tempStepId, { status });
+    const { promise } = this.client.finishTestItem(tempStepId, { status });
 
     promiseErrorHandler(promise);
     this.promises.push(promise);
   }
 
-  _finishFailedStep(failureMessage) {
+  _finishFailedStep(tempStepId, failureMessage) {
     const status = TEST_ITEM_STATUSES.FAILED;
     const description =
       this.reportOptions.extendTestDescriptionWithLastError === false
@@ -229,18 +237,18 @@ class JestReportPortal {
         : `\`\`\`error\n${stripAnsi(failureMessage)}\n\`\`\``;
     const finishTestObj = { status, ...(description && { description }) };
 
-    this.sendLog({ message: failureMessage, level: LOG_LEVEL.ERROR });
+    this.sendLog({ message: failureMessage, level: LOG_LEVEL.ERROR, tempStepId });
 
-    const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
+    const { promise } = this.client.finishTestItem(tempStepId, finishTestObj);
 
     promiseErrorHandler(promise);
     this.promises.push(promise);
   }
 
-  sendLog({ level = LOG_LEVEL.INFO, message = '', file, time }) {
+  sendLog({ level = LOG_LEVEL.INFO, message = '', file, time, tempStepId }) {
     const newMessage = stripAnsi(message);
     const { promise } = this.client.sendLog(
-      this.tempStepId,
+      tempStepId === undefined ? this.tempStepId : tempStepId,
       {
         message: newMessage,
         level,
@@ -253,14 +261,14 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishSkippedStep() {
+  _finishSkippedStep(tempStepId) {
     const status = 'skipped';
     const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
     const finishTestObj = {
       status,
       ...(issue && { issue }),
     };
-    const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
+    const { promise } = this.client.finishTestItem(tempStepId, finishTestObj);
 
     promiseErrorHandler(promise);
     this.promises.push(promise);
