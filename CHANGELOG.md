@@ -1,3 +1,5 @@
+
+## [5.1.1] - 2024-11-01
 ### Fixed
 - Race condition when many suites run in parallel. Resolves [#147](https://github.com/reportportal/agent-js-jest/issues/147). Thanks to [@tristanzander](https://github.com/tristanzander).
 
