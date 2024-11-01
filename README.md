@@ -133,7 +133,9 @@ Read more about [retries in jest](https://jestjs.io/ru/docs/jest-object#jestretr
 
 This reporter provides `ReportingApi` in global variables to use it directly in tests to send some additional data to the report.
 
-*Note:* `ReportingApi` does not support tests running in [`concurrent` mode](https://jestjs.io/docs/api#testconcurrentname-fn-timeout) at the moment.
+*Note:* Run with the default test files concurrency may lead to inconsistent files attaching. `ReportingApi` also does not support tests running in [`concurrent` mode](https://jestjs.io/docs/api#testconcurrentname-fn-timeout) at the moment.
+
+We are going to fix this behavior in the future.
 
 ### Reporting API methods
 
