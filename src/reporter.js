@@ -29,7 +29,7 @@ const {
   getFullTestName,
   getFullStepName,
 } = require('./utils/objectUtils');
-const { TEST_ITEM_STATUSES, LOG_LEVEL } = require('./constants');
+const { TEST_ITEM_STATUSES, LOG_LEVEL, TEST_ITEM_TYPES } = require('./constants');
 
 const promiseErrorHandler = (promise) => {
   promise.catch((err) => {
@@ -43,8 +43,8 @@ class JestReportPortal {
     this.reportOptions = getAgentOptions(getOptions.options(options));
     this.client = new RPClient(this.reportOptions, agentInfo);
     this.tempSuiteIds = new Map();
-    this.tempTestIds = new Map();
     this.tempStepIds = new Map();
+    // TODO: Remove and use `this.tempStepIds` instead.
     this.tempStepId = null;
     this.promises = [];
 
@@ -60,18 +60,27 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
+  // FYI. Does not even call most of the time. Cannot be used for suites handling.
+  onTestStart() {}
+
+  _startSuites(suiteTitles, filePath, startTime) {
+    if (suiteTitles.length > 0) {
+      suiteTitles.reduce((suitePath, suiteTitle) => {
+        const fullSuiteName = suitePath ? `${suitePath}/${suiteTitle}` : suiteTitle;
+        const codeRef = getCodeRef(filePath, fullSuiteName);
+
+        this._startSuite(suiteTitle, suitePath, codeRef, startTime);
+        return fullSuiteName;
+      }, '');
+    }
+  }
+
   // Not called for `skipped` and `todo` specs
   onTestCaseStart(test, testCaseStartInfo) {
-    if (testCaseStartInfo.ancestorTitles.length > 0) {
-      this._startSuite(testCaseStartInfo.ancestorTitles[0], test.path);
-    }
-    if (testCaseStartInfo.ancestorTitles.length > 1) {
-      this._startTest(testCaseStartInfo, test.path);
-    }
+    this._startSuites(testCaseStartInfo.ancestorTitles, test.path, testCaseStartInfo.startedAt);
 
     const isRetried = !!this.tempStepIds.get(getFullStepName(testCaseStartInfo));
-
-    this._startStep(testCaseStartInfo, isRetried, test.path);
+    this._startStep(testCaseStartInfo, test.path, isRetried);
   }
 
   // Not called for `skipped` and `todo` specs
@@ -79,51 +88,35 @@ class JestReportPortal {
     this._finishStep(testCaseStartInfo);
   }
 
-  // Handling `skipped` tests and their ancestors
   onTestResult(test, testResult) {
-    let suiteDuration = 0;
-    let testDuration = 0;
-
+    // Handling `skipped` tests and their ancestors
     const skippedTests = testResult.testResults.filter(
       (t) => t.status === TEST_ITEM_STATUSES.SKIPPED,
     );
 
-    for (let index = 0; index < skippedTests.length; index++) {
-      const currentTest = skippedTests[index];
+    skippedTests.forEach((testCaseInfo) => {
+      const testCase = { startedAt: new Date().valueOf(), ...testCaseInfo };
+      this._startSuites(testCaseInfo.ancestorTitles, test.path, testCase.startedAt);
 
-      suiteDuration += currentTest.duration;
-      if (currentTest.ancestorTitles.length !== 1) {
-        testDuration += currentTest.duration;
-      }
-    }
+      if (testCase.invocations) {
+        const isRetried = testCase.invocations > 1;
 
-    skippedTests.forEach((t) => {
-      if (t.ancestorTitles.length > 0) {
-        this._startSuite(t.ancestorTitles[0], test.path, suiteDuration);
-      }
-      if (t.ancestorTitles.length > 1) {
-        this._startTest(t, test.path, testDuration);
-      }
-
-      if (!t.invocations) {
-        this._startStep(t, false, test.path);
-        this._finishStep(t);
-        return;
-      }
-
-      for (let i = 0; i < t.invocations; i++) {
-        const isRetried = t.invocations !== 1;
-
-        this._startStep(t, isRetried, test.path);
-        this._finishStep(t);
+        for (let i = 0; i < testCase.invocations; i++) {
+          this._startStep(testCase, test.path, isRetried);
+          this._finishStep(testCase);
+        }
+      } else {
+        this._startStep(testCase, test.path);
+        this._finishStep(testCase);
       }
     });
 
-    this.tempTestIds.forEach((tempTestId, key) => {
-      this._finishTest(tempTestId, key);
-    });
-    this.tempSuiteIds.forEach((tempSuiteId, key) => {
-      this._finishSuite(tempSuiteId, key);
+    const suiteFilePathToFinish = getCodeRef(testResult.testFilePath);
+
+    this.tempSuiteIds.forEach((suiteTempId, suiteFullName) => {
+      if (suiteFullName.includes(suiteFilePathToFinish)) {
+        this._finishSuite(suiteTempId, suiteFullName);
+      }
     });
   }
 
@@ -138,54 +131,44 @@ class JestReportPortal {
     await promise;
   }
 
-  _startSuite(suiteName, path, suiteDuration) {
-    if (this.tempSuiteIds.get(suiteName)) {
-      return;
-    }
-    const codeRef = getCodeRef(path, suiteName);
-    const { tempId, promise } = this.client.startTestItem(
-      getSuiteStartObject(suiteName, codeRef, suiteDuration),
-      this.tempLaunchId,
-    );
-
-    this.tempSuiteIds.set(suiteName, tempId);
-    promiseErrorHandler(promise);
-    this.promises.push(promise);
-  }
-
-  _startTest(test, testPath, testDuration) {
-    if (this.tempTestIds.get(test.ancestorTitles.join('/'))) {
+  _startSuite(title, suitePath, codeRef, startTime = new Date().valueOf()) {
+    if (this.tempSuiteIds.get(codeRef)) {
       return;
     }
 
-    const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
-    const fullTestName = getFullTestName(test);
-    const codeRef = getCodeRef(testPath, fullTestName);
-    const testStartObj = getTestStartObject(
-      test.ancestorTitles[test.ancestorTitles.length - 1],
+    const testStartObj = {
+      type: TEST_ITEM_TYPES.SUITE,
+      name: title,
       codeRef,
-      testDuration,
-    );
-    const parentId =
-      this.tempTestIds.get(test.ancestorTitles.slice(0, -1).join('/')) || tempSuiteId;
+      startTime,
+    };
+    const parentId = this.tempSuiteIds.get(suitePath);
     const { tempId, promise } = this.client.startTestItem(
       testStartObj,
       this.tempLaunchId,
       parentId,
     );
 
-    this.tempTestIds.set(fullTestName, tempId);
+    this.tempSuiteIds.set(codeRef, tempId);
     promiseErrorHandler(promise);
     this.promises.push(promise);
   }
 
-  _startStep(test, isRetried, testPath) {
-    const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
+  _startStep(test, testPath, isRetried = false) {
     const fullStepName = getFullStepName(test);
     const codeRef = getCodeRef(testPath, fullStepName);
-    const stepDuration = test.duration;
-    const stepStartObj = getStepStartObject(test.title, isRetried, codeRef, stepDuration);
-    const parentId = this.tempTestIds.get(test.ancestorTitles.join('/')) || tempSuiteId;
+    const stepStartObj = {
+      type: TEST_ITEM_TYPES.STEP,
+      name: test.title,
+      codeRef,
+      startTime: test.startedAt,
+      retry: isRetried,
+    };
+
+    const parentFullName = test.ancestorTitles.join('/');
+    const parentCodeRef = getCodeRef(testPath, parentFullName);
+    const parentId = this.tempSuiteIds.get(parentCodeRef);
+
     const { tempId, promise } = this.client.startTestItem(
       stepStartObj,
       this.tempLaunchId,
@@ -237,7 +220,7 @@ class JestReportPortal {
         : `\`\`\`error\n${stripAnsi(failureMessage)}\n\`\`\``;
     const finishTestObj = { status, ...(description && { description }) };
 
-    this.sendLog({ message: failureMessage, level: LOG_LEVEL.ERROR, tempStepId });
+    this._sendLog({ message: failureMessage, level: LOG_LEVEL.ERROR, tempStepId });
 
     const { promise } = this.client.finishTestItem(tempStepId, finishTestObj);
 
@@ -245,7 +228,7 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  sendLog({ level = LOG_LEVEL.INFO, message = '', file, time, tempStepId }) {
+  _sendLog({ level = LOG_LEVEL.INFO, message = '', file, time, tempStepId }) {
     const newMessage = stripAnsi(message);
     const { promise } = this.client.sendLog(
       tempStepId === undefined ? this.tempStepId : tempStepId,
@@ -274,20 +257,12 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishTest(tempTestId, key) {
-    if (!tempTestId) return;
+  _finishSuite(tempTestId, key) {
+    if (!tempTestId) {
+      return;
+    }
 
     const { promise } = this.client.finishTestItem(tempTestId, {});
-
-    this.tempTestIds.delete(key);
-    promiseErrorHandler(promise);
-    this.promises.push(promise);
-  }
-
-  _finishSuite(tempSuiteId, key) {
-    if (!tempSuiteId) return;
-
-    const { promise } = this.client.finishTestItem(tempSuiteId, {});
 
     this.tempSuiteIds.delete(key);
     promiseErrorHandler(promise);
