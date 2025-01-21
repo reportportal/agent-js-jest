@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 EPAM Systems
+ *  Copyright 2025 EPAM Systems
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,12 +19,8 @@ const path = require('path');
 const {
   getAgentOptions,
   getStartLaunchObject,
-  getSuiteStartObject,
-  getTestStartObject,
-  getStepStartObject,
   getAgentInfo,
   getCodeRef,
-  getFullTestName,
   getFullStepName,
   getSystemAttributes,
 } = require('../src/utils/objectUtils');
@@ -114,52 +110,6 @@ describe('Object Utils script', () => {
 
       expect(startLaunchObject).toBeDefined();
       expect(startLaunchObject).toEqual(expectedStartLaunchObject);
-    });
-  });
-
-  describe('getStepStartObject', () => {
-    test('should return step start object with correct values', () => {
-      const expectedStepStartObject = {
-        type: 'STEP',
-        name: 'step title',
-        retry: true,
-        startTime: new Date().valueOf() - duration,
-      };
-
-      const stepStartObject = getStepStartObject('step title', true, undefined, duration);
-
-      expect(stepStartObject).toBeDefined();
-      expect(stepStartObject).toEqual(expectedStepStartObject);
-    });
-  });
-
-  describe('getTestStartObject', () => {
-    test('should return test start object with correct values', () => {
-      const expectedTestStartObject = {
-        type: 'TEST',
-        name: 'test title',
-        startTime: new Date().valueOf() - duration,
-      };
-
-      const testStartObject = getTestStartObject('test title', undefined, duration);
-
-      expect(testStartObject).toBeDefined();
-      expect(testStartObject).toEqual(expectedTestStartObject);
-    });
-  });
-
-  describe('getSuiteStartObject', () => {
-    test('should return suite start object with correct values', () => {
-      const expectedSuiteStartObject = {
-        type: 'SUITE',
-        name: 'suite name',
-        startTime: new Date().valueOf() - duration,
-      };
-
-      const suiteStartObject = getSuiteStartObject('suite name', undefined, duration);
-
-      expect(suiteStartObject).toBeDefined();
-      expect(suiteStartObject).toEqual(expectedSuiteStartObject);
     });
   });
 
@@ -298,19 +248,6 @@ describe('Object Utils script', () => {
       const codeRef = getCodeRef(mockedTest.filePath, mockedTest.title);
 
       expect(codeRef).toEqual(expectedCodeRef);
-    });
-  });
-
-  describe('getFullTestName', () => {
-    test('should return correct full test name', () => {
-      const mockedTest = {
-        ancestorTitles: ['rootDescribe', 'parentDescribe', 'testTitle'],
-      };
-      const expectedFullTestName = 'rootDescribe/parentDescribe/testTitle';
-
-      const fullTestName = getFullTestName(mockedTest);
-
-      expect(fullTestName).toEqual(expectedFullTestName);
     });
   });
 

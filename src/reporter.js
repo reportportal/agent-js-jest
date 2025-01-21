@@ -1,5 +1,5 @@
 /*
- *  Copyright 2024 EPAM Systems
+ *  Copyright 2025 EPAM Systems
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,13 +20,9 @@ const getOptions = require('./utils/getOptions');
 const ReportingApi = require('./reportingApi');
 const {
   getAgentOptions,
-  getSuiteStartObject,
   getStartLaunchObject,
-  getTestStartObject,
-  getStepStartObject,
   getAgentInfo,
   getCodeRef,
-  getFullTestName,
   getFullStepName,
 } = require('./utils/objectUtils');
 const { TEST_ITEM_STATUSES, LOG_LEVEL, TEST_ITEM_TYPES } = require('./constants');
@@ -64,15 +60,13 @@ class JestReportPortal {
   onTestStart() {}
 
   _startSuites(suiteTitles, filePath, startTime) {
-    if (suiteTitles.length > 0) {
-      suiteTitles.reduce((suitePath, suiteTitle) => {
-        const fullSuiteName = suitePath ? `${suitePath}/${suiteTitle}` : suiteTitle;
-        const codeRef = getCodeRef(filePath, fullSuiteName);
+    suiteTitles.reduce((suitePath, suiteTitle) => {
+      const fullSuiteName = suitePath ? `${suitePath}/${suiteTitle}` : suiteTitle;
+      const codeRef = getCodeRef(filePath, fullSuiteName);
 
-        this._startSuite(suiteTitle, suitePath, codeRef, startTime);
-        return fullSuiteName;
-      }, '');
-    }
+      this._startSuite(suiteTitle, suitePath, codeRef, startTime);
+      return fullSuiteName;
+    }, '');
   }
 
   // Not called for `skipped` and `todo` specs
@@ -95,19 +89,19 @@ class JestReportPortal {
     );
 
     skippedTests.forEach((testCaseInfo) => {
-      const testCase = { startedAt: new Date().valueOf(), ...testCaseInfo };
-      this._startSuites(testCaseInfo.ancestorTitles, test.path, testCase.startedAt);
+      const testCaseWithStartTime = { startedAt: new Date().valueOf(), ...testCaseInfo };
+      this._startSuites(testCaseInfo.ancestorTitles, test.path, testCaseWithStartTime.startedAt);
 
-      if (testCase.invocations) {
-        const isRetried = testCase.invocations > 1;
+      if (testCaseWithStartTime.invocations) {
+        for (let i = 0; i < testCaseWithStartTime.invocations; i++) {
+          const isRetried = i > 1;
 
-        for (let i = 0; i < testCase.invocations; i++) {
-          this._startStep(testCase, test.path, isRetried);
-          this._finishStep(testCase);
+          this._startStep(testCaseWithStartTime, test.path, isRetried);
+          this._finishStep(testCaseWithStartTime);
         }
       } else {
-        this._startStep(testCase, test.path);
-        this._finishStep(testCase);
+        this._startStep(testCaseWithStartTime, test.path);
+        this._finishStep(testCaseWithStartTime);
       }
     });
 
