@@ -1,3 +1,5 @@
+
+## [5.1.2] - 2025-01-30
 ### Fixed
 - Issues with duplication and finishing of suites while running tests in parallel. Resolves [#153](https://github.com/reportportal/agent-js-jest/issues/153), [#155](https://github.com/reportportal/agent-js-jest/issues/155), [#147](https://github.com/reportportal/agent-js-jest/issues/147).
 
