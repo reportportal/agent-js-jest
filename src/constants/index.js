@@ -51,4 +51,5 @@ module.exports = {
     INFO: 'info',
     WARN: 'warn',
   },
+  TEST_ITEM_TYPES: { SUITE: 'SUITE', TEST: 'TEST', STEP: 'STEP' },
 };
