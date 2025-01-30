@@ -94,7 +94,7 @@ class JestReportPortal {
 
       if (testCaseWithStartTime.invocations) {
         for (let i = 0; i < testCaseWithStartTime.invocations; i++) {
-          const isRetried = i > 1;
+          const isRetried = i > 0;
 
           this._startStep(testCaseWithStartTime, test.path, isRetried);
           this._finishStep(testCaseWithStartTime);

@@ -24,14 +24,17 @@ const {
   duration,
   skippedTestResult,
   testResult,
+  testResultWithSkipped,
   testObj,
   mockDate,
   mockFile,
+  testFilePath,
 } = require('./mocks/data');
 
 const GLOBAL_CONFIG = {};
 const options = getOptions();
 const currentDate = new Date();
+const currentDateInMs = currentDate.valueOf();
 const RealDate = Date;
 const systemAttr = {
   key: 'agent',
@@ -60,7 +63,9 @@ describe('index script', () => {
   afterEach(() => {
     jest.clearAllMocks();
     reporter.tempLaunchId = '';
+    // TODO: remove
     reporter.tempSuiteIds = new Map();
+    // TODO: change to tempSuiteIds
     reporter.tempTestIds = new Map();
     reporter.tempStepId = null;
     global.Date = RealDate;
@@ -97,118 +102,129 @@ describe('index script', () => {
   });
 
   describe('onTestResult', () => {
-    test(
-      'startSuite, startTest, spyStartStep, finishTest, finishSuite, spyFinishStep' +
-        'should be called with parameters',
-      () => {
-        const spyStartSuite = jest.spyOn(reporter, '_startSuite');
-        const spyStartTest = jest.spyOn(reporter, '_startTest');
-        const spyStartStep = jest.spyOn(reporter, '_startStep');
-        const spyFinishTest = jest.spyOn(reporter, '_finishTest');
-        const spyFinishSuite = jest.spyOn(reporter, '_finishSuite');
-        const spyFinishStep = jest.spyOn(reporter, '_finishStep');
-        reporter.tempTestIds = new Map([['tempTestId', '1234']]);
-        reporter.tempSuiteIds = new Map([['tempSuiteId', '4321']]);
+    test('should call start suites method for skipped tests if any. startedAt should be fell back', () => {
+      const spyStartSuites = jest.spyOn(reporter, '_startSuites');
 
-        reporter.onTestResult(testObj, testResult);
+      reporter.onTestResult(testObj, testResultWithSkipped);
 
-        expect(spyStartSuite).toHaveBeenCalledWith(
-          skippedTestResult.ancestorTitles[0],
-          testObj.path,
-          duration,
-        );
-        expect(spyStartTest).toHaveBeenCalledWith(skippedTestResult, testObj.path, duration);
-        expect(spyStartStep).toHaveBeenCalledWith(skippedTestResult, false, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(skippedTestResult);
-        expect(spyFinishTest).toHaveBeenCalledWith('1234', 'tempTestId');
-        expect(spyFinishSuite).toHaveBeenCalledWith('4321', 'tempSuiteId');
-      },
-    );
+      expect(spyStartSuites).toHaveBeenCalledWith(
+        skippedTestResult.ancestorTitles,
+        testObj.path,
+        currentDateInMs,
+      );
+    });
+    test('should not start any suites in case of no skipped tests', () => {
+      const spyStartSuites = jest.spyOn(reporter, '_startSuites');
 
-    test(
-      "startStep, finishStep should be called one times with second parameter 'false' if there" +
-        ' are no retries',
-      () => {
-        const spyStartStep = jest.spyOn(reporter, '_startStep');
-        const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+      reporter.onTestResult(testObj, testResult);
 
-        reporter.onTestResult(testObj, testResult);
+      expect(spyStartSuites).toHaveBeenCalledTimes(0);
+    });
 
-        expect(spyStartStep).toHaveBeenCalledWith(skippedTestResult, false, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(skippedTestResult);
-        expect(spyStartStep).toHaveBeenCalledTimes(1);
-        expect(spyFinishStep).toHaveBeenCalledTimes(1);
-      },
-    );
+    test('should start and finish retries in case of any invocations of skipped tests', () => {
+      const spyStartStep = jest.spyOn(reporter, '_startStep');
+      const spyFinishStep = jest.spyOn(reporter, '_finishStep');
 
-    test(
-      "startStep, finishStep should be called two times with second parameter 'true' if there" +
-        ' are retries',
-      () => {
-        const spyStartStep = jest.spyOn(reporter, '_startStep');
-        const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+      reporter.onTestResult(testObj, testResultWithSkipped);
+      const skippedTestResultWithStartedAt = { startedAt: currentDateInMs, ...skippedTestResult };
 
-        const testResult = {
-          testResults: [
-            {
-              title: 'Title',
-              status: TEST_ITEM_STATUSES.SKIPPED,
-              ancestorTitles: ['Suite name', 'Test name'],
-              failureMessages: [],
-              invocations: 2,
-            },
-          ],
-        };
+      expect(spyStartStep).toHaveBeenNthCalledWith(
+        1,
+        skippedTestResultWithStartedAt,
+        testObj.path,
+        false,
+      );
+      expect(spyStartStep).toHaveBeenNthCalledWith(
+        2,
+        skippedTestResultWithStartedAt,
+        testObj.path,
+        true,
+      );
+      expect(spyFinishStep).toHaveBeenCalledWith(skippedTestResultWithStartedAt);
+      expect(spyStartStep).toHaveBeenCalledTimes(2);
+      expect(spyFinishStep).toHaveBeenCalledTimes(2);
+    });
 
-        reporter.onTestResult(testObj, testResult);
+    test('should start and finish just skipped test in case of no or empty invocations', () => {
+      const spyStartStep = jest.spyOn(reporter, '_startStep');
+      const spyFinishStep = jest.spyOn(reporter, '_finishStep');
 
-        expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], true, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0]);
-        expect(spyStartStep).toHaveBeenCalledTimes(2);
-        expect(spyFinishStep).toHaveBeenCalledTimes(2);
-      },
-    );
+      const { invocations, ...skippedTestResultWithoutInvocations } = skippedTestResult;
 
-    test(
-      "startStep, finishStep should be called ones with second parameter 'false' if there is" +
-        ' no invocations',
-      () => {
-        const spyStartStep = jest.spyOn(reporter, '_startStep');
-        const spyFinishStep = jest.spyOn(reporter, '_finishStep');
-        const testResult = {
-          testResults: [
-            {
-              title: 'Title',
-              status: TEST_ITEM_STATUSES.SKIPPED,
-              ancestorTitles: ['Suite name', 'Test name'],
-              failureMessages: [],
-            },
-          ],
-        };
-
-        reporter.onTestResult(testObj, testResult);
-
-        expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
-        expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0]);
-      },
-    );
-
-    test('startTest should not be called if there are no tests', () => {
-      const spyStartTest = jest.spyOn(reporter, '_startTest');
       const testResult = {
-        testResults: [
-          {
-            title: 'Title',
-            status: 'failed',
-            ancestorTitles: ['Suite name'],
-            failureMessages: 'error message',
-          },
-        ],
+        testResults: [skippedTestResultWithoutInvocations],
+        testFilePath,
       };
 
       reporter.onTestResult(testObj, testResult);
 
-      expect(spyStartTest).not.toHaveBeenCalled();
+      const skippedTestResultWithStartedAt = {
+        startedAt: currentDateInMs,
+        ...skippedTestResultWithoutInvocations,
+      };
+
+      expect(spyStartStep).toHaveBeenCalledWith(skippedTestResultWithStartedAt, testObj.path);
+      expect(spyFinishStep).toHaveBeenCalledWith(skippedTestResultWithStartedAt);
+      expect(spyStartStep).toHaveBeenCalledTimes(1);
+      expect(spyFinishStep).toHaveBeenCalledTimes(1);
+    });
+
+    /*
+      should finish all suites that belongs to the file where test is located
+      should finish all suites that belongs to the file where test is located even if no skipped tests
+     */
+    test('should finish all suites that belongs to the file where test is located', () => {
+      const spyFinishSuite = jest.spyOn(reporter, '_finishSuite');
+      reporter.tempSuiteIds = new Map([
+        ['C:/testProject/example.js/Failed suite name', 'startTestItem'],
+        ['C:/testProject/example.js/Failed suite name/Failed test name', 'startTestItem'],
+      ]);
+
+      reporter.onTestResult(testObj, testResultWithSkipped);
+
+      expect(spyFinishSuite).toHaveBeenCalledTimes(4);
+      expect(spyFinishSuite).toHaveBeenNthCalledWith(
+        1,
+        'startTestItem',
+        'C:/testProject/example.js/Failed suite name',
+      );
+      expect(spyFinishSuite).toHaveBeenNthCalledWith(
+        2,
+        'startTestItem',
+        'C:/testProject/example.js/Failed suite name/Failed test name',
+      );
+      expect(spyFinishSuite).toHaveBeenNthCalledWith(
+        3,
+        'startTestItem',
+        'C:/testProject/example.js/Skipped suite name',
+      );
+      expect(spyFinishSuite).toHaveBeenNthCalledWith(
+        4,
+        'startTestItem',
+        'C:/testProject/example.js/Skipped suite name/Skipped test name',
+      );
+    });
+
+    test('should finish all suites that belongs to the file even if there are no skipped tests', () => {
+      const spyFinishSuite = jest.spyOn(reporter, '_finishSuite');
+      reporter.tempSuiteIds = new Map([
+        ['C:/testProject/example.js/Failed suite name', 'startTestItem'],
+        ['C:/testProject/example.js/Failed suite name/Failed test name', 'startTestItem'],
+      ]);
+
+      reporter.onTestResult(testObj, testResult);
+
+      expect(spyFinishSuite).toHaveBeenCalledTimes(2);
+      expect(spyFinishSuite).toHaveBeenNthCalledWith(
+        1,
+        'startTestItem',
+        'C:/testProject/example.js/Failed suite name',
+      );
+      expect(spyFinishSuite).toHaveBeenNthCalledWith(
+        2,
+        'startTestItem',
+        'C:/testProject/example.js/Failed suite name/Failed test name',
+      );
     });
   });
 
