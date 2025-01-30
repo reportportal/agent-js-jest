@@ -110,6 +110,7 @@ class JestReportPortal {
 
     const suiteFilePathToFinish = getCodeRef(testResult.testFilePath);
 
+    // Finishing suites that are related to the test file
     this.tempSuiteIds.forEach((suiteTempId, suiteFullName) => {
       if (suiteFullName.includes(suiteFilePathToFinish)) {
         this._finishSuite(suiteTempId, suiteFullName);
