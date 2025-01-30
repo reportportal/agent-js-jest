@@ -56,19 +56,21 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  // FYI. Does not even call most of the time. Cannot be used for suites handling.
+  // FYI. In most cases it is not even called. It cannot be used for suites handling.
   onTestStart() {}
 
   _startSuites(suiteTitles, filePath, startTime) {
     suiteTitles.reduce((suitePath, suiteTitle) => {
       const fullSuiteName = suitePath ? `${suitePath}/${suiteTitle}` : suiteTitle;
       const codeRef = getCodeRef(filePath, fullSuiteName);
+      const parentCodeRef = getCodeRef(filePath, suitePath);
 
-      this._startSuite(suiteTitle, suitePath, codeRef, startTime);
+      this._startSuite(suiteTitle, codeRef, parentCodeRef, startTime);
       return fullSuiteName;
     }, '');
   }
 
+  // TODO: cover with tests
   // Not called for `skipped` and `todo` specs
   onTestCaseStart(test, testCaseStartInfo) {
     this._startSuites(testCaseStartInfo.ancestorTitles, test.path, testCaseStartInfo.startedAt);
@@ -77,6 +79,7 @@ class JestReportPortal {
     this._startStep(testCaseStartInfo, test.path, isRetried);
   }
 
+  // TODO: cover with tests
   // Not called for `skipped` and `todo` specs
   onTestCaseResult(test, testCaseStartInfo) {
     this._finishStep(testCaseStartInfo);
@@ -125,7 +128,7 @@ class JestReportPortal {
     await promise;
   }
 
-  _startSuite(title, suitePath, codeRef, startTime = new Date().valueOf()) {
+  _startSuite(title, codeRef, parentCodeRef = '', startTime = new Date().valueOf()) {
     if (this.tempSuiteIds.get(codeRef)) {
       return;
     }
@@ -136,7 +139,7 @@ class JestReportPortal {
       codeRef,
       startTime,
     };
-    const parentId = this.tempSuiteIds.get(suitePath);
+    const parentId = this.tempSuiteIds.get(parentCodeRef);
     const { tempId, promise } = this.client.startTestItem(
       testStartObj,
       this.tempLaunchId,
