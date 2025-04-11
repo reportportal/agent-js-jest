@@ -17,7 +17,6 @@ const skippedTestResult = {
   status: TEST_ITEM_STATUSES.SKIPPED,
   ancestorTitles: ['Skipped suite name', 'Skipped test name'],
   failureMessages: [],
-  invocations: 2,
 };
 const testResult = {
   testResults: [failedTestResult],
