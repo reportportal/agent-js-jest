@@ -1,3 +1,5 @@
+
+## [5.1.3] - 2025-04-11
 ### Fixed
 - Fix test name collisions. Resolves [#153](https://github.com/reportportal/agent-js-jest/issues/153), [#155](https://github.com/reportportal/agent-js-jest/issues/155), [#147](https://github.com/reportportal/agent-js-jest/issues/147).
 - `ReportingApi.attachment` error with `sendLog` method.
