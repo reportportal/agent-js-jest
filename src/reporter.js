@@ -75,36 +75,24 @@ class JestReportPortal {
   onTestCaseStart(test, testCaseStartInfo) {
     this._startSuites(testCaseStartInfo.ancestorTitles, test.path, testCaseStartInfo.startedAt);
 
-    const isRetried = !!this.tempStepIds.get(getFullStepName(testCaseStartInfo));
-    this._startStep(testCaseStartInfo, test.path, isRetried);
+    this._startStep(testCaseStartInfo, test.path);
   }
 
   // TODO: cover with tests
   // Not called for `skipped` and `todo` specs
   onTestCaseResult(test, testCaseStartInfo) {
-    this._finishStep(testCaseStartInfo);
+    this._finishStep(testCaseStartInfo, test.path);
   }
 
   onTestResult(test, testResult) {
     // Handling `skipped` tests and their ancestors
-    const skippedTests = testResult.testResults.filter(
-      (t) => t.status === TEST_ITEM_STATUSES.SKIPPED,
-    );
+    testResult.testResults.forEach((testCaseInfo) => {
+      if (testCaseInfo.status === TEST_ITEM_STATUSES.SKIPPED) {
+        const testCaseWithStartTime = { startedAt: new Date().valueOf(), ...testCaseInfo };
+        this._startSuites(testCaseInfo.ancestorTitles, test.path, testCaseWithStartTime.startedAt);
 
-    skippedTests.forEach((testCaseInfo) => {
-      const testCaseWithStartTime = { startedAt: new Date().valueOf(), ...testCaseInfo };
-      this._startSuites(testCaseInfo.ancestorTitles, test.path, testCaseWithStartTime.startedAt);
-
-      if (testCaseWithStartTime.invocations) {
-        for (let i = 0; i < testCaseWithStartTime.invocations; i++) {
-          const isRetried = i > 0;
-
-          this._startStep(testCaseWithStartTime, test.path, isRetried);
-          this._finishStep(testCaseWithStartTime);
-        }
-      } else {
         this._startStep(testCaseWithStartTime, test.path);
-        this._finishStep(testCaseWithStartTime);
+        this._finishStep(testCaseWithStartTime, test.path);
       }
     });
 
@@ -152,9 +140,12 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _startStep(test, testPath, isRetried = false) {
+  _startStep(test, testPath) {
     const fullStepName = getFullStepName(test);
     const codeRef = getCodeRef(testPath, fullStepName);
+    const retryIds = this.tempStepIds.get(codeRef);
+    const isRetried = !!retryIds;
+
     const stepStartObj = {
       type: TEST_ITEM_TYPES.STEP,
       name: test.title,
@@ -172,23 +163,31 @@ class JestReportPortal {
       this.tempLaunchId,
       parentId,
     );
+    // store item ids as array to not overwrite retry ids
+    let tempIdToStore = [tempId];
 
-    this.tempStepIds.set(fullStepName, tempId);
+    if (isRetried) {
+      tempIdToStore = retryIds.concat(tempIdToStore);
+    }
+
+    this.tempStepIds.set(codeRef, tempIdToStore);
     this.tempStepId = tempId;
     promiseErrorHandler(promise);
     this.promises.push(promise);
   }
 
-  _finishStep(test) {
-    const errorMsg = test.failureMessages[0];
-
+  _finishStep(test, testPath) {
     const fullName = getFullStepName(test);
-    const tempStepId = this.tempStepIds.get(fullName);
+    const codeRef = getCodeRef(testPath, fullName);
+    const tempStepIds = this.tempStepIds.get(codeRef);
+    const tempStepId = Array.isArray(tempStepIds) ? tempStepIds.shift() : undefined;
 
-    if (tempStepId === undefined) {
-      console.error(`Could not finish Test Step - "${fullName}". tempId not found`);
+    if (!tempStepId) {
+      console.error(`Could not finish Test Step - "${codeRef}". tempId not found`);
       return;
     }
+
+    const errorMsg = test.failureMessages[0];
 
     switch (test.status) {
       case TEST_ITEM_STATUSES.PASSED:
