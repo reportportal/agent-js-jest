@@ -34,6 +34,6 @@ module.exports = class ReportingApi {
    * @param {String} description - file description (optional).
    */
   attachment(file, description) {
-    this.reporter.sendLog({ message: description, file });
+    this.reporter._sendLog({ message: description, file });
   }
 };
