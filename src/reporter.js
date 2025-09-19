@@ -14,6 +14,9 @@
  *  limitations under the License.
  */
 
+const fs = require("fs");
+const path = require("path");
+
 const stripAnsi = require('strip-ansi');
 const RPClient = require('@reportportal/client-javascript');
 const getOptions = require('./utils/getOptions');
@@ -57,7 +60,7 @@ class JestReportPortal {
   }
 
   // FYI. In most cases it is not even called. It cannot be used for suites handling.
-  onTestStart() {}
+  onTestStart() { }
 
   _startSuites(suiteTitles, filePath, startTime) {
     suiteTitles.reduce((suitePath, suiteTitle) => {
@@ -194,7 +197,7 @@ class JestReportPortal {
         this._finishPassedStep(tempStepId);
         break;
       case TEST_ITEM_STATUSES.FAILED:
-        this._finishFailedStep(tempStepId, errorMsg);
+        this._finishFailedStep(tempStepId, errorMsg, test);
         break;
       default:
         this._finishSkippedStep(tempStepId);
@@ -209,7 +212,7 @@ class JestReportPortal {
     this.promises.push(promise);
   }
 
-  _finishFailedStep(tempStepId, failureMessage) {
+  _finishFailedStep(tempStepId, failureMessage, test) {
     const status = TEST_ITEM_STATUSES.FAILED;
     const description =
       this.reportOptions.extendTestDescriptionWithLastError === false
@@ -219,10 +222,55 @@ class JestReportPortal {
 
     this._sendLog({ message: failureMessage, level: LOG_LEVEL.ERROR, tempStepId });
 
+    const imagePath = this._findFile(this.reportOptions.artifactsPath, test.fullName, 'testFnFailure.png');
+    const videoPath = this._findFile(this.reportOptions.artifactsPath, test.fullName, 'test.mp4');
+
+    if (imagePath) {
+      const image = {
+        name: 'testFnFailure.png',
+        type: 'image/png',
+        content: fs.readFileSync(imagePath),
+      };
+      this._sendLog({ level: LOG_LEVEL.ERROR, message: 'Screenshot:', file: image, tempStepId });
+    }
+    if (videoPath) {
+      const video = {
+        name: 'test.mp4',
+        type: 'video/mp4',
+        content: fs.readFileSync(videoPath),
+      };
+      this._sendLog({ level: LOG_LEVEL.ERROR, message: 'Video:', file: video, tempStepId });
+    }
+
     const { promise } = this.client.finishTestItem(tempStepId, finishTestObj);
 
     promiseErrorHandler(promise);
     this.promises.push(promise);
+  }
+
+  _findFile(root, folderPart, fileName) {
+    function search(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+
+        if (entry.isDirectory()) {
+          if (entry.name.includes(folderPart)) {
+            const candidate = path.join(fullPath, fileName);
+            if (fs.existsSync(candidate)) {
+              return candidate;
+            }
+          }
+          const result = search(fullPath);
+          if (result) return result;
+        }
+      }
+
+      return null;
+    }
+
+    return search(root);
   }
 
   _sendLog({ level = LOG_LEVEL.INFO, message = '', file, time, tempStepId }) {

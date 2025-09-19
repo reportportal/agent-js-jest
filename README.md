@@ -1,18 +1,20 @@
-# @reportportal/agent-js-jest
+# agent-js-detox
 
-Agent to integrate Jest with ReportPortal.
+Agent to integrate Detox with ReportPortal.
+
 * More about [Jest](https://jestjs.io/)
 * More about [ReportPortal](http://reportportal.io/)
 
 ## Installation
 
 ```shell
-npm install --save-dev @reportportal/agent-js-jest
+npm install --save-dev agent-js-detox
 ```
 
 ## Configuration
 
 **1.** Create `jest.config.js` file with reportportal configuration:
+
 ```javascript
 module.exports = {
     testRunner: 'jest-circus/runner',
@@ -79,7 +81,8 @@ The full list of available options presented below.
 | Option                             | Necessity  | Default   | Description                                                                                                                                                                                                                                                                                                                                                                              |
 |------------------------------------|------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | apiKey                             | Required   |           | User's reportportal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                                        |
-| endpoint                           | Required   |           | URL of your server. For example 'https://server:8080/api/v1'. Use `api/v2` for asynchronous reporting.                                                                                                                                                                                                                                                                                                                            |
+| DETOX_ARTIFACTS_PATH | Required | .artifacts | The path to the root folder of screenshots and videos from Detox |
+| endpoint                           | Required   |           | URL of your server. For example '<https://server:8080/api/v1>'. Use `api/v2` for asynchronous reporting.                                                                                                                                                                                                                                                                                                                            |
 | launch                             | Required   |           | Name of launch at creation.                                                                                                                                                                                                                                                                                                                                                              |
 | project                            | Required   |           | The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                                           |
 | attributes                         | Optional   | []        | Launch attributes.                                                                                                                                                                                                                                                                                                                                                                       |
@@ -89,7 +92,7 @@ The full list of available options presented below.
 | mode                               | Optional   | 'DEFAULT' | Results will be submitted to Launches page <br/> *'DEBUG'* - Results will be submitted to Debug page.                                                                                                                                                                                                                                                                                    |
 | skippedIssue                       | Optional   | true      | reportportal provides feature to mark skipped tests as not 'To Investigate'. <br/> Option could be equal boolean values: <br/> *true* - skipped tests considered as issues and will be marked as 'To Investigate' on reportportal. <br/> *false* - skipped tests will not be marked as 'To Investigate' on application.                                                                  |
 | debug                              | Optional   | false     | This flag allows seeing the logs of the client-javascript. Useful for debugging.                                                                                                                                                                                                                                                                                                         |
-| launchId                           | Optional   | Not set   | The _ID_ of an already existing launch. The launch must be in 'IN_PROGRESS' status while the tests are running. Please note that if this _ID_ is provided, the launch will not be finished at the end of the run and must be finished separately.                                                                                                                                        |
+| launchId                           | Optional   | Not set   | The *ID* of an already existing launch. The launch must be in 'IN_PROGRESS' status while the tests are running. Please note that if this *ID* is provided, the launch will not be finished at the end of the run and must be finished separately.                                                                                                                                        |
 | restClientConfig                   | Optional   | Not set   | The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. [`timeout`](https://github.com/reportportal/client-javascript#timeout-30000ms-on-axios-requests). <br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details. |
 | isLaunchMergeRequired              | Optional   | false     | This flag determines whether to create temp files with the UUIDs of started launches and allow them to be merged using [`client-javascript`'s `mergeLaunches` method](https://github.com/reportportal/client-javascript#mergelaunches). Temp file format: `rplaunch-${launch_uuid}.tmp`.                                                                                                 |
 | launchUuidPrint                    | Optional   | false     | Whether to print the current launch UUID.                                                                                                                                                                                                                                                                                                                                                |
@@ -114,6 +117,7 @@ The following options can be overridden using ENVIRONMENT variables:
 This is for your convenience if you have a continuous job that runs your tests and may report results that point to a different reportportal project definition, launch name, or attributes.
 
 **2.** Add script to `package.json` file:
+
 ```json
 {
   "scripts": {
@@ -140,11 +144,13 @@ We are going to fix this behavior in the future.
 ### Reporting API methods
 
 #### attachment
+
 Send file to ReportPortal for the current test. Should be called inside of corresponding test.<br/>
 `ReportingApi.attachment(file: {name: string; type: string; content: string | Buffer;}, description?: string);`<br/>
 **required**: `file`<br/>
 **optional**: `description`<br/>
 Example:
+
 ```javascript
 test('should be passed with attachment', () => {
     const fileName = 'test.png';
@@ -207,11 +213,13 @@ async function startLaunch() {
 
 const launchId = await startLaunch();
 ```
+
 Received `launchId` can be exported e.g. as an environment variable to your CI job.
 
 2. Specify the launch ID for each job.
 This step depends on your CI provider and the available ways to path some values to the Node.js process.
 The launch ID can be set directly to the [reporter config](https://github.com/reportportal/agent-js-jest#:~:text=Useful%20for%20debugging.-,launchId,-Optional).
+
 ```javascript
 /*
 * jest.config.js
@@ -221,6 +229,7 @@ const rpConfig = {
   launchId: 'receivedLaunchId'
 };
 ```
+
 or just set as `RP_LAUNCH_ID` environment variable.
 
 With launch ID provided, the agent will attach all test results to that launch.
@@ -253,6 +262,7 @@ await finishLaunch();
 ### Merging launches based on the build ID
 
 This approach offers a way to merge several launches reported from different shards into one launch after the entire test execution completed and launches are finished.
+
 * With this option the Auto-analysis, Pattern-analysis and Quality Gates will be triggered for each sharded launch individually.
 * The launch numbering will be changed as each sharded launch will have its own number.
 * The merged launch will be treated as a new launch with its own number.
@@ -261,6 +271,7 @@ This approach is equal to merging launches via [ReportPortal UI](https://reportp
 
 1. Specify a unique CI build ID as a launch attribute, which will be the same for different jobs in the same run (this could be a commit hash or something else).
 This step depends on your CI provider and the available ways to path some values to the Node.js process.
+
 ```javascript
 /*
 * playwright.config.js

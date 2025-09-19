@@ -40,13 +40,13 @@ const getAgentOptions = (options = {}) => {
     process.env.RP_ATTRIBUTES === undefined
       ? undefined
       : process.env.RP_ATTRIBUTES.split(',').map((item) => {
-          const itemArr = item.split(':');
+        const itemArr = item.split(':');
 
-          return {
-            key: itemArr.length === 1 ? null : itemArr[0],
-            value: itemArr.length === 1 ? itemArr[0] : itemArr[1],
-          };
-        });
+        return {
+          key: itemArr.length === 1 ? null : itemArr[0],
+          value: itemArr.length === 1 ? itemArr[0] : itemArr[1],
+        };
+      });
 
   let apiKey = process.env.RP_API_KEY || options.apiKey;
   if (!apiKey) {
@@ -58,6 +58,7 @@ const getAgentOptions = (options = {}) => {
 
   return {
     apiKey,
+    artifactsPath: process.env.DETOX_ARTIFACTS_PATH || options.artifactsPath || '.artifacts',
     endpoint: process.env.RP_ENDPOINT || options.endpoint,
     launch: process.env.RP_LAUNCH || options.launch,
     project: process.env.RP_PROJECT_NAME || options.project,

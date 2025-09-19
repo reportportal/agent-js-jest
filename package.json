@@ -1,11 +1,11 @@
 {
-  "name": "@reportportal/agent-js-jest",
-  "version": "5.1.3",
-  "description": "A Jest reporter that uploads test results to ReportPortal",
+  "name": "agent-js-detox",
+  "version": "0.0.1",
+  "description": "A Detox reporter that uploads test results to ReportPortal",
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reportportal/agent-js-jest.git"
+    "url": "git+https://github.com/MadSandwich/agent-js-detox.git"
   },
   "scripts": {
     "lint": "eslint  . --quiet",
@@ -37,11 +37,12 @@
     "prettier": "^2.8.8"
   },
   "bugs": {
-    "url": "https://github.com/reportportal/agent-js-jest/issues"
+    "url": "https://github.com/MadSandwich/agent-js-detox/issues"
   },
-  "homepage": "https://github.com/reportportal/agent-js-jest#readme",
+  "homepage": "https://github.com/MadSandwich/agent-js-detox#readme",
   "keywords": [
     "reportportal",
+    "detox",
     "jest",
     "rp",
     "reporter",
