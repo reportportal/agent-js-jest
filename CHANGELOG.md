@@ -1,3 +1,5 @@
+
+## [5.2.0] - 2025-10-09
 ### Added
 - Allow configuring the HTTP retry strategy via `restClientConfig.retry` and tune the [default policy](https://github.com/reportportal/client-javascript?tab=readme-ov-file#retry-configuration).
 - New `launchUuidPrintOutput` types introduced: 'FILE', 'ENVIRONMENT'.
