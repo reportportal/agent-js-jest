@@ -1,3 +1,13 @@
+### Added
+- Allow configuring the HTTP retry strategy via `restClientConfig.retry` and tune the [default policy](https://github.com/reportportal/client-javascript?tab=readme-ov-file#retry-configuration).
+- New `launchUuidPrintOutput` types introduced: 'FILE', 'ENVIRONMENT'.
+### Changed
+- **Breaking change** Drop support of Node.js 12. The version [5.1.3](https://github.com/reportportal/agent-js-jest/releases/tag/v5.1.3) is the latest that supports it.
+- `@reportportal/client-javascript` bumped to version `5.4.2.
+### Security
+- Updated versions of vulnerable packages (brace-expansion, axios, form-data).
+### Deprecated
+- Node.js 14 usage. This minor version is the latest that supports Node.js 14.
 
 ## [5.1.3] - 2025-04-11
 ### Fixed
