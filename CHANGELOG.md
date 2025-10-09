@@ -5,7 +5,7 @@
 - New `launchUuidPrintOutput` types introduced: 'FILE', 'ENVIRONMENT'.
 ### Changed
 - **Breaking change** Drop support of Node.js 12. The version [5.1.3](https://github.com/reportportal/agent-js-jest/releases/tag/v5.1.3) is the latest that supports it.
-- `@reportportal/client-javascript` bumped to version `5.4.2.
+- `@reportportal/client-javascript` bumped to version `5.4.2`.
 ### Security
 - Updated versions of vulnerable packages (brace-expansion, axios, form-data).
 ### Deprecated
