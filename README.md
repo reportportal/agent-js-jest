@@ -23,7 +23,7 @@ module.exports = {
             '@reportportal/agent-js-jest',
             {
                 apiKey: 'reportportalApiKey',
-                endpoint: 'https://your.reportportal.server/api/v1',
+                endpoint: 'https://your.reportportal.server/api/v2',
                 project: 'Your reportportal project name',
                 launch: 'Your launch name',
                 attributes: [
@@ -54,7 +54,7 @@ In case you use the jest config section of `package.json`, add the following ent
             ["@reportportal/agent-js-jest",
             {
                 "token": "reportportalApiKey",
-                "endpoint": "https://your.reportportal.server/api/v1",
+                "endpoint": "https://your.reportportal.server/api/v2",
                 "project": "Your reportportal project name",
                 "launch": "Your launch name",
                 "attributes": [
@@ -76,9 +76,58 @@ In case you use the jest config section of `package.json`, add the following ent
 
 The full list of available options presented below.
 
+### Authentication Options
+
+The agent supports two authentication methods:
+1. **API Key Authentication** (default)
+2. **OAuth 2.0 Password Grant** (recommended for enhanced security)
+
+**Note:**\
+If both authentication methods are provided, OAuth 2.0 will be used.\
+Either API key or complete OAuth 2.0 configuration is required to connect to ReportPortal.
+
+| Option | Necessity   | Default | Description                                                                                                                                                    |
+|--------|-------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apiKey | Conditional |         | User's ReportPortal API key from which you want to send requests. It can be found on the profile page of this user. *Required only if OAuth is not configured. |
+| oauth  | Conditional |         | OAuth 2.0 configuration object. When provided, OAuth authentication will be used instead of API key. See OAuth Configuration below.                            |
+
+#### OAuth Configuration
+
+The `oauth` object supports the following properties:
+
+| Property              | Necessity  | Default  | Description                                                                                                                                                                                                                                                                                                                     |
+|-----------------------|------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| tokenEndpoint         | Required   |          | OAuth 2.0 token endpoint URL for password grant flow.                                                                                                                                                                                                                                                                           |
+| username              | Required   |          | Username for OAuth 2.0 password grant.                                                                                                                                                                                                                                                                                          |
+| password              | Required   |          | Password for OAuth 2.0 password grant.                                                                                                                                                                                                                                                                                          |
+| clientId              | Required   |          | OAuth 2.0 client ID.                                                                                                                                                                                                                                                                                                            |
+| clientSecret          | Optional   |          | OAuth 2.0 client secret (optional, depending on your OAuth server configuration).                                                                                                                                                                                                                                               |
+| scope                 | Optional   |          | OAuth 2.0 scope (optional, space-separated list of scopes).                                                                                                                                                                                                                                                                     |
+
+**Note:** The OAuth interceptor automatically handles token refresh when the token is about to expire (1 minute before expiration).
+
+##### OAuth 2.0 configuration example
+
+```javascript
+const rpConfig = {
+  endpoint: 'https://your.reportportal.server/api/v2',
+  project: 'Your reportportal project name',
+  launch: 'Your launch name',
+  oauth: {
+    tokenEndpoint: 'https://your-oauth-server.com/oauth/token',
+    username: 'your-username',
+    password: 'your-password',
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret', // optional
+    scope: 'reportportal', // optional
+  }
+};
+```
+
+### General options
+
 | Option                             | Necessity | Default   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |------------------------------------|-----------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| apiKey                             | Required  |           | User's reportportal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | endpoint                           | Required  |           | URL of your server. For example 'https://server:8080/api/v1'. Use `api/v2` for asynchronous reporting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | launch                             | Required  |           | Name of launch at creation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | project                            | Required  |           | The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -119,6 +168,13 @@ This is for your convenience if you have a continuous job that runs your tests a
   }
 }
 ```
+
+## Asynchronous API
+
+The client supports an asynchronous reporting (via the ReportPortal asynchronous API).
+If you want the client to report through the asynchronous API, change `v1` to `v2` in the `endpoint` address.
+
+**Note:** It is highly recommended to use the `v2` endpoint for reporting, especially for extensive test suites.
 
 ## Features
 
@@ -326,7 +382,7 @@ mergeLaunches();
 ```
 
 Using a merge operation for huge launches can increase the load on ReportPortal's API.
-See the details and other parameters available for merge operation in [ReportPortal API docs](https://developers.reportportal.io/api-docs/service-api/merge-launches-1).
+See the details and other parameters available for merge operation in [ReportPortal API docs](https://developers.reportportal.io/api-docs/service-api/versions/5.13/merge-launches-old-uuid-2).
 
 **Note:** Since the options described require additional effort, the ReportPortal team intends to create a CLI for them to make them easier to use, but with no ETA.
 Progress can be tracked in this [issue](https://github.com/reportportal/client-javascript/issues/218).

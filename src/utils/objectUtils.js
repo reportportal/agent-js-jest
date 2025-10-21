@@ -58,6 +58,7 @@ const getAgentOptions = (options = {}) => {
 
   return {
     apiKey,
+    oauth: options.oauth,
     endpoint: process.env.RP_ENDPOINT || options.endpoint,
     launch: process.env.RP_LAUNCH || options.launch,
     project: process.env.RP_PROJECT_NAME || options.project,
