@@ -1,3 +1,5 @@
+
+## [5.2.1] - 2025-10-21
 ### Added
 - OAuth 2.0 Password Grant authentication, check [Authentication Options](https://github.com/reportportal/agent-js-jest?tab=readme-ov-file#authentication-options) for more details.
 ### Changed
