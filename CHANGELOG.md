@@ -1,5 +1,5 @@
 ### Added
-- OAuth 2.0 Password Grant authentication, check [Authentication Options](https://github.com/reportportal/agent-js-cucumber?tab=readme-ov-file#authentication-options) for more details.
+- OAuth 2.0 Password Grant authentication, check [Authentication Options](https://github.com/reportportal/agent-js-jest?tab=readme-ov-file#authentication-options) for more details.
 ### Changed
 - `@reportportal/client-javascript` bumped to version `5.4.3`.
 
