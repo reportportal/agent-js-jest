@@ -1,6 +1,6 @@
 {
   "name": "@reportportal/agent-js-jest",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "A Jest reporter that uploads test results to ReportPortal",
   "main": "src/index.js",
   "repository": {
