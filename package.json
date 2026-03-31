@@ -22,7 +22,7 @@
     "src"
   ],
   "dependencies": {
-    "@reportportal/client-javascript": "~5.4.3",
+    "@reportportal/client-javascript": "~5.5.9",
     "strip-ansi": "^6.0.1"
   },
   "devDependencies": {
