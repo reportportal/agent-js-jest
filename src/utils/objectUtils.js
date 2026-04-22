@@ -23,7 +23,7 @@ const PJSON_NAME = pjson.name;
 
 const getFrameworkVersion = () => {
   try {
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line global-require, import/no-extraneous-dependencies
     return require('jest/package.json').version || 'not_set';
   } catch (e) {
     return 'not_set';
