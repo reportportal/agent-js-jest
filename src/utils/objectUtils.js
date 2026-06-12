@@ -21,6 +21,15 @@ const pjson = require('../../package.json');
 const PJSON_VERSION = pjson.version;
 const PJSON_NAME = pjson.name;
 
+const getFrameworkVersion = () => {
+  try {
+    // eslint-disable-next-line global-require, import/no-extraneous-dependencies
+    return require('jest/package.json').version || 'not_set';
+  } catch (e) {
+    return 'not_set';
+  }
+};
+
 const getStartLaunchObject = (options = {}) => {
   const systemAttr = getSystemAttributes(options.skippedIssue);
 
@@ -81,6 +90,7 @@ const getAgentOptions = (options = {}) => {
 const getAgentInfo = () => ({
   version: PJSON_VERSION,
   name: PJSON_NAME,
+  framework_version: getFrameworkVersion(),
 });
 
 const getSystemAttributes = (skippedIssue) => {

@@ -172,6 +172,36 @@ describe('Object Utils script', () => {
       expect(agentInfo.name).toBe(pjson.name);
       expect(agentInfo.version).toBe(pjson.version);
     });
+
+    test('should contain framework_version property of string type', () => {
+      const agentInfo = getAgentInfo();
+
+      expect(Object.keys(agentInfo)).toContain('framework_version');
+      expect(typeof agentInfo.framework_version).toBe('string');
+    });
+
+    test('should fall back to "not_set" when jest package is not found', () => {
+      jest.resetModules();
+      jest.doMock('jest/package.json', () => {
+        // eslint-disable-next-line no-throw-literal
+        throw { code: 'MODULE_NOT_FOUND' };
+      });
+      // eslint-disable-next-line global-require
+      const { getAgentInfo: getAgentInfoFresh } = require('../src/utils/objectUtils');
+      const agentInfo = getAgentInfoFresh();
+
+      expect(agentInfo.framework_version).toBe('not_set');
+    });
+
+    test('should fall back to "not_set" when jest package.json has no version', () => {
+      jest.resetModules();
+      jest.doMock('jest/package.json', () => ({ version: '' }), { virtual: true });
+      // eslint-disable-next-line global-require
+      const { getAgentInfo: getAgentInfoFresh } = require('../src/utils/objectUtils');
+      const agentInfo = getAgentInfoFresh();
+
+      expect(agentInfo.framework_version).toBe('not_set');
+    });
   });
 
   describe('getSystemAttributes', () => {
