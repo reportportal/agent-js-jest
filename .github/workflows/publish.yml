@@ -1,4 +1,4 @@
-# Copyright 2025 EPAM Systems
+# Copyright 2026 EPAM Systems
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -38,7 +38,7 @@ jobs:
       - name: Run tests and check coverage
         run: npm run test:coverage
 
-  publish-to-npm-and-gpr:
+  publish-to-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -55,17 +55,3 @@ jobs:
         run: |
           npm config list
           npm publish --access public
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@reportportal'
-      - name: Publish to GPR
-        run: |
-          npm config set //npm.pkg.github.com/:_authToken=$NODE_AUTH_TOKEN
-          npm config set scope '@reportportal'
-          npm config list
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
