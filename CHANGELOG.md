@@ -1,3 +1,5 @@
+
+## [5.2.2] - 2026-06-12
 ### Security
 - Addressed [CVE-2025-64718](https://www.cve.org/CVERecord?id=CVE-2025-64718), [CVE-2025-69873](https://www.cve.org/CVERecord?id=CVE-2025-69873), [CVE-2026-26996](https://www.cve.org/CVERecord?id=CVE-2026-26996), [CVE-2026-27903](https://www.cve.org/CVERecord?id=CVE-2026-27903), [CVE-2026-27904](https://www.cve.org/CVERecord?id=CVE-2026-27904), [CVE-2026-32141](https://www.cve.org/CVERecord?id=CVE-2026-32141), [CVE-2026-33228](https://www.cve.org/CVERecord?id=CVE-2026-33228), [CVE-2026-33671](https://www.cve.org/CVERecord?id=CVE-2026-33671), [CVE-2026-33672](https://www.cve.org/CVERecord?id=CVE-2026-33672), [CVE-2026-33750](https://www.cve.org/CVERecord?id=CVE-2026-33750), [CVE-2026-45149](https://www.cve.org/CVERecord?id=CVE-2026-45149).
 ### Changed
