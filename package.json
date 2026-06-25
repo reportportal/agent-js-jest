@@ -8,6 +8,7 @@
     "url": "git+https://github.com/reportportal/agent-js-jest.git"
   },
   "scripts": {
+    "codegraph": "bash scripts/codegraph.sh",
     "lint": "eslint  . --quiet",
     "format": "npm run lint -- --fix",
     "test": "jest --config ./jest.config.js",
