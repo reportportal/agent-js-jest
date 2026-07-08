@@ -397,7 +397,3 @@ This code was based on the [jest-junit](https://github.com/jest-community/jest-j
 and adapted by team members of [Ontoforce](https://www.ontoforce.com) for the
 ReportPortal upload. Ontoforce contributed this effort as Open Source to the
 ReportPortal project team.
-
-## Code knowledge graph
-
-See [DEV_GUIDE.md](DEV_GUIDE.md#code-knowledge-graph) for details on the local code knowledge graph used by contributor tooling.
