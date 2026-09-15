@@ -1,3 +1,8 @@
+### Security
+- Addressed [CVE-2026-13149](https://www.cve.org/CVERecord?id=CVE-2026-13149), [CVE-2026-14257](https://www.cve.org/CVERecord?id=CVE-2026-14257), [CVE-2026-67312](https://www.cve.org/CVERecord?id=CVE-2026-67312), [CVE-2026-67313](https://www.cve.org/CVERecord?id=CVE-2026-67313), [CVE-2026-67314](https://www.cve.org/CVERecord?id=CVE-2026-67314), [CVE-2026-67315](https://www.cve.org/CVERecord?id=CVE-2026-67315), [CVE-2026-67316](https://www.cve.org/CVERecord?id=CVE-2026-67316), [CVE-2026-67317](https://www.cve.org/CVERecord?id=CVE-2026-67317), [CVE-2026-67318](https://www.cve.org/CVERecord?id=CVE-2026-67318), [CVE-2026-67319](https://www.cve.org/CVERecord?id=CVE-2026-67319), [CVE-2026-67320](https://www.cve.org/CVERecord?id=CVE-2026-67320), [CVE-2026-67321](https://www.cve.org/CVERecord?id=CVE-2026-67321), [CVE-2026-69152](https://www.cve.org/CVERecord?id=CVE-2026-69152).
+### Changed
+- **Breaking change** Drop support of Node.js 14. The version [5.2.2](https://github.com/reportportal/agent-js-jest/releases/tag/v5.2.2) is the latest that supports it. The minimum supported Node.js version is now 16.0.0.
+- `@reportportal/client-javascript` bumped to version `5.6.0`.
 
 ## [5.2.2] - 2026-06-12
 ### Security
