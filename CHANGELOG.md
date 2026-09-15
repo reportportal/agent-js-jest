@@ -1,3 +1,5 @@
+
+## [5.3.0] - 2026-09-15
 ### Security
 - Addressed [CVE-2026-13149](https://www.cve.org/CVERecord?id=CVE-2026-13149), [CVE-2026-14257](https://www.cve.org/CVERecord?id=CVE-2026-14257), [CVE-2026-67312](https://www.cve.org/CVERecord?id=CVE-2026-67312), [CVE-2026-67313](https://www.cve.org/CVERecord?id=CVE-2026-67313), [CVE-2026-67314](https://www.cve.org/CVERecord?id=CVE-2026-67314), [CVE-2026-67315](https://www.cve.org/CVERecord?id=CVE-2026-67315), [CVE-2026-67316](https://www.cve.org/CVERecord?id=CVE-2026-67316), [CVE-2026-67317](https://www.cve.org/CVERecord?id=CVE-2026-67317), [CVE-2026-67318](https://www.cve.org/CVERecord?id=CVE-2026-67318), [CVE-2026-67319](https://www.cve.org/CVERecord?id=CVE-2026-67319), [CVE-2026-67320](https://www.cve.org/CVERecord?id=CVE-2026-67320), [CVE-2026-67321](https://www.cve.org/CVERecord?id=CVE-2026-67321), [CVE-2026-69152](https://www.cve.org/CVERecord?id=CVE-2026-69152).
 ### Changed
